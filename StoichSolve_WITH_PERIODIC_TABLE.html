@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>StoichSolve — Interactive Stoichiometry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g900:#173404;--g800:#27500A;--g700:#3B6D11;--g600:#4D8915;--g500:#639922;
+  --g200:#C0DD97;--g100:#DFF0BB;--g50:#EAF3DE;
+  --y600:#854F0B;--y400:#BA7517;--y300:#D4940F;--y200:#EF9F27;--y100:#FAC775;--y50:#FAEEDA;
+  --dark:#141A0F;--text:#2A3322;--muted:#5A6E50;--border:#D1E0B8;--bg:#F4F9EE;--white:#fff;
+  --rbg:#FEF2F2;--rb:#FCA5A5;--obg:#FFF7ED;--ob:#FB923C;
+  --abg:#FFFBEB;--ab:#FCD34D;--gbg:#F0FDF4;--gbd:#86EFAC;
+  --rad:10px;--radl:14px;--radxl:18px;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;overflow:hidden;height:100vh}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#root{display:flex;flex-direction:column;height:100vh}
+.page{display:none;flex:1;overflow-y:auto;flex-direction:column}
+.page.active{display:flex}
+
+/* NAV */
+nav{background:var(--g800);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;cursor:pointer}
+.brand-logo{width:30px;height:30px;background:var(--y200);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.brand-name{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.3px}
+.nav-links{display:flex;gap:2px}
+.nb{padding:6px 13px;border-radius:6px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;border:none;background:none;font-weight:500;transition:all .15s}
+.nb:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nb.active{color:var(--dark);background:var(--y200)}
+.ncta{padding:7px 16px;background:var(--y200);color:var(--dark);border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer}
+
+/* HERO */
+.hero{background:var(--g800);padding:40px 24px;text-align:center;position:relative;overflow:hidden;flex-shrink:0}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(239,159,39,.07)}
+.hbadge{display:inline-flex;align-items:center;gap:6px;background:var(--y200);color:var(--dark);padding:5px 15px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:16px}
+.hero h1{color:#fff;font-size:28px;font-weight:600;margin-bottom:10px;line-height:1.25}
+.hero h1 span{color:var(--y200)}
+.hero p{color:rgba(255,255,255,.72);max-width:480px;margin:0 auto 24px;font-size:14px}
+.hbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-g{background:var(--g800);color:#fff}.btn-g:hover{background:var(--g700)}
+.btn-y{background:var(--y200);color:var(--dark)}.btn-y:hover{background:var(--y100)}
+.btn-o{background:#fff;color:var(--g800);border:1.5px solid var(--g800)}.btn-o:hover{background:var(--g50)}
+.btn-lg{padding:12px 26px;font-size:14px;font-weight:600}
+.btn-full{width:100%;justify-content:center}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600}
+.bg-{background:var(--g50);color:var(--g800)}.bi-{background:var(--y50);color:var(--y600)}.ba-{background:#fee2e2;color:#991b1b}
+
+/* HOME */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);background:var(--white);border-bottom:.5px solid var(--border);flex-shrink:0}
+.stat{padding:14px;text-align:center;border-right:.5px solid var(--border)}.stat:last-child{border:0}
+.stat-n{font-size:20px;font-weight:600;color:var(--g600)}.stat-l{font-size:11px;color:var(--muted);margin-top:1px}
+.sec{padding:24px}
+.sec-lbl{font-size:11px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.sec-title{font-size:20px;font-weight:600;color:var(--dark);margin-bottom:5px}
+.sec-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:var(--white);border:.5px solid var(--border);border-radius:var(--radl);padding:16px}
+.hwc{background:#fff;border:.5px solid var(--border);border-radius:var(--radl);padding:16px;text-align:center}
+.hwn{width:30px;height:30px;border-radius:50%;background:var(--g800);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 9px}
+.hwc h3{font-size:12px;font-weight:600;margin-bottom:4px}.hwc p{font-size:11px;color:var(--muted);line-height:1.5}
+.hcc{background:#fff;border:.5px solid var(--border);border-radius:var(--radl);padding:14px;cursor:pointer;transition:all .15s}
+.hcc:hover{border-color:var(--g500);box-shadow:0 2px 8px rgba(59,109,17,.1);transform:translateY(-1px)}
+.hcci{width:36px;height:36px;border-radius:8px;background:var(--g50);display:flex;align-items:center;justify-content:center;margin-bottom:9px;font-size:17px}
+.hccn{font-size:12px;font-weight:600;margin-bottom:2px}.hccd{font-size:11px;color:var(--muted);line-height:1.4}
+
+/* LEARN */
+.learn-wrap{display:flex;flex:1;overflow:hidden}
+.sidebar{width:255px;background:var(--white);border-right:.5px solid var(--border);overflow-y:auto;flex-shrink:0}
+.sb-unit-hd{padding:10px 16px;font-size:12px;font-weight:600;color:var(--white)}
+.sb-unit-hd.u1{background:var(--g800)}.sb-unit-hd.u2{background:var(--g700)}.sb-unit-hd.u3{background:var(--g600)}
+.sb-topic{padding:9px 18px;font-size:12px;color:var(--muted);cursor:pointer;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:7px;transition:all .12s}
+.sb-topic:hover{background:var(--g50);color:var(--g800)}
+.sb-topic.active{background:var(--g50);color:var(--g800);font-weight:500;border-left:3px solid var(--g600)}
+.td{width:6px;height:6px;border-radius:50%;background:var(--g500);flex-shrink:0}
+.topic-area{flex:1;overflow-y:auto}
+.topic-body{max-width:760px;margin:0 auto;padding:28px 24px}
+.topic-tag{display:inline-block;background:var(--g50);color:var(--g800);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:9px}
+.topic-title{font-size:24px;font-weight:600;color:var(--dark);margin-bottom:6px}
+.topic-intro{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:22px;padding-bottom:18px;border-bottom:.5px solid var(--border)}
+.cs{margin-bottom:22px}
+.cs h3{font-size:15px;font-weight:600;color:var(--dark);margin-bottom:9px;padding-bottom:5px;border-bottom:2px solid var(--g100)}
+.cs p{font-size:13px;color:var(--text);line-height:1.75;margin-bottom:9px}
+.cs ul,.cs ol{padding-left:20px;margin-bottom:9px}
+.cs li{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:4px}
+.formula-box{background:var(--g50);border:.5px solid var(--g200);border-left:4px solid var(--g600);border-radius:8px;padding:13px 15px;margin:10px 0}
+.fb-lbl{font-size:10px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.fb-val{font-family:'DM Mono',monospace;font-size:14px;color:var(--g800);font-weight:500;line-height:1.6}
+.ex-box{background:var(--white);border:.5px solid var(--border);border-radius:var(--radl);padding:15px;margin:10px 0}
+.ex-title{font-size:11px;font-weight:600;color:var(--y600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.ex-step{display:flex;gap:9px;margin-bottom:7px;align-items:flex-start}
+.ex-num{width:22px;height:22px;border-radius:50%;background:var(--g800);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.ex-text{font-size:13px;color:var(--text);line-height:1.6;flex:1}
+.key-box{background:var(--y50);border:.5px solid var(--y100);border-left:4px solid var(--y300);border-radius:8px;padding:12px 14px;margin:10px 0}
+.key-lbl{font-size:10px;font-weight:600;color:var(--y600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.key-box p{font-size:13px;color:var(--text);line-height:1.65}
+.hist-box{background:var(--g50);border:.5px solid var(--g100);border-radius:var(--rad);padding:12px 14px;margin:10px 0;display:flex;gap:12px}
+.hist-av{width:36px;height:36px;border-radius:50%;background:var(--g800);color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hist-name{font-size:13px;font-weight:600;color:var(--dark)}
+.hist-yr{font-size:11px;color:var(--muted);margin-bottom:3px}
+.hist-box p{font-size:12px;color:var(--text);line-height:1.6}
+.topic-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;padding-top:18px;border-top:.5px solid var(--border)}
+.welcome-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px;gap:12px}
+.welcome-state h2{font-size:18px;font-weight:600;color:var(--dark)}
+.welcome-state p{font-size:13px;color:var(--muted);max-width:300px;line-height:1.6}
+.data-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.data-table th{background:var(--g50);padding:7px 9px;text-align:left;border:.5px solid var(--border);font-weight:600;color:var(--g800)}
+.data-table td{padding:7px 9px;border:.5px solid var(--border)}
+.data-table tr:nth-child(even) td{background:var(--g50)}
+
+/* PRACTICE */
+.prac-wrap{display:flex;flex:1;overflow:hidden}
+.calc-left{width:305px;background:var(--white);border-right:.5px solid var(--border);overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+.calc-right{flex:1;overflow-y:auto;padding:18px;background:var(--bg);display:flex;flex-direction:column;gap:12px}
+.lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
+.inp{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:#fff;color:var(--text);outline:none;transition:border .15s}
+.inp:focus{border-color:var(--g600)}
+.inp.mono{font-family:'DM Mono',monospace}
+.calc-sel{display:flex;flex-direction:column;gap:5px}
+.csbtn{padding:8px 12px;background:#fff;border:.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;text-align:left;color:var(--text);transition:all .12s;display:flex;align-items:center;gap:7px}
+.csbtn:hover{border-color:var(--g400);color:var(--g800)}
+.csbtn.active{border-color:var(--g800);background:var(--g50);color:var(--g800);font-weight:500}
+.pills{display:flex;flex-wrap:wrap;gap:5px}
+.pill{padding:3px 10px;background:var(--g50);border:.5px solid var(--g200);border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;color:var(--g800);cursor:pointer}
+.pill:hover{background:var(--g100)}
+.tip{background:var(--y50);border:.5px solid var(--y100);border-radius:8px;padding:9px 12px;font-size:12px;color:#92400E;line-height:1.5}
+.err-msg{background:var(--rbg);border:.5px solid var(--rb);border-radius:8px;padding:9px 12px;font-size:12px;color:#991B1B;display:none}
+.waiting{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:48px;min-height:220px}
+.wicon{width:52px;height:52px;border-radius:50%;background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:24px}
+.waiting h3{font-size:14px;font-weight:600;color:var(--dark)}
+.waiting p{font-size:12px;color:var(--muted);max-width:270px;line-height:1.6}
+.toggle-row{display:flex;background:var(--g50);border-radius:8px;padding:3px;border:.5px solid var(--g100)}
+.tog-btn{flex:1;padding:7px;border:none;background:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+.tog-btn.active{background:#fff;color:var(--g800);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* SOLVER */
+.prob-hdr{background:var(--white);border:.5px solid var(--border);border-radius:var(--radl);padding:15px}
+.ph-lbl{font-size:10px;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.ph-title{font-size:16px;font-weight:600;color:var(--dark);margin-bottom:4px}
+.ph-stmt{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:11px}
+.given{background:var(--g50);border:.5px solid var(--g100);border-radius:8px;padding:9px 12px}
+.given-lbl{font-size:10px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.given-pills{display:flex;flex-wrap:wrap;gap:5px}
+.gpill{background:#fff;border:.5px solid var(--g200);border-radius:6px;padding:2px 9px;font-size:11px;font-family:'DM Mono',monospace;color:var(--g800)}
+.balanced-eq-box{background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%);border:1.5px solid #93C5FD;border-radius:10px;padding:12px 14px;margin:12px 0}
+.beq-lbl{font-size:10px;font-weight:600;color:#1E40AF;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.beq-formula{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#1E3A8A;text-align:center;padding:10px;background:rgba(255,255,255,0.7);border-radius:7px;margin-bottom:7px;letter-spacing:.5px}
+.beq-note{font-size:11px;color:#1E40AF;line-height:1.5;opacity:.85}
+.prog-row{display:flex;align-items:center;gap:9px;margin-top:11px}
+.prog-bar{flex:1;height:6px;background:var(--g50);border-radius:3px;overflow:hidden;border:.5px solid var(--g100)}
+.prog-fill{height:100%;background:var(--g500);border-radius:3px;transition:width .5s ease}
+.prog-txt{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:500}
+.notice{background:var(--y50);border:.5px solid var(--y100);border-radius:8px;padding:8px 12px;font-size:12px;color:#92400E;line-height:1.5}
+.phase-banner{border-radius:7px;padding:8px 12px;border:.5px solid;margin-bottom:2px}
+.phv{background:#F3F0FE;border-color:#C4B5FD;color:#5B21B6}
+.phg{background:var(--g50);border-color:var(--g200);color:var(--g800)}
+.pht{background:#F0FDFA;border-color:#99F6E4;color:#0F766E}
+.phy{background:var(--y50);border-color:var(--y100);color:var(--y600)}
+.pho{background:var(--obg);border-color:#FED7AA;color:#C2410C}
+.ph-ttl{font-size:12px;font-weight:600}.ph-dsc{font-size:11px;opacity:.75;margin-top:1px}
+.scard{background:#fff;border:1.5px solid var(--border);border-radius:var(--radl);padding:14px;transition:all .2s}
+.scard.locked{opacity:.38;pointer-events:none}
+.scard.sa{border-color:var(--g500);box-shadow:0 0 0 3px rgba(99,153,34,.12)}
+.scard.sc{border-color:#86EFAC;background:var(--gbg)}
+.scard.sh1{border-color:#FCD34D;background:var(--abg)}
+.scard.sh2{border-color:#FB923C;background:var(--obg)}
+.scard.srev{border-color:var(--rb);background:var(--rbg)}
+.shead{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+.snum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.sn0{background:var(--border);color:var(--muted)}
+.sna{background:var(--g800);color:#fff}
+.snc{background:#22C55E;color:#fff}
+.snh{background:#F59E0B;color:#fff}
+.snr{background:#EF4444;color:#fff}
+.stag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-bottom:3px}
+.sinst{font-size:11px;color:var(--muted);margin-bottom:2px}
+.sq{font-size:13px;font-weight:600;color:var(--dark);line-height:1.4;white-space:pre-line}
+.sinrow{display:flex;gap:7px;align-items:center;margin-top:9px}
+.sinp{flex:1;padding:8px 11px;border:1.5px solid var(--g500);border-radius:7px;font-size:13px;outline:none;transition:border .15s}
+.sinp:focus{border-color:var(--g800);box-shadow:0 0 0 2px rgba(59,109,17,.1)}
+.sinp.h1b{border-color:#F59E0B}.sinp.h2b{border-color:#FB923C}
+.ulbl{font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap}
+.cbtn{padding:8px 14px;background:var(--g800);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.cbtn:hover{background:var(--g700)}
+.tbtn{padding:8px 14px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.t1{background:#F59E0B;color:#fff}.t2{background:#EA580C;color:#fff}
+.hbox{border-radius:8px;padding:9px 12px;margin-top:8px;display:flex;gap:8px}
+.hb1{background:var(--abg);border:.5px solid var(--ab)}.hb2{background:var(--obg);border:.5px solid var(--ob)}
+.htitle{font-size:11px;font-weight:600;margin-bottom:2px}
+.htext{font-size:12px;color:var(--text);line-height:1.55}
+.fbbox{border-radius:8px;padding:9px 12px;margin-top:8px;display:flex;gap:8px}
+.fbok{background:var(--gbg);border:.5px solid var(--gbd)}.fbrev{background:var(--rbg);border:.5px solid var(--rb)}
+.fbtitle{font-size:12px;font-weight:600;margin-bottom:2px}
+.fbtext{font-size:12px;color:var(--text);line-height:1.55}
+.compl{background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);padding:28px;text-align:center}
+.trophy{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px}
+.scprog{background:var(--g50);border-radius:4px;height:9px;overflow:hidden;margin:9px 0 3px}
+.scfill{height:100%;border-radius:4px;transition:width .7s}
+.final-box{background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g100);border-radius:var(--radl);padding:14px;margin:15px 0;text-align:left}
+.fl{font-size:10px;font-weight:600;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.fv{font-size:22px;font-weight:600;color:var(--g900)}
+.fs{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.cbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+/* ASSESSMENT */
+.assess-hero{background:var(--g800);padding:28px 24px;text-align:center;flex-shrink:0}
+.assess-hero h1{color:#fff;font-size:22px;margin-bottom:6px}
+.assess-hero p{color:rgba(255,255,255,.72);font-size:13px}
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;padding:20px}
+.ac{background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);overflow:hidden;cursor:pointer;transition:all .15s}
+.ac:hover{border-color:var(--g500);box-shadow:0 2px 10px rgba(59,109,17,.1);transform:translateY(-1px)}
+.ach{padding:15px;color:#fff}
+.ach.h1{background:var(--g800)}.ach.h2{background:var(--g600)}.ach.h3{background:var(--y400)}
+.ach h3{font-size:14px;font-weight:600;margin-bottom:2px}.ach p{font-size:11px;opacity:.8}
+.acb{padding:14px}
+.acm{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:9px}
+.act li{font-size:12px;color:var(--muted);margin-bottom:3px;list-style:none;display:flex;align-items:center;gap:5px}
+.asb{width:100%;margin-top:11px;padding:9px;background:var(--g800);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.qwrap{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:720px;margin:0 auto;width:100%}
+.qhdr{background:var(--g800);border-radius:var(--radl);padding:14px;color:#fff}
+.qhdr h3{font-size:13px;font-weight:600;margin-bottom:7px}
+.qpb{background:rgba(255,255,255,.2);border-radius:3px;height:5px;overflow:hidden;margin-bottom:5px}
+.qpbf{height:100%;background:var(--y200);border-radius:3px;transition:width .3s}
+.qmeta{font-size:11px;opacity:.7;display:flex;justify-content:space-between}
+.qcard{background:#fff;border:.5px solid var(--border);border-radius:var(--radl);padding:16px}
+.qtopic{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.qtext{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:13px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:6px}
+.qopt{padding:9px 13px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;transition:all .15s;text-align:left;background:#fff;width:100%}
+.qopt:hover{border-color:var(--g400);background:var(--g50)}.qopt.sel{border-color:var(--g800);background:var(--g50);color:var(--g800);font-weight:500}
+.qfr{display:flex;gap:8px;align-items:center}
+.qfi{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none}
+.qfi:focus{border-color:var(--g500)}
+.qnav{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.qnbtn{padding:7px 15px;border:.5px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;background:#fff;font-weight:500}
+.qnbtn:disabled{opacity:.3;cursor:not-allowed}
+.qdots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;flex:1}
+.qdot{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;font-weight:600}
+.qsub{padding:9px 18px;background:var(--g800);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.rcard{background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);padding:26px;text-align:center;max-width:480px;margin:16px auto 0}
+.rtrophy{font-size:42px;margin-bottom:9px}
+.rgrade{font-size:16px;font-weight:600;margin-bottom:3px}
+.rscore{font-size:28px;font-weight:600;color:var(--g800);margin-bottom:11px}
+.rbar{background:var(--g50);height:9px;border-radius:5px;overflow:hidden;margin-bottom:4px}
+.rbarfill{height:100%;border-radius:5px;background:var(--g500)}
+.rev-section{padding:0 16px 16px}
+.rev-item{background:#fff;border:.5px solid var(--border);border-radius:var(--rad);padding:12px;margin-bottom:7px;border-left:3px solid var(--border)}
+.rev-item.ok{border-left-color:#22C55E}.rev-item.wrong{border-left-color:#EF4444}
+.riq{font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px}
+.ria{font-size:11px;color:var(--muted);margin-bottom:3px}
+.rie{font-size:11px;color:var(--text);background:var(--g50);border-radius:5px;padding:6px 8px;margin-top:4px;line-height:1.55}
+.about-body{max-width:620px;margin:0 auto;padding:28px 20px}
+.prac-mode-toggle{display:flex;background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:3px;gap:2px;margin-bottom:14px}
+.pmt-btn{flex:1;padding:8px 10px;border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);background:none;transition:all .15s;line-height:1.3;text-align:center}
+.pmt-btn.active{background:var(--g800);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.ps-left{display:flex;flex-direction:column;gap:12px}
+.ps-input-box{display:flex;flex-direction:column;gap:7px}
+.ps-input-box textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-family:inherit;line-height:1.6;resize:none;outline:none;color:var(--text);background:#fff;transition:border .15s}
+.ps-input-box textarea:focus{border-color:var(--g600)}
+.ps-examples{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.ps-ex-pill{padding:3px 9px;border:.5px solid var(--g200);border-radius:20px;font-size:10px;font-weight:600;color:var(--g700);background:var(--g50);cursor:pointer;transition:all .12s}
+.ps-ex-pill:hover{background:var(--g100)}
+.ps-analyze-btn{width:100%;padding:11px;background:var(--g800);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.ps-analyze-btn:hover{background:var(--g700)}
+.ps-analyze-btn:disabled{opacity:.5;cursor:not-allowed}
+.step-card{background:#fff;border:.5px solid var(--border);border-radius:var(--radl);padding:14px 16px;margin-bottom:12px}
+.step-num{font-size:10px;font-weight:700;color:var(--g700);letter-spacing:.6px;margin-bottom:4px}
+.step-title{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:10px}
+.step-content{font-size:12px;color:var(--text);line-height:1.65}
+.step-note{font-size:11px;color:var(--g700);margin-top:6px;font-weight:500}
+.keyword-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.keyword-pill{background:var(--g50);border:.5px solid var(--g200);color:var(--g800);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.extracted-values{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.value-row{display:flex;align-items:center;gap:8px;background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:7px 10px}
+.value-icon{font-size:14px}
+.value-text{font-size:12px;color:var(--dark);font-weight:500}
+.detected-type{background:linear-gradient(135deg,var(--g800),var(--g600));color:#fff;padding:10px 14px;border-radius:9px;font-size:14px;font-weight:600;text-align:center;margin-bottom:8px}
+
+/* Chemistry Keyboard */
+.chem-keyboard{position:fixed;right:20px;top:80px;width:280px;background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:100;display:none}
+.chem-keyboard.active{display:block}
+.ck-header{font-size:11px;font-weight:700;color:var(--g800);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.ck-close{cursor:pointer;font-size:18px;color:var(--muted);line-height:1}
+.ck-close:hover{color:var(--dark)}
+.ck-section{margin-bottom:12px}
+.ck-label{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.ck-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.ck-btn{padding:6px;background:var(--g50);border:.5px solid var(--g200);border-radius:5px;font-size:12px;font-weight:600;color:var(--g800);cursor:pointer;text-align:center;transition:all .12s}
+.ck-btn:hover{background:var(--g100);transform:translateY(-1px)}
+.ck-btn:active{transform:translateY(0)}
+.ck-grid-3{grid-template-columns:repeat(3,1fr)}
+.ck-grid-4{grid-template-columns:repeat(4,1fr)}
+.ck-toggle-btn{position:fixed;right:20px;bottom:20px;width:56px;height:56px;background:var(--g800);color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(59,109,17,.3);z-index:99;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.ck-toggle-btn:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(59,109,17,.4)}
+</style>
+</head><body>
+<div id="root">
+<nav>
+  <div class="brand" onclick="goPage('home')"><div class="brand-logo">⚗</div><span class="brand-name">StoichSolve</span></div>
+  <div class="nav-links">
+    <button class="nb active" id="nb-home" onclick="goPage('home')">Home</button>
+    <button class="nb" id="nb-learn" onclick="goPage('learn')">Learn</button>
+    <button class="nb" id="nb-practice" onclick="goPage('practice')">Practice</button>
+    <button class="nb" id="nb-assess" onclick="goPage('assess')">Assessment</button>
+    <button class="nb" id="nb-about" onclick="goPage('about')">About</button>
+    <a href="https://ptable.com" target="_blank" class="nb" style="text-decoration:none;display:flex;align-items:center;gap:4px" title="Interactive Periodic Table">
+      <span style="font-size:14px">🧪</span> Periodic Table
+    </a>
+  </div>
+  <button class="ncta" onclick="goPage('practice')">Start Practicing</button>
+</nav>
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hbadge">⚗ Free Educational Tool for BSED Science Students</div>
+    <h1>Master <span>Stoichiometry</span>,<br>One Step at a Time.</h1>
+    <p>Guided interactive problem solving built directly from the official BSED module. No instant answers — real understanding.</p>
+    <div class="hbtns">
+      <button class="btn btn-y btn-lg" onclick="goPage('practice')">Start Practicing →</button>
+      <button class="btn btn-lg" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="goPage('learn')">View Learning Module</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n">8</div><div class="stat-l">Interactive Calculators</div></div>
+    <div class="stat"><div class="stat-n">15</div><div class="stat-l">Detailed Topic Lessons</div></div>
+    <div class="stat"><div class="stat-n">3-Hint</div><div class="stat-l">Progressive Feedback System</div></div>
+  </div>
+  <div class="sec" style="overflow-y:auto;flex:1">
+    <div class="sec-lbl">Methodology</div>
+    <div class="sec-title">Designed to Teach, Not Just Solve</div>
+    <div class="sec-sub">Every step requires your input. Wrong answers reveal progressive hints — not the answer.</div>
+    <div class="g3" style="margin-bottom:26px">
+      <div class="hwc"><div class="hwn">1</div><h3>Study Each Topic</h3><p>15 lessons built from the official BSED Stoichiometry module with definitions, examples, and key formulas.</p></div>
+      <div class="hwc"><div class="hwn">2</div><h3>Solve Interactively</h3><p>Enter your answer at each sub-step. The system checks your reasoning, not just the final result.</p></div>
+      <div class="hwc"><div class="hwn">3</div><h3>Learn from Hints</h3><p>Up to 3 targeted hints per step, based on the module's own worked examples. Answer only shown after 3 failures.</p></div>
+    </div>
+    <div class="sec-lbl">Calculators</div>
+    <div class="sec-title" style="margin-bottom:4px">All 8 Topics Covered</div>
+    <div class="sec-sub">From molar mass to percent yield — step-by-step guided solving based on module examples.</div>
+    <div class="g4" id="home-calcs"></div>
+  </div>
+</div>
+<!-- LEARN -->
+<div class="page" id="page-learn">
+  <div class="learn-wrap">
+    <div class="sidebar" id="learn-sidebar"></div>
+    <div class="topic-area" id="topic-area">
+      <div class="welcome-state">
+        <div style="font-size:48px;margin-bottom:8px">📖</div>
+        <h2>Learning Module</h2>
+        <p>Select any topic from the sidebar. Each lesson contains definitions, worked examples, key formulas, and historical context — all based on the official BSED Stoichiometry module.</p>
+        <button class="btn btn-g" style="margin-top:12px" onclick="openTopic('stoich-def')">Start with Unit 1 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- PRACTICE -->
+<div class="page" id="page-practice">
+  <div class="prac-wrap">
+    <div class="calc-left" id="prac-left">
+      <div class="prac-mode-toggle">
+        <button class="pmt-btn active" id="mode-calc" onclick="setPracMode('calc')">📐 Calculators</button>
+        <button class="pmt-btn" id="mode-ps" onclick="setPracMode('ps')">📝 Problem Solver</button>
+      </div>
+      <div id="calc-mode-content" style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div class="lbl">Choose Calculator</div>
+          <div class="calc-sel" id="calc-sel"></div>
+        </div>
+        <div id="calc-form"><div style="font-size:12px;color:var(--muted);text-align:center;padding-top:14px">Select a calculator above.</div></div>
+      </div>
+      <div id="ps-mode-content" style="display:none" class="ps-left">
+        <div>
+          <div class="lbl" style="margin-bottom:3px">Paste Your Word Problem</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:9px">Type or paste any stoichiometry problem. The system will extract the values and guide you through solving it step-by-step.</div>
+        </div>
+        <div class="ps-input-box">
+          <textarea id="ps-problem-input" rows="7" placeholder="Example: If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced?"></textarea>
+          <div style="font-size:10px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Quick examples:</div>
+          <div class="ps-examples">
+            <span class="ps-ex-pill" onclick="fillPSExample('mole')">Mole-to-mole</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('mass')">Mass-to-mass</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('limiting')">Limiting reactant</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('yield')">Percent yield</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('empirical')">Empirical formula</span>
+          </div>
+        </div>
+        <div style="background:var(--y50);border:.5px solid var(--y100);border-radius:8px;padding:9px 12px;font-size:11px;color:#92400E;line-height:1.55">
+          🎓 <strong>Teaching mode:</strong> After analyzing your problem, you'll get step-by-step hints — not instant answers.
+        </div>
+        <button class="ps-analyze-btn" id="ps-analyze-btn" onclick="analyzeProblem()">
+          🔍 Analyze Problem →
+        </button>
+      </div>
+    </div>
+    <div class="calc-right" id="calc-right">
+      <div class="waiting">
+        <div class="wicon">⚗</div>
+        <h3>Ready to Solve?</h3>
+        <p>Choose a calculator from the left, enter your values, and click "Start Solving" to begin the guided step-by-step session.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ASSESSMENT -->
+<div class="page" id="page-assess">
+  <div id="assess-hub" style="overflow-y:auto;flex:1;display:flex;flex-direction:column">
+    <div class="assess-hero">
+      <div class="hbadge">📝 Module Assessments</div>
+      <h1>Test Your Understanding</h1>
+      <p>Questions based on the official BSED Stoichiometry module. No hints provided during assessment.</p>
+    </div>
+    <div style="background:var(--y50);border:.5px solid var(--y100);margin:14px 20px;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400E">
+      ⚠ <strong>Guidelines:</strong> Study the Learning Module and complete Practice problems first. Full answer explanations shown after submission.
+    </div>
+    <div class="ag" id="assess-cards"></div>
+  </div>
+  <div id="quiz-view" style="display:none;overflow-y:auto;flex:1"></div>
+</div>
+<!-- ABOUT -->
+<div class="page" id="page-about">
+  <div class="about-body">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:52px;height:52px;background:var(--g800);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px">⚗</div>
+      <div style="font-size:20px;font-weight:600;color:var(--dark);margin-bottom:5px">About StoichSolve</div>
+      <div style="font-size:13px;color:var(--muted)">BSED Science Research project — interactive chemistry education technology</div>
+    </div>
+    <div class="card" style="margin-bottom:11px">
+      <h3 style="color:var(--g800);margin-bottom:8px;font-size:15px">What is StoichSolve?</h3>
+      <p style="font-size:13px;color:var(--text);line-height:1.75">StoichSolve is a web-based interactive stoichiometry platform built as a BSED Science Research project. Unlike calculators that give instant answers, StoichSolve acts as a <strong>virtual chemistry teacher</strong> — guiding every step with progressive hints, real-time feedback, and curriculum-aligned explanations based directly on the official module.</p>
+    </div>
+    <div class="g2" style="margin-bottom:11px">
+      <div class="card" style="background:var(--g50);border-color:var(--g100)"><h4 style="color:var(--g800);margin-bottom:6px;font-size:13px">Mission</h4><p style="font-size:12px;line-height:1.65">Build genuine understanding of stoichiometry through interactive guided problem solving — not just correct answers.</p></div>
+      <div class="card" style="background:var(--y50);border-color:var(--y100)"><h4 style="color:var(--y600);margin-bottom:6px;font-size:13px">Research Focus</h4><p style="font-size:12px;line-height:1.65">Investigating whether technology-assisted guided solving improves student confidence vs traditional methods.</p></div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--g800);margin-bottom:13px;font-size:15px">Scientists Who Made This Possible</h3>
+      <div class="hist-box"><div class="hist-av">R</div><div><div class="hist-name">Jeremias Benjamin Richter (1762–1807)</div><div class="hist-yr">German Chemist</div><p>First coined the term "stoichiometry" in 1792, defining it as the science of measuring quantitative proportions in chemical reactions.</p></div></div>
+      <div class="hist-box" style="margin-top:8px"><div class="hist-av">A</div><div><div class="hist-name">Amedeo Avogadro (1776–1856)</div><div class="hist-yr">Italian Scientist</div><p>Proposed Avogadro's Law in 1811: equal volumes of gases at same temperature and pressure contain equal numbers of particles. His work led to Avogadro's number: 6.022 × 10²³.</p></div></div>
+      <div class="hist-box" style="margin-top:8px"><div class="hist-av">O</div><div><div class="hist-name">Wilhelm Ostwald (1853–1932)</div><div class="hist-yr">German Chemist</div><p>Introduced the term "mole" in chemistry — giving scientists a standard counting unit for substances.</p></div></div>
+    </div>
+    <div style="text-align:center;padding:18px;font-size:11px;color:var(--muted)">© 2026 StoichSolve · BSED Science Research · Solve. Learn. Understand Chemistry.</div>
+  </div>
+</div>
+</div>
+<script>
+// ═══════════════════════ ATOMIC MASSES ═══════════════════════
+const AM={H:1.008,He:4.003,Li:6.941,Be:9.012,B:10.81,C:12.01,N:14.01,O:16.00,F:19.00,Ne:20.18,Na:22.99,Mg:24.31,Al:26.98,Si:28.09,P:30.97,S:32.07,Cl:35.45,Ar:39.95,K:39.10,Ca:40.08,Sc:44.96,Ti:47.87,V:50.94,Cr:52.00,Mn:54.94,Fe:55.85,Co:58.93,Ni:58.69,Cu:63.55,Zn:65.38,Br:79.90,Sr:87.62,Ag:107.87,Cd:112.41,Sn:118.71,I:126.90,Ba:137.33,Pb:207.2,Au:196.97,Hg:200.59};
+
+function parseFormula(f){
+  if(!f)return null;
+  const clean=f.replace(/\s/g,'').replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>'0123456789'[['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'].indexOf(m)]);
+  return clean;
+}
+
+// ── Custom Equation Parsing for Limiting Reactant & Theoretical Yield
+function parseCustomEquation(type){
+  const eq=document.getElementById('f-eq')?.value.trim();
+  if(!eq){errShow('Please enter a balanced equation'); return;}
+  
+  const parts=eq.split('→');
+  if(parts.length!==2){errShow('Equation must have → separating reactants and products'); return;}
+  
+  const reactants=parts[0].split('+').map(r=>r.trim()).filter(r=>r);
+  const products=parts[1].split('+').map(p=>p.trim()).filter(p=>p);
+  
+  if(reactants.length<1){errShow('Need at least one reactant'); return;}
+  if(products.length<1){errShow('Need at least one product'); return;}
+  
+  errHide();
+  
+  if(type==='limiting'){
+    const fields=document.getElementById('eq-fields');
+    fields.innerHTML=reactants.map((r,i)=>{
+      const match=r.match(/^(\d*)(.+)$/);
+      const coef=match[1]||'1';
+      const formula=match[2];
+      return`<label class="lbl" style="margin-top:${i>0?'10px':'0'}">Moles of ${formula}</label>
+      <input class="inp" id="f-r${i}" type="number" placeholder="e.g. ${i===0?'4':'9'}" oninput="errHide()"/>`;
+    }).join('');
+  }else if(type==='theoretical'){
+    const fields=document.getElementById('ty-fields');
+    fields.innerHTML=`<label class="lbl">Given Reactant Amount</label>
+    <div style="display:flex;gap:7px">
+      <input class="inp" id="f-amount" type="number" placeholder="e.g. 13.0" style="flex:1" oninput="errHide()"/>
+      <select class="inp" id="f-unit" style="width:80px"><option>grams</option><option>moles</option></select>
+    </div>
+    <label class="lbl" style="margin-top:10px">Which Reactant?</label>
+    <select class="inp" id="f-reactant">${reactants.map((r,i)=>{
+      const match=r.match(/^(\d*)(.+)$/);
+      const formula=match[2];
+      return`<option value="${i}">${formula}</option>`;
+    }).join('')}</select>
+    <label class="lbl" style="margin-top:10px">Which Product?</label>
+    <select class="inp" id="f-product">${products.map((p,i)=>{
+      const match=p.match(/^(\d*)(.+)$/);
+      const formula=match[2];
+      return`<option value="${i}">${formula}</option>`;
+    }).join('')}</select>`;
+  }
+}
+
+function fillEq(eq,type){
+  document.getElementById('f-eq').value=eq;
+  parseCustomEquation(type);
+}
+
+function parseFormula(f){
+  const els={};
+  function p(s,m){
+    let i=0;
+    while(i<s.length){
+      if(s[i]==='('){
+        let d=1,j=i+1;
+        while(j<s.length&&d>0){if(s[j]==='(')d++;if(s[j]===')')d--;j++;}
+        let ns='';while(j<s.length&&/\d/.test(s[j])){ns+=s[j];j++;}
+        const c=ns?parseInt(ns):1;if(!p(s.slice(i+1,j-1),m*c))return false;i=j;
+      }else if(/[A-Z]/.test(s[i])){
+        let sym=s[i];i++;
+        while(i<s.length&&/[a-z]/.test(s[i])){sym+=s[i];i++;}
+        let ns='';while(i<s.length&&/\d/.test(s[i])){ns+=s[i];i++;}
+        const c=ns?parseInt(ns):1;
+        if(!AM[sym])return false;
+        els[sym]=(els[sym]||0)+c*m;
+      }else return false;
+    }return true;
+  }
+  const cl=f.trim().replace(/\s/g,'');
+  if(!cl||!p(cl,1)||Object.keys(els).length===0)return null;
+  return els;
+}
+function mmOf(els){return Object.entries(els).reduce((s,[e,c])=>s+c*AM[e],0);}
+function rnd(n,d=3){return parseFloat(n.toFixed(d));}
+function chk(inp,exp,tol=0.05){
+  const a=inp.trim().toLowerCase(),e=String(exp).trim().toLowerCase();
+  if(a===e)return true;
+  const n1=parseFloat(a),n2=parseFloat(String(e));
+  if(!isNaN(n1)&&!isNaN(n2))return Math.abs(n1-n2)<=tol;
+  return false;
+}
+
+// ═══════════════════════ LEARNING MODULE DATA ═══════════════════════
+const UNITS=[
+  {id:'u1',label:'Unit 1',title:'Chemical Formulas & Equations',cls:'u1',
+   topics:['stoich-def','chem-formulas','empirical','molecular','structural','balancing']},
+  {id:'u2',label:'Unit 2',title:'Mole Concept & Calculations',cls:'u2',
+   topics:['mole-concept','avogadro','molar-mass','grams-moles','pct-comp']},
+  {id:'u3',label:'Unit 3',title:'Stoichiometric Calculations',cls:'u3',
+   topics:['mole-ratios','limiting','excess','theoretical','pct-yield']},
+];
+
+const TOPICS={
+'stoich-def':{unit:'Unit 1',title:'Definition of Stoichiometry',
+intro:'Stoichiometry is the study of quantitative relationships or ratios between two or more substances undergoing a physical or chemical change. The word derives from the Greek words stoicheion ("element") and metron ("to measure"). Most often, stoichiometry calculations deal with the mass or volumes of products and reactants.',
+sections:[
+  {h:'What is Stoichiometry?',content:`<p>Stoichiometry is the branch of chemistry concerned with the relative quantities of reactants and products in chemical reactions. It answers the critical question: <em>how much?</em></p>
+  <p>Pronounced <strong>"stoy-kee-ah-met-tree"</strong>, it may be abbreviated as "stoyk."</p>
+  <div class="key-box"><div class="key-lbl">Core Definition (from the Module)</div><p>Stoichiometry is <em>"the science of measuring the quantitative proportions or mass ratios in which chemical elements interact as reactants or products in a chemical reaction."</em></p></div>`},
+  {h:'Historical Origin',content:`<div class="hist-box"><div class="hist-av">R</div><div><div class="hist-name">Jeremias Benjamin Richter (1762–1807)</div><div class="hist-yr">German Chemist</div><p>First defined and coined the term "stoichiometry" in 1792. He described it as the science of measuring quantitative proportions or mass ratios in which chemical elements interact as reactants or products. His work established that chemical reactions follow fixed, measurable ratios.</p></div></div>`},
+  {h:'Why Stoichiometry Matters',content:`<ul><li>Predicts how much product will form from given reactant amounts</li><li>Tells chemists how much reactant to use to avoid waste</li><li>Essential in pharmaceuticals, food science, industrial manufacturing</li><li>Used to calculate percent yield, limiting reactants, and formula weights</li></ul>
+  <div class="key-box"><div class="key-lbl">Law of Conservation of Mass</div><p>Matter is neither created nor destroyed in a chemical reaction. Stoichiometry ensures all calculations respect this fundamental law — atoms in must equal atoms out.</p></div>`},
+  {h:'What You Will Learn in This Module',content:`<ol><li>Types of chemical formulas (empirical, molecular, structural)</li><li>How to balance chemical equations</li><li>Moles, molar mass, and Avogadro's number</li><li>Converting between grams and moles</li><li>Calculating percentage composition</li><li>Identifying limiting and excess reactants</li><li>Calculating theoretical yield and percent yield</li></ol>`}
+],cta:'chem-formulas'},
+
+'chem-formulas':{unit:'Unit 1',title:'Types of Chemical Formulas',
+intro:'A chemical formula uses chemical symbols to represent the elements in a compound, along with subscripts to indicate the relative number of atoms of each element. The module identifies four main types: empirical, molecular, structural, and projection formulas.',
+sections:[
+  {h:'The Four Types (from the Module)',content:`<div class="key-box"><div class="key-lbl">Module Definition</div><p><strong>Empirical formula</strong> — shows the simplest whole-number ratio of elements (e.g., CH for benzene)<br><strong>Molecular formula</strong> — indicates the exact number and kind of atoms in a molecule (e.g., C₂H₄ for ethylene)<br><strong>Structural formula</strong> — identifies the location of chemical bonds between atoms<br><strong>Line-bond / Condensed formula</strong> — simplified structural representation omitting C–H bonds</p></div>`},
+  {h:'Comparing Empirical vs Molecular',content:`<p>Consider <strong>glucose</strong> — the cell's primary energy source:</p>
+  <div class="formula-box"><div class="fb-lbl">Molecular Formula</div><div class="fb-val">C₆H₁₂O₆  (shows all 24 atoms per molecule)</div></div>
+  <div class="formula-box"><div class="fb-lbl">Empirical Formula</div><div class="fb-val">CH₂O  (simplest 1:2:1 ratio — divide all by 6)</div></div>
+  <p>Both ethylene (C₂H₄) and propylene (C₃H₆) share the empirical formula <strong>CH₂</strong> because both have C:H in a 1:2 ratio. When empirical and molecular formula are identical (as in water H₂O), the ratio is already at its simplest.</p>`},
+  {h:'Reading Subscripts and Parentheses',content:`<ul><li>A <strong>symbol</strong> represents the element (H, O, Na, Ca)</li><li>A <strong>subscript</strong> after the symbol shows atom count (no subscript = 1)</li><li>Parentheses group repeating units: Ca(OH)₂ means 1 Ca, 2 O, 2 H</li></ul>
+  <div class="ex-box"><div class="ex-title">Module Examples</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>H₂SO₄</strong> — 2 hydrogen, 1 sulfur, 4 oxygen</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Al₂(SO₄)₃</strong> — 2 Al, 3 S, 12 O (the SO₄ group × 3)</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>NH₃ (Ammonia)</strong> — 1 N, 3 H (module example: "we would not write N₃H")</div></div></div>`}
+],cta:'empirical'},
+
+'empirical':{unit:'Unit 1',title:'Empirical Formula',
+intro:'An empirical formula shows the elements in a compound in their lowest whole-number ratio. It does NOT show the actual number of atoms, only the ratio. The module states: "When chemists analyze an unknown compound, the first step is often to determine its empirical formula."',
+sections:[
+  {h:'Definition (from the Module)',content:`<p>The empirical formula is <em>"a formula that shows the elements in a compound in their lowest whole-number ratio."</em></p>
+  <p>Example: Glucose (C₆H₁₂O₆) — each subscript is divisible by 6, so the empirical formula is <strong>CH₂O</strong>.</p>
+  <div class="key-box"><div class="key-lbl">Key Point</div><p>The empirical formula does NOT show the actual number of atoms, only the ratio. CH₂O could represent glucose, acetic acid, or ribose — they all have the same 1:2:1 ratio.</p></div>`},
+  {h:'Method 1 — From Molecular Formula',content:`<p>Divide all subscripts by their greatest common factor (GCF).</p>
+  <div class="ex-box"><div class="ex-title">Module Example: Glucose C₆H₁₂O₆</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">GCF of subscripts 6, 12, 6 = <strong>6</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">C₆÷6=1 → <strong>C₁</strong></div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text">H₁₂÷6=2 → <strong>H₂</strong></div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text">O₆÷6=1 → <strong>O₁</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Empirical Formula = CH₂O</strong></div></div></div>`},
+  {h:'Method 2 — From Percent Composition (Module Example)',content:`<p>Problem from the module: A compound contains <strong>40% Carbon, 6.7% Hydrogen, 53.3% Oxygen</strong>. Find the empirical formula.</p>
+  <div class="ex-box"><div class="ex-title">Module Step-by-Step Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Assume 100g sample</strong> — percentages become grams directly: C = 40g, H = 6.7g, O = 53.3g</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Convert to moles</strong> (divide by atomic mass): C: 40÷12=3.33 mol | H: 6.7÷1=6.7 mol | O: 53.3÷16=3.33 mol</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Divide by smallest</strong> (3.33): C: 1 | H: 2 | O: 1</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Empirical Formula = CH₂O ✓</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">The 4-Step Method</div><p>1. Assume 100g (% → g)<br>2. Convert grams to moles (÷ atomic mass)<br>3. Divide all moles by the smallest value<br>4. Round to nearest whole number (ratio)</p></div>`}
+],cta:'molecular'},
+
+'molecular':{unit:'Unit 1',title:'Molecular Formula',
+intro:'A molecular formula indicates the exact number and kind of atoms in a molecule. It is a whole-number multiple of the empirical formula. The key relationship: n = Molar Mass ÷ Empirical Formula Mass, then multiply all subscripts by n.',
+sections:[
+  {h:'Definition & Relationship (from Module)',content:`<p>The molecular formula shows the <strong>actual count</strong> of each atom per molecule. A value of "1" is implied when no subscript appears. As the module states: "We would not write N₃H for ammonia, because that would mean there are three nitrogen atoms and one hydrogen atom."</p>
+  <div class="formula-box"><div class="fb-lbl">Key Formula (from the Module)</div><div class="fb-val">n = Molar Mass ÷ Empirical Formula Mass\nMolecular Formula = Empirical Formula × n</div></div>`},
+  {h:'Module Example 1 — Glucose',content:`<p>Given: Empirical formula = CH₂O, Molar mass = 180 g/mol</p>
+  <div class="ex-box"><div class="ex-title">Module Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Empirical mass:</strong> CH₂O = 12 + 2(1) + 16 = <strong>30 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Find n:</strong> n = 180 ÷ 30 = <strong>6</strong></div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Multiply subscripts by 6:</strong> C:1×6=6, H:2×6=12, O:1×6=6</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Molecular Formula = C₆H₁₂O₆</strong> (glucose!)</div></div></div>`},
+  {h:'Module Example 2 — Nitrogen Dioxide',content:`<p>Given: Empirical formula = NO₂, Molar mass = 92 g/mol</p>
+  <div class="ex-box"><div class="ex-title">Module Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Empirical mass:</strong> NO₂ = 14 + 2(16) = <strong>46 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Find n:</strong> n = 92 ÷ 46 = <strong>2</strong></div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Multiply:</strong> N:1×2=2, O:2×2=4</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Molecular Formula = N₂O₄</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">Module Practice Problems</div><p>• Empirical formula = CH₂, Molar mass = 56 g/mol → Find molecular formula<br>• Empirical formula = NO₂, Molar mass = 92 g/mol → Find molecular formula</p></div>`}
+],cta:'structural'},
+
+'structural':{unit:'Unit 1',title:'Structural Formulas',
+intro:'A structural formula identifies the location of chemical bonds between the atoms of a molecule. While the molecular formula tells HOW MANY atoms, the structural formula shows HOW they are connected. Without it, we cannot distinguish compounds with identical molecular formulas.',
+sections:[
+  {h:'Why Structural Formulas?',content:`<p>The module notes: "While the molecular formula shows how many atoms there are for each element, it does not tell us about how the elements are bonded together. This is where the structural formula comes in."</p>
+  <p>Example: Acetic acid (vinegar) and ethyl alcohol both contain C, H, and O — but have completely different structural formulas because their bonds are arranged differently. The structural formula reveals that acetic acid has a carbon <strong>double-bonded</strong> to oxygen.</p>`},
+  {h:'Four Types (from the Module)',content:`<div class="key-box"><div class="key-lbl">Types Described in the Module</div><p><strong>1. Full structural formula</strong> — every bond shown as a line (single —, double =, triple ≡)<br><strong>2. Electron dot structure</strong> — dots represent bonding electrons (nonbonding shown separately)<br><strong>3. Line-bond structural formula</strong> — lines for covalent bonds; "one line is equivalent to one pair of bonding electrons"<br><strong>4. Condensed structural formula</strong> — omits carbon–hydrogen bonds for simplicity</p></div>
+  <p>For organic compounds, we usually omit nonbonding electrons, making line-bond formulas the most commonly used representation.</p>`},
+  {h:'Reading Bond Lines',content:`<ul><li><strong>Single line (—)</strong> = 1 covalent bond = 2 shared electrons</li><li><strong>Double line (=)</strong> = double bond = 4 shared electrons</li><li><strong>Triple line (≡)</strong> = triple bond = 6 shared electrons</li></ul>
+  <div class="ex-box"><div class="ex-title">Module Practice Problems</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Draw the structural formula of ethane (C₂H₆): H₃C—CH₃</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">Convert C₃H₈ (propane) into its structural formula</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text">Draw the electron dot structure of H₂O</div></div></div>`}
+],cta:'balancing'},
+
+'balancing':{unit:'Unit 1',title:'Balancing Chemical Equations',
+intro:'Balancing chemical equations ensures the number of atoms of each element is equal on both sides, adhering to the Law of Conservation of Mass. This is achieved by adjusting coefficients (numbers in front of molecules) — never by altering subscripts.',
+sections:[
+  {h:'The Law of Conservation of Mass',content:`<p>Matter is neither created nor destroyed. In every chemical reaction, the total mass of reactants equals the total mass of products. Every atom on the left must appear on the right.</p>
+  <div class="key-box"><div class="key-lbl">Critical Rule from the Module</div><p>Change the <strong>coefficients</strong> (numbers in front of formulas) to balance. <strong>Never change the subscripts</strong> — that would change the compound's identity and violate chemistry.</p></div>`},
+  {h:'5-Step Method (from the Module)',content:`<div class="ex-box"><div class="ex-title">Module's Balancing Steps</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Identify each element</strong> on both sides of the equation</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Check net charge</strong> — must be equal on both sides when balanced</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Start with an element</strong> in one compound on each side; adjust its coefficient</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Balance remaining elements</strong> one at a time; leave pure elements (O₂, H₂) for last</div></div>
+  <div class="ex-step"><div class="ex-num">5</div><div class="ex-text"><strong>Verify all atoms</strong> are equal on both sides</div></div></div>`},
+  {h:'Module Practice Problems',content:`<p>Balance these equations from the module:</p>
+  <ul><li>___ SnO₂ + ___ H₂ → ___ Sn + ___ H₂O</li><li>___ KOH + ___ H₃PO₄ → ___ K₃PO₄ + ___ H₂O</li><li>___ C₂H₆O + ___ O₂ → ___ CO₂ + ___ H₂O</li><li>___ FeS + ___ O₂ → ___ Fe₂O₃ + ___ SO₂</li><li>___ Ba₃N₂ + ___ H₂O → ___ Ba(OH)₂ + ___ NH₃</li></ul>
+  <div class="key-box"><div class="key-lbl">Tip</div><p>Always balance the most complex compound first. Leave H and O for last if they appear as pure elements (H₂, O₂).</p></div>`}
+],cta:'mole-concept'},
+
+'mole-concept':{unit:'Unit 2',title:'The Mole Concept',
+intro:'A mole is used by scientists as a counting unit to measure very tiny particles like atoms and molecules. Since these particles are too small to count individually, scientists use the mole to represent a large, fixed number of them. One mole contains 6.022 × 10²³ particles — Avogadro\'s number.',
+sections:[
+  {h:'What is a Mole? (from the Module)',content:`<p>The module states: <em>"A mole is used by scientists as a counting unit to measure very tiny particles like atoms and molecules. Since these particles are too small to count individually, scientists use the mole to represent a large, fixed number of them. One mole contains 6.022 × 10²³ particles."</em></p>
+  <p>Think of it like a "dozen" (12) — except instead of 12, a mole represents 602,200,000,000,000,000,000,000 particles.</p>
+  <div class="key-box"><div class="key-lbl">Module Simple Rule</div><p>✅ <strong>Grams ↔ Moles</strong> — use Molar Mass only. Do NOT need 6.022 × 10²³<br>✅ <strong>Moles ↔ Particles</strong> — NEED 6.022 × 10²³</p></div>`},
+  {h:'Molar Mass vs Molecular Mass',content:`<div class="formula-box"><div class="fb-lbl">Molar Mass</div><div class="fb-val">Mass of one mole of a substance | Units: g/mol</div></div>
+  <div class="formula-box"><div class="fb-lbl">Molecular Mass</div><div class="fb-val">Mass of one molecule | Units: amu (atomic mass unit)</div></div>
+  <p>The module's key insight: <em>"The molar mass of any substance is numerically equivalent to its atomic or formula weight in amu."</em> Carbon has atomic mass 12.01 amu AND molar mass 12.01 g/mol.</p>`},
+  {h:'Historical Context (from the Module)',content:`<div class="hist-box"><div class="hist-av">A</div><div><div class="hist-name">Amedeo Avogadro (1776–1856)</div><div class="hist-yr">Italian Scientist</div><p>Proposed Avogadro's Law in 1811. His idea: equal volumes of gases at same T and P contain equal numbers of particles. This led to the concept of a fixed number of particles per mole.</p></div></div>
+  <div class="hist-box" style="margin-top:8px"><div class="hist-av">O</div><div><div class="hist-name">Wilhelm Ostwald (1853–1932)</div><div class="hist-yr">German Chemist</div><p>Introduced the term "mole" in chemistry. The module states: "Because of Ostwald, scientists finally had a name for the counting unit mole and a standard way to measure substances in chemistry."</p></div></div>`},
+  {h:'Molar Mass Reference Table (from Module)',content:`<table class="data-table"><tr><th>Element</th><th>Avg Atomic Mass (amu)</th><th>Molar Mass (g/mol)</th><th>Atoms/Mole</th></tr>
+  <tr><td>C</td><td>12.01</td><td>12.01</td><td>6.022×10²³</td></tr>
+  <tr><td>H</td><td>1.008</td><td>1.008</td><td>6.022×10²³</td></tr>
+  <tr><td>O</td><td>16.00</td><td>16.00</td><td>6.022×10²³</td></tr>
+  <tr><td>Na</td><td>22.99</td><td>22.99</td><td>6.022×10²³</td></tr>
+  <tr><td>Cl</td><td>35.45</td><td>35.45</td><td>6.022×10²³</td></tr></table>`}
+],cta:'avogadro'},
+
+'avogadro':{unit:'Unit 2',title:"Avogadro's Number",
+intro:"Avogadro's number (6.022 × 10²³) is the number of particles in exactly one mole of any substance. It is named after Italian scientist Amedeo Avogadro, whose 1811 law on gas volumes laid the foundation for this fundamental constant in chemistry.",
+sections:[
+  {h:"Avogadro's Number in Context",content:`<p>N_A = <strong>6.022 × 10²³ particles/mol</strong></p>
+  <p>This is an incomprehensibly large number. From the module: samples of 65.4g Zinc, 12.0g Carbon, 24.3g Magnesium, and 63.5g Copper all contain exactly 6.022×10²³ atoms — 1.00 mol of atoms each. The molar mass in grams of each element contains exactly this many atoms.</p>`},
+  {h:"Using Avogadro's Number",content:`<div class="formula-box"><div class="fb-lbl">Moles → Particles</div><div class="fb-val">Particles = Moles × 6.022 × 10²³</div></div>
+  <div class="formula-box"><div class="fb-lbl">Particles → Moles</div><div class="fb-val">Moles = Particles ÷ 6.022 × 10²³</div></div>
+  <div class="ex-box"><div class="ex-title">Module Practice Problems</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">How many moles of Au = 4.77 × 10²⁷ Au atoms?<br>Moles = 4.77×10²⁷ ÷ 6.022×10²³ = <strong>7,921 mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">1 mol H₂O = 6.022×10²³ molecules of H₂O = 18.016 g H₂O</div></div></div>`},
+  {h:'The Critical Distinction',content:`<div class="key-box"><div class="key-lbl">Module Simple Rule — MEMORIZE THIS</div><p><strong>Grams ↔ Moles:</strong> Use molar mass (g/mol). No Avogadro's number needed.<br><strong>Moles ↔ Particles:</strong> Use Avogadro's number (6.022 × 10²³).</p></div>
+  <p>This distinction is crucial. Many students incorrectly use Avogadro's number when converting grams to moles — that step only requires molar mass.</p>`}
+],cta:'molar-mass'},
+
+'molar-mass':{unit:'Unit 2',title:'Molar Mass & Formula Weight',
+intro:'The molar mass of an element or compound is the mass in grams of exactly 1 mole of that substance, expressed in g/mol. The module explains: "It is important to first determine the contribution of each element present in the formula before combining them."',
+sections:[
+  {h:'The Concept (from the Module)',content:`<p>The molar mass of any substance is numerically equal to its atomic or formula weight in amu. For 12C specifically: 12 g of 12C contains exactly 1 mole of atoms.</p>
+  <div class="formula-box"><div class="fb-lbl">Formula</div><div class="fb-val">Molar Mass = Σ (number of atoms × atomic mass) for all elements</div></div>`},
+  {h:'Module Worked Example — H₂O',content:`<p>The module walks through H₂O step by step:</p>
+  <div class="ex-box"><div class="ex-title">Module Step-by-Step: H₂O</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Identify elements and count:</strong> H → 2 atoms, O → 1 atom</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Find atomic masses:</strong> H = 1.008 g/mol, O = 16.00 g/mol</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Multiply:</strong> H → 2 × 1.008 = 2.016 g/mol | O → 1 × 16.00 = 16.00 g/mol</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Add:</strong> 2.016 + 16.00 = <strong>18.016 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">The formula weight of H₂O is <strong>18.016 g/mol</strong></div></div></div>`},
+  {h:'Handling Parentheses — Al₂(SO₄)₃',content:`<p>When parentheses appear, multiply the subscript inside by the subscript outside first.</p>
+  <div class="ex-box"><div class="ex-title">Example: Al₂(SO₄)₃</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Al: 2 atoms × 27 g/mol = <strong>54 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">S: (SO₄)₃ → 1×3 = 3 S atoms → 3 × 32 = <strong>96 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text">O: 4×3 = 12 O atoms → 12 × 16 = <strong>192 g/mol</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">Total = 54 + 96 + 192 = <strong>342 g/mol</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">Remember</div><p>Molar mass is the "bridge" between grams and moles. Every stoichiometry calculation depends on it.</p></div>`}
+],cta:'grams-moles'},
+
+'grams-moles':{unit:'Unit 2',title:'Grams ↔ Moles Conversions',
+intro:'Converting between grams and moles uses molar mass as the conversion factor. The module provides the formula: Mol = Mass ÷ Molar Mass | Mass = Molar Mass × mol. This is one of the most fundamental skills in stoichiometry.',
+sections:[
+  {h:'The Formulas (from the Module)',content:`<div class="formula-box"><div class="fb-lbl">Moles from Grams</div><div class="fb-val">Moles = Mass (g) ÷ Molar Mass (g/mol)</div></div>
+  <div class="formula-box"><div class="fb-lbl">Grams from Moles</div><div class="fb-val">Mass (g) = Moles × Molar Mass (g/mol)</div></div>
+  <div class="formula-box"><div class="fb-lbl">Molar Mass</div><div class="fb-val">Molar Mass (g/mol) = Mass (g) ÷ Moles</div></div>`},
+  {h:'Module Example 1 — Moles to Grams',content:`<p>Problem: How many grams are there in 5.0 moles of hydrogen (H)?</p>
+  <div class="ex-box"><div class="ex-title">Module Solution (Example 1)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Identify given:</strong> Moles = 5.0 mol of H</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Use formula:</strong> 5.0 mol × (1.008 g / 1.0 mol)</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Cancel units:</strong> mol cancels mol, answer in grams</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Solve:</strong> 5.0 × 1.008 = <strong>5.04 g</strong></div></div></div>`},
+  {h:'Module Example 2 — Grams to Moles',content:`<p>Problem: How many moles are there in 100 grams of hydrogen (H)?</p>
+  <div class="ex-box"><div class="ex-title">Module Solution (Example 2)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Identify given:</strong> Mass = 100 g of H</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Use formula:</strong> 100 g × (1.0 mol / 1.008 g)</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Cancel units:</strong> g cancels g, answer in mol</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Solve:</strong> 100 ÷ 1.008 = <strong>99.2 mol</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">Module Practice Problems</div><p>• How many moles in 0.0643 g of H?<br>• How many moles in 52 g of He? (He = 4.003 g/mol)<br>• Find moles in 10 g of H₂ (H₂ = 2.016 g/mol)</p></div>`}
+],cta:'pct-comp'},
+
+'pct-comp':{unit:'Unit 2',title:'Percentage Composition',
+intro:'Percentage composition tells you what fraction of a compound\'s total mass comes from each element. The formula: % element = (mass of element in 1 mol ÷ molar mass of compound) × 100%. The percentages of all elements must sum to 100%.',
+sections:[
+  {h:'The Formula',content:`<div class="formula-box"><div class="fb-lbl">Percentage Composition Formula</div><div class="fb-val">% element = (mass of element in 1 mol ÷ total molar mass) × 100%</div></div>
+  <p>Every compound has a fixed, characteristic composition. Water is always ~11.2% hydrogen and ~88.8% oxygen by mass — regardless of sample size.</p>`},
+  {h:'Worked Example — H₂O',content:`<div class="ex-box"><div class="ex-title">Step-by-Step</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Molar mass:</strong> H₂O = 2(1.008) + 16.00 = 18.016 g/mol</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>% H:</strong> (2.016 ÷ 18.016) × 100 = <strong>11.2%</strong></div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>% O:</strong> (16.00 ÷ 18.016) × 100 = <strong>88.8%</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Verify:</strong> 11.2 + 88.8 = 100% ✓</div></div></div>`},
+  {h:'Link to Empirical Formula',content:`<p>Percentage composition and empirical formula are two sides of the same coin:</p>
+  <ul><li>Given a molecular formula → calculate percentage composition</li><li>Given percentage composition → find the empirical formula (using the 100g assumption method)</li></ul>
+  <div class="key-box"><div class="key-lbl">Verification Rule</div><p>After calculating all element percentages, verify they sum to ~100%. A small rounding difference (±0.5%) is acceptable; larger differences indicate an error in molar mass or arithmetic.</p></div>`}
+],cta:'mole-ratios'},
+
+'mole-ratios':{unit:'Unit 3',title:'Mole Ratios',
+intro:'Mole ratios come directly from the coefficients in a balanced chemical equation. They are the essential bridge between the amount of one substance and the amount of any other substance in a reaction. Every stoichiometric calculation uses mole ratios.',
+sections:[
+  {h:'What are Mole Ratios?',content:`<p>In a balanced equation, the coefficients represent the molar ratios of reactants and products.</p>
+  <div class="ex-box"><div class="ex-title">Module Example: 2H₂ + O₂ → 2H₂O</div>
+  <div class="ex-step"><div class="ex-num">•</div><div class="ex-text">Coefficients: H₂=2, O₂=1, H₂O=2</div></div>
+  <div class="ex-step"><div class="ex-num">•</div><div class="ex-text">This means: 2 mol H₂ : 1 mol O₂ : 2 mol H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">•</div><div class="ex-text">For every 2 moles of H₂ consumed, 2 moles of H₂O form (1:1 ratio H₂:H₂O)</div></div></div>`},
+  {h:'Using Mole Ratios',content:`<div class="formula-box"><div class="fb-lbl">Mole Ratio Calculation</div><div class="fb-val">moles of B = moles of A × (coefficient of B ÷ coefficient of A)</div></div>
+  <div class="ex-box"><div class="ex-title">Module Example: N₂ + 3H₂ → 2NH₃ — How many mol NH₃ from 6 mol H₂?</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Identify ratio: 3 mol H₂ : 2 mol NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">Mol NH₃ = 6 mol H₂ × (2 mol NH₃ ÷ 3 mol H₂)</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>= 4 mol NH₃</strong> (this is the module's theoretical yield example)</div></div></div>
+  <div class="key-box"><div class="key-lbl">Important</div><p>Always start from a <strong>balanced equation</strong>. Unbalanced equations give wrong mole ratios and incorrect answers.</p></div>`}
+],cta:'limiting'},
+
+'limiting':{unit:'Unit 3',title:'Limiting Reactant',
+intro:'The limiting reactant is the reactant that runs out first, stopping the reaction and determining the maximum amount of product that can form. The module states: "The reactant that runs out first, stopping the reaction. Determines the maximum amount of product that can form."',
+sections:[
+  {h:'Definition (from the Module)',content:`<p>The limiting reactant:</p><ul><li>Is <strong>completely consumed</strong> first during the reaction</li><li><strong>Stops the reaction</strong> when it is used up</li><li><strong>Determines the maximum product</strong> that can form</li></ul>
+  <div class="key-box"><div class="key-lbl">Key Concept</div><p>No matter how much excess reactant remains, the reaction cannot continue once the limiting reactant is gone. The limiting reactant "limits" the amount of product.</p></div>`},
+  {h:'Module Method — Mole Ratio Comparison',content:`<p>From the module: <em>"Divide moles available by coefficient from the balanced equation. The smaller number = limiting reactant."</em></p>
+  <div class="ex-box"><div class="ex-title">Module Example: N₂ + 3H₂ → 2NH₃ (4 mol N₂ + 9 mol H₂)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>H₂ needed</strong> for all N₂: 4 mol N₂ × (3 mol H₂ / 1 mol N₂) = <strong>12 mol H₂</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Compare:</strong> 9 mol available vs 12 mol needed → 9 < 12</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>H₂ is the Limiting Reactant</strong> (N₂ is in excess)</div></div></div>`},
+  {h:'Another Module Example — 2H₂ + O₂ → 2H₂O',content:`<p>4 g H₂ and 32 g O₂: Convert to moles first: H₂ = 4÷2 = 2 mol, O₂ = 32÷32 = 1 mol</p>
+  <div class="ex-box"><div class="ex-title">Module's Ratio Method</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">H₂: 2 mol ÷ 2 (coeff.) = <strong>1.0</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">O₂: 1 mol ÷ 1 (coeff.) = <strong>1.0</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">Both equal 1.0 → <strong>Both react completely</strong> (no excess in this case)</div></div></div>`}
+],cta:'excess'},
+
+'excess':{unit:'Unit 3',title:'Excess Reactant',
+intro:'The excess reactant is the reactant that remains after the reaction has stopped. It was present in more quantity than needed by stoichiometry. Once the limiting reactant is consumed, the reaction stops — and the excess reactant is left over.',
+sections:[
+  {h:'Definition (from the Module)',content:`<p>The module defines the excess reactant as: <em>"The reactant that remains after the reaction is complete."</em></p>
+  <p>The excess reactant does NOT determine the amount of product formed — that role belongs to the limiting reactant.</p>`},
+  {h:'Calculating Excess Remaining (Module Formula)',content:`<div class="formula-box"><div class="fb-lbl">Module Formula</div><div class="fb-val">Leftover = Starting amount − Amount used in reaction</div></div>
+  <div class="ex-box"><div class="ex-title">Module Example: 2.5 mol H₂ + 1.0 mol O₂ → 2H₂O (O₂ is limiting)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">H₂ consumed = 2 × 1.0 mol O₂ = <strong>2.0 mol H₂</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">Starting H₂ = 2.5 mol</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">Excess H₂ = 2.5 − 2.0 = <strong>0.5 mol H₂ remaining</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">Industrial Importance</div><p>The module notes: "Excess reactants may be used deliberately to ensure that the limiting reactant is fully consumed, thereby maximizing production." Using excess O₂ ensures all fuel burns completely.</p></div>`}
+],cta:'theoretical'},
+
+'theoretical':{unit:'Unit 3',title:'Theoretical Yield',
+intro:'Theoretical yield is the maximum amount of product that can be formed from a given amount of limiting reactant, calculated assuming no losses. The module states: "The maximum amount of product predicted based on the limiting reactant. Calculated without considering losses."',
+sections:[
+  {h:'Definition & Formula',content:`<div class="formula-box"><div class="fb-lbl">Moles of Product Formula</div><div class="fb-val">Moles of Product = Moles of Limiting Reactant × (coeff. of product ÷ coeff. of limiting reactant)</div></div>
+  <div class="key-box"><div class="key-lbl">Key Reminder</div><p>Theoretical yield = maximum you can make. It assumes: complete reaction, no side reactions, no material lost. Actual yield is always ≤ theoretical yield.</p></div>`},
+  {h:'Module Example 1 — NH₃ Synthesis',content:`<p>N₂ + 3H₂ → 2NH₃. If 6 mol H₂ reacts (N₂ excess):</p>
+  <div class="ex-box"><div class="ex-title">Module Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Mole ratio: 3 mol H₂ → 2 mol NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">Moles NH₃ = 6 mol H₂ × (2/3) = <strong>4 mol NH₃</strong></div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">Theoretical yield = <strong>4 mol NH₃</strong></div></div></div>`},
+  {h:'Module Example 2 — Water from H₂',content:`<p>2H₂ + O₂ → 2H₂O. If 10 g H₂ with excess O₂ (from the module):</p>
+  <div class="ex-box"><div class="ex-title">Module Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Convert:</strong> 10 g H₂ ÷ 2 g/mol = <strong>5 mol H₂</strong></div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Mole ratio:</strong> 2H₂ : 2H₂O → 1:1 ratio</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Moles H₂O</strong> = 5 mol</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Mass H₂O</strong> = 5 mol × 18 g/mol = <strong>90 g H₂O</strong></div></div></div>`}
+],cta:'pct-yield'},
+
+'pct-yield':{unit:'Unit 3',title:'Percent Yield',
+intro:'Percent yield measures the efficiency of a chemical reaction by comparing the actual yield (experimentally obtained) to the theoretical yield (maximum possible). Formula from the module: % Yield = (Actual Yield ÷ Theoretical Yield) × 100%.',
+sections:[
+  {h:'Definition & Formula (from the Module)',content:`<p>The module defines percent yield as: <em>"The efficiency of the reaction in practice."</em></p>
+  <div class="formula-box"><div class="fb-lbl">Module Formula</div><div class="fb-val">% Yield = (Actual Yield ÷ Theoretical Yield) × 100%</div></div>
+  <p>Real experiments almost never achieve 100% yield due to: incomplete reactions, side reactions, product lost during transfer/filtration, or measurement error.</p>`},
+  {h:'Module Example 1 — H₂O (83.3%)',content:`<p>Theoretical yield = 36 g H₂O, Actual yield = 30 g H₂O:</p>
+  <div class="ex-box"><div class="ex-title">Module Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">% Yield = (30 ÷ 36) × 100%</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text">= 0.8333 × 100%</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">= <strong>83.3%</strong> (this exact problem is in the module)</div></div></div>`},
+  {h:'Module Example 2 — 72%',content:`<p>Theoretical = 25 g, Actual = 18 g:</p>
+  <div class="ex-box"><div class="ex-title">Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">% Yield = (18 ÷ 25) × 100% = <strong>72%</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">Interpreting Percent Yield</div><p>= 100% → Perfect (theoretical, rarely achieved)<br>> 100% → Measurement error or impurities added mass<br>70–99% → Typical for well-run reactions<br>< 70% → Significant losses occurred</p></div>
+  <div class="key-box"><div class="key-lbl">Industrial Context (from Module)</div><p>"In industrial processes, controlling the limiting reactant ensures resources are used efficiently. Percent yield measures how efficiently this was achieved."</p></div>`}
+],cta:null},
+};
+
+// ═══════════════════════ CALCULATORS CONFIG ═══════════════════════
+const CALCS=[
+  {id:'molar-mass',name:'Molar Mass',icon:'⚗',desc:'Calculate from any formula',diff:'Beginner'},
+  {id:'grams-moles',name:'Grams ↔ Moles',icon:'⚖',desc:'Mass-mole conversions',diff:'Beginner'},
+  {id:'pct-comp',name:'% Composition',icon:'%',desc:'Percent by mass per element',diff:'Beginner'},
+  {id:'empirical',name:'Empirical Formula',icon:'🔬',desc:'From percent composition',diff:'Intermediate'},
+  {id:'molecular',name:'Molecular Formula',icon:'🧪',desc:'From empirical + molar mass',diff:'Intermediate'},
+  {id:'limiting',name:'Limiting Reactant',icon:'⛓',desc:'Identify which runs out',diff:'Advanced'},
+  {id:'theoretical',name:'Theoretical Yield',icon:'📊',desc:'Maximum product possible',diff:'Advanced'},
+  {id:'pct-yield',name:'Percent Yield',icon:'✓',desc:'Reaction efficiency',diff:'Advanced'},
+];
+
+let activeCalc=null,steps=[],sts=[],activeStep=0,solverData=null;
+
+// ═══════════════════════ SIDEBAR BUILD ═══════════════════════
+function buildSidebar(){
+  const sb=document.getElementById('learn-sidebar');
+  let h='';
+  UNITS.forEach(u=>{
+    h+=`<div class="sb-unit-hd ${u.cls}">${u.label}: ${u.title}</div>`;
+    u.topics.forEach(tid=>{
+      const t=TOPICS[tid];
+      h+=`<div class="sb-topic" id="sb-${tid}" onclick="openTopic('${tid}')"><div class="td"></div>${t.title}</div>`;
+    });
+  });
+  sb.innerHTML=h;
+}
+
+function openTopic(id){
+  const t=TOPICS[id];if(!t)return;
+  document.querySelectorAll('.sb-topic').forEach(el=>el.classList.remove('active'));
+  const sb=document.getElementById('sb-'+id);if(sb)sb.classList.add('active');
+  let html=`<div class="topic-body">
+    <div class="topic-tag">${t.unit}</div>
+    <div class="topic-title">${t.title}</div>
+    <div class="topic-intro">${t.intro}</div>`;
+  t.sections.forEach(s=>{
+    html+=`<div class="cs"><h3>${s.h}</h3>${s.content}</div>`;
+  });
+  html+=`<div class="topic-cta">`;
+  if(t.cta) html+=`<button class="btn btn-g" onclick="openTopic('${t.cta}')">Next Topic →</button>`;
+  html+=`<button class="btn btn-o" onclick="goPage('practice')">Practice This →</button></div></div>`;
+  document.getElementById('topic-area').innerHTML=html;
+}
+
+// ═══════════════════════ CALCULATOR SELECTOR ═══════════════════════
+function buildCalcSelector(){
+  const sel=document.getElementById('calc-sel');
+  sel.innerHTML=CALCS.map(c=>`<button class="csbtn" id="csbtn-${c.id}" onclick="selectCalc('${c.id}')"><span>${c.icon}</span>${c.name}</button>`).join('');
+}
+
+// Problem Solver state
+let psAnalysisHTML = '';
+
+function selectCalc(id){
+  activeCalc=id;
+  document.querySelectorAll('.csbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('csbtn-'+id).classList.add('active');
+  renderCalcForm(id);
+  // Don't reset if we have PS analysis saved
+  if(!psAnalysisHTML){
+    resetSolver();
+  }
+}
+
+function errHide(){const e=document.getElementById('err-msg');if(e)e.style.display='none';}
+function showErr(m){const e=document.getElementById('err-msg');if(e){e.textContent=m;e.style.display='block';}}
+function fillF(fid,v){const el=document.getElementById(fid);if(el){el.value=v;errHide();}}
+function fillF2(ef,mm){fillF('f-emp',ef);fillF('f-mm',mm);}
+function fillPY(a,t){fillF('f-actual',a);fillF('f-theoretical',t);}
+function fillGM(f,mass,moles){fillF('f-formula',f);if(mass!==null)fillF('f-mass',mass);if(moles!==null)fillF('f-moles',moles);}
+
+function renderCalcForm(id){
+  const form=document.getElementById('calc-form');
+  const c=CALCS.find(x=>x.id===id);
+  const dc=c.diff==='Beginner'?'bg-':c.diff==='Intermediate'?'bi-':'ba-';
+  let h=`<div style="border-top:.5px solid var(--border);padding-top:14px">
+  <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:12px">${c.icon} ${c.name} <span class="badge ${dc}">${c.diff}</span></div>`;
+
+  if(id==='molar-mass'){
+    h+=`<label class="lbl">Chemical Formula</label>
+    <input class="inp mono" id="f-formula" placeholder="e.g. H2O, Al2(SO4)3" oninput="errHide()" onkeydown="if(event.key==='Enter')startSolving()"/>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px;margin-bottom:10px">Numbers for subscripts. Parentheses supported.</div>
+    <label class="lbl">Quick Examples</label>
+    <div class="pills">${['H2O','CO2','NaCl','CaCO3','Al2(SO4)3','Ca(OH)2','MgSO4'].map(f=>`<span class="pill" onclick="fillF('f-formula','${f}')">${f}</span>`).join('')}</div>`;
+  }else if(id==='grams-moles'){
+    h+=`<div class="toggle-row" id="gm-toggle">
+      <button class="tog-btn active" id="tog-g2m" onclick="setGMMode('g2m')">Grams → Moles</button>
+      <button class="tog-btn" id="tog-m2g" onclick="setGMMode('m2g')">Moles → Grams</button>
+    </div><div id="gm-fields" style="margin-top:10px"></div>
+    <div class="pills" id="gm-pills" style="margin-top:8px"></div>`;
+  }else if(id==='pct-comp'){
+    h+=`<label class="lbl">Chemical Formula</label>
+    <input class="inp mono" id="f-formula" placeholder="e.g. H2O, CO2" oninput="errHide()" onkeydown="if(event.key==='Enter')startSolving()"/>
+    <div class="pills" style="margin-top:8px">${['H2O','CO2','NaCl','Ca(OH)2','Mg(NO3)2','NH3'].map(f=>`<span class="pill" onclick="fillF('f-formula','${f}')">${f}</span>`).join('')}</div>`;
+  }else if(id==='empirical'){
+    h+=`<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Enter percentage for each element in the compound.</div>
+    <div id="emp-rows"></div>
+    <button class="btn btn-o" style="font-size:12px;padding:5px 12px;margin-top:7px" onclick="addEmpRow()">+ Add Element</button>
+    <label class="lbl" style="margin-top:10px">Module Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="setEmpEx([['C',40],['H',6.7],['O',53.3]])">40%C 6.7%H 53.3%O</span>
+      <span class="pill" onclick="setEmpEx([['Fe',69.9],['O',30.1]])">69.9%Fe 30.1%O</span>
+      <span class="pill" onclick="setEmpEx([['C',85.6],['H',14.4]])">85.6%C 14.4%H</span>
+    </div>`;
+  }else if(id==='molecular'){
+    h+=`<label class="lbl">Empirical Formula</label>
+    <input class="inp mono" id="f-emp" placeholder="e.g. CH2O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Molar Mass of Compound (g/mol)</label>
+    <input class="inp" id="f-mm" type="number" placeholder="e.g. 180" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Module Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillF2('CH2O',180)">CH₂O, 180 g/mol</span>
+      <span class="pill" onclick="fillF2('NO2',92)">NO₂, 92 g/mol</span>
+      <span class="pill" onclick="fillF2('CH2',56)">CH₂, 56 g/mol</span>
+    </div>`;
+  }else if(id==='limiting'){
+    h+=`<label class="lbl">Balanced Equation</label>
+    <input class="inp mono" id="f-eq" placeholder="e.g. N₂ + 3H₂ → 2NH₃" oninput="errHide()" onkeydown="if(event.key==='Enter')parseCustomEquation('limiting')"/>
+    <button class="btn btn-o" style="font-size:11px;padding:5px 10px;margin-top:6px" onclick="parseCustomEquation('limiting')">Parse Equation</button>
+    <div id="eq-fields" style="margin-top:10px"></div>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillEq('N₂ + 3H₂ → 2NH₃','limiting')">N₂ + 3H₂ → 2NH₃</span>
+      <span class="pill" onclick="fillEq('2H₂ + O₂ → 2H₂O','limiting')">2H₂ + O₂ → 2H₂O</span>
+      <span class="pill" onclick="fillEq('Zn + 2HCl → ZnCl₂ + H₂','limiting')">Zn + 2HCl → ZnCl₂ + H₂</span>
+    </div>`;
+  }else if(id==='theoretical'){
+    h+=`<label class="lbl">Balanced Equation</label>
+    <input class="inp mono" id="f-eq" placeholder="e.g. 2H₂ + O₂ → 2H₂O" oninput="errHide()" onkeydown="if(event.key==='Enter')parseCustomEquation('theoretical')"/>
+    <button class="btn btn-o" style="font-size:11px;padding:5px 10px;margin-top:6px" onclick="parseCustomEquation('theoretical')">Parse Equation</button>
+    <div id="ty-fields" style="margin-top:10px"></div>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillEq('N₂ + 3H₂ → 2NH₃','theoretical')">N₂ + 3H₂ → 2NH₃</span>
+      <span class="pill" onclick="fillEq('2H₂ + O₂ → 2H₂O','theoretical')">2H₂ + O₂ → 2H₂O</span>
+    </div>`;
+  }else if(id==='pct-yield'){
+    h+=`<div class="toggle-row" id="py-toggle">
+      <button class="tog-btn active" id="tog-simple" onclick="setPYMode('simple')">Simple % Calc</button>
+      <button class="tog-btn" id="tog-full" onclick="setPYMode('full')">Calculate Theoretical First</button>
+    </div><div id="py-fields" style="margin-top:10px"></div>
+    <div class="pills" id="py-pills" style="margin-top:8px"></div>`;
+  }
+
+  h+=`</div><div class="err-msg" id="err-msg"></div>
+  <div class="tip">📖 <a href="#" onclick="goLearnTopic('${id}')" style="color:var(--g700);font-weight:600">Review the module lesson</a> before starting.</div>
+  <button class="btn btn-g btn-full" onclick="startSolving()">Start Solving →</button>`;
+  form.innerHTML=h;
+
+  if(id==='grams-moles') setGMMode('g2m');
+  if(id==='empirical'){empRows=[];addEmpRow();addEmpRow();addEmpRow();}
+  if(id==='pct-yield') setPYMode('simple');
+}
+
+// ── Custom Equation Parsing for Limiting & Theoretical
+function fillEq(eq,calc){
+  document.getElementById('f-eq').value = eq;
+  parseCustomEquation(calc);
+}
+
+function parseCustomEquation(calc){
+  const eqInput = document.getElementById('f-eq')?.value.trim();
+  if(!eqInput){
+    showErr('Enter a balanced equation first.');
+    return;
+  }
+  
+  const parsed = parseEquation(eqInput);
+  if(!parsed || !parsed.reactants || parsed.reactants.length < 2){
+    showErr('Could not parse equation. Format: A + B → C');
+    return;
+  }
+  
+  if(calc === 'limiting'){
+    // Generate input fields for each reactant
+    let html = '<div style="background:var(--g50);border:.5px solid var(--g200);padding:10px;border-radius:7px;margin-bottom:10px;font-size:11px;color:var(--g700)">📝 Equation parsed! Enter moles for each reactant below.</div>';
+    parsed.reactants.forEach((r, i) => {
+      html += `<label class="lbl" style="margin-top:${i>0?'10px':'0'}">Moles of ${r.formula}</label>
+               <input class="inp" id="f-r${i}" type="number" placeholder="e.g. 4" oninput="errHide()"/>`;
+    });
+    document.getElementById('eq-fields').innerHTML = html;
+    
+    // Store parsed equation for later use
+    window.customEqData = {type: 'limiting', equation: eqInput, parsed: parsed};
+    
+  } else if(calc === 'theoretical'){
+    // For theoretical yield, ask which reactant amount is given
+    let html = '<div style="background:var(--g50);border:.5px solid var(--g200);padding:10px;border-radius:7px;margin-bottom:10px;font-size:11px;color:var(--g700)">📝 Equation parsed! Select which reactant you know.</div>';
+    html += '<label class="lbl">Which Reactant (Given)</label><select class="inp" id="f-which-reactant">';
+    parsed.reactants.forEach(r => {
+      html += `<option value="${r.formula}">${r.formula}</option>`;
+    });
+    html += '</select>';
+    html += '<label class="lbl" style="margin-top:10px">Moles of Selected Reactant</label>';
+    html += '<input class="inp" id="f-lim" type="number" placeholder="e.g. 6" oninput="errHide()"/>';
+    html += '<div style="font-size:11px;color:var(--muted);margin-top:3px">Other reactants assumed in excess</div>';
+    document.getElementById('ty-fields').innerHTML = html;
+    
+    // Store parsed equation
+    window.customEqData = {type: 'theoretical', equation: eqInput, parsed: parsed};
+  }
+  
+  errHide();
+}
+
+// ── Grams-Moles mode toggle
+let gmMode='g2m';
+function setGMMode(m){
+  gmMode=m;
+  document.getElementById('tog-g2m').classList.toggle('active',m==='g2m');
+  document.getElementById('tog-m2g').classList.toggle('active',m==='m2g');
+  const f=document.getElementById('gm-fields');
+  const pills=document.getElementById('gm-pills');
+  if(m==='g2m'){
+    f.innerHTML=`<label class="lbl">Chemical Formula</label><input class="inp mono" id="f-formula" placeholder="e.g. CO2" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Mass (grams)</label><input class="inp" id="f-mass" type="number" placeholder="e.g. 100" oninput="errHide()"/>`;
+    pills.innerHTML=['CO2,100','H2O,90','He,52','NaCl,58.44','H,100'].map(p=>{const[f,m]=p.split(',');return`<span class="pill" onclick="fillGM('${f}',${m},null)">${m}g ${f}</span>`;}).join('');
+  }else{
+    f.innerHTML=`<label class="lbl">Chemical Formula</label><input class="inp mono" id="f-formula" placeholder="e.g. H2O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Number of Moles</label><input class="inp" id="f-moles" type="number" placeholder="e.g. 5.0" oninput="errHide()"/>`;
+    pills.innerHTML=['H,5.0','H2O,5','CO2,2','NaCl,3'].map(p=>{const[f,m]=p.split(',');return`<span class="pill" onclick="fillGM('${f}',null,${m})">${m} mol ${f}</span>`;}).join('');
+  }
+}
+
+// ── Percent Yield mode toggle
+let pyMode='simple';
+function setPYMode(m){
+  pyMode=m;
+  document.getElementById('tog-simple').classList.toggle('active',m==='simple');
+  document.getElementById('tog-full').classList.toggle('active',m==='full');
+  const f=document.getElementById('py-fields');
+  const pills=document.getElementById('py-pills');
+  if(m==='simple'){
+    f.innerHTML=`<label class="lbl">Actual Yield</label>
+    <div style="display:flex;gap:7px;align-items:center"><input class="inp" id="f-actual" type="number" placeholder="e.g. 30" style="flex:1" oninput="errHide()"/><select class="inp" id="f-unit" style="width:68px"><option>g</option><option>mol</option></select></div>
+    <label class="lbl" style="margin-top:10px">Theoretical Yield (same unit)</label>
+    <input class="inp" id="f-theoretical" type="number" placeholder="e.g. 36" oninput="errHide()"/>`;
+    pills.innerHTML=`<span class="pill" onclick="fillPY(30,36)">30g / 36g</span><span class="pill" onclick="fillPY(18,25)">18g / 25g</span>`;
+  }else{
+    f.innerHTML=`<label class="lbl">Balanced Equation</label>
+    <input class="inp mono" id="f-equation" placeholder="e.g. Zn + 2HCl → ZnCl₂ + H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Reactant Mass (grams)</label>
+    <input class="inp" id="f-reactant-mass" type="number" placeholder="e.g. 13.0" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Reactant Formula</label>
+    <input class="inp mono" id="f-reactant-formula" placeholder="e.g. Zn" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Product Formula</label>
+    <input class="inp mono" id="f-product-formula" placeholder="e.g. H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Actual Yield (grams)</label>
+    <input class="inp" id="f-actual" type="number" placeholder="e.g. 0.30" oninput="errHide()"/>`;
+    pills.innerHTML=`<span class="pill" onclick="fillPYFull('Zn + 2HCl → ZnCl₂ + H₂',13.0,'Zn','H₂',0.30)">Zn + HCl → 0.30g H₂</span>`;
+  }
+}
+function fillPYFull(eq,rMass,rForm,pForm,actual){
+  document.getElementById('f-equation').value=eq;
+  document.getElementById('f-reactant-mass').value=rMass;
+  document.getElementById('f-reactant-formula').value=rForm;
+  document.getElementById('f-product-formula').value=pForm;
+  document.getElementById('f-actual').value=actual;
+}
+
+// ── Empirical rows
+let empRows=[];
+function addEmpRow(){empRows.push({id:Date.now()+Math.random()});renderEmpRows();}
+function removeEmpRow(i){empRows.splice(i,1);renderEmpRows();}
+function renderEmpRows(){
+  const c=document.getElementById('emp-rows');
+  if(!c)return;
+  c.innerHTML=empRows.map((r,i)=>`<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+    <input class="inp mono" id="el-${r.id}" placeholder="El" style="width:50px" value="${r.el||''}"/>
+    <input class="inp" id="pct-${r.id}" type="number" placeholder="%" style="flex:1" value="${r.pct||''}"/>
+    <span style="font-size:12px;color:var(--muted)">%</span>
+    <button onclick="removeEmpRow(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px">×</button>
+  </div>`).join('');
+}
+function setEmpEx(data){empRows=data.map(([el,pct])=>({id:Date.now()+Math.random(),el,pct}));renderEmpRows();}
+function getEmpData(){return empRows.map(r=>({el:document.getElementById('el-'+r.id)?.value.trim(),pct:parseFloat(document.getElementById('pct-'+r.id)?.value)})).filter(r=>r.el&&!isNaN(r.pct));}
+
+// ── Equation presets
+const EQS={
+  nh3:{label:'N₂ + 3H₂ → 2NH₃',r1:{f:'N2',sym:'N₂',coef:1},r2:{f:'H2',sym:'H₂',coef:3},prod:{f:'NH3',sym:'NH₃',coef:2,mm:17.03}},
+  h2o:{label:'2H₂ + O₂ → 2H₂O',r1:{f:'H2',sym:'H₂',coef:2},r2:{f:'O2',sym:'O₂',coef:1},prod:{f:'H2O',sym:'H₂O',coef:2,mm:18.016}},
+  ab2:{label:'A + 2B → AB₂',r1:{f:'A',sym:'A',coef:1},r2:{f:'B',sym:'B',coef:2},prod:{f:'AB2',sym:'AB₂',coef:1,mm:null}},
+};
+function updateEqFields(){
+  const eq=document.getElementById('f-eq')?.value;const d=EQS[eq];if(!d)return;
+  document.getElementById('eq-fields').innerHTML=`
+  <label class="lbl">Moles of ${d.r1.sym}</label><input class="inp" id="f-r1" type="number" placeholder="e.g. 4" oninput="errHide()"/>
+  <label class="lbl" style="margin-top:8px">Moles of ${d.r2.sym}</label><input class="inp" id="f-r2" type="number" placeholder="e.g. 9" oninput="errHide()"/>`;
+}
+function updateTYFields(){
+  const eq=document.getElementById('f-eq')?.value;const d=EQS[eq];if(!d)return;
+  document.getElementById('ty-fields').innerHTML=`
+  <label class="lbl">Moles of Limiting Reactant (${d.r1.sym})</label>
+  <input class="inp" id="f-lim" type="number" placeholder="e.g. 6" oninput="errHide()"/>
+  <div style="font-size:11px;color:var(--muted);margin-top:3px">${d.r2.sym} is in excess</div>`;
+}
+
+function goLearnTopic(id){
+  const m={'molar-mass':'molar-mass','grams-moles':'grams-moles','pct-comp':'pct-comp','empirical':'empirical','molecular':'molecular','limiting':'limiting','theoretical':'theoretical','pct-yield':'pct-yield'};
+  goPage('learn');openTopic(m[id]||'stoich-def');
+}
+
+// ═══════════════════════ STEP GENERATORS ═══════════════════════
+function startSolving(){
+  const data=buildSteps(activeCalc);
+  if(!data)return;
+  solverData=data;steps=data.steps;
+  sts=steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0}));
+  activeStep=0;renderSolver();
+}
+function resetSolver(){solverData=null;steps=[];sts=[];activeStep=0;
+  document.getElementById('calc-right').innerHTML=`<div class="waiting"><div class="wicon">⚗</div><h3>Ready to Solve?</h3><p>Fill in the form and click "Start Solving" to begin the guided step-by-step session.</p></div>`;}
+
+function buildSteps(id){
+  if(id==='molar-mass')return genMM();
+  if(id==='grams-moles')return gmMode==='g2m'?genG2M():genM2G();
+  if(id==='pct-comp')return genPC();
+  if(id==='empirical')return genEF();
+  if(id==='molecular')return genMF();
+  if(id==='limiting')return genLR();
+  if(id==='theoretical')return genTY();
+  if(id==='pct-yield')return genPY();
+  return null;
+}
+
+function genMM(){
+  const f=document.getElementById('f-formula')?.value.trim();
+  if(!f){showErr('Enter a chemical formula.');return null;}
+  const els=parseFormula(f);
+  if(!els){showErr('Formula not recognized. Use element symbols with correct capitalization (e.g., H2O, CaCO3).');return null;}
+  const list=Object.entries(els);
+  const total=rnd(mmOf(els));
+  const ss=[];
+  list.forEach(([el,cnt])=>{
+    ss.push({ph:'phv',pl:'Count Atoms',inst:'Identify the atom count for each element',q:`How many ${el} atoms are in ${f}?`,exp:String(cnt),tol:0,unit:'',
+      h1:cnt>1?`Look for the subscript number after "${el}" in the formula. Subscript after element = atom count. Don't forget to account for parentheses!`:`No subscript appears after ${el} — this means exactly 1 atom is present.`,
+      h2:`The count of ${el} atoms in ${f} is ${cnt}. Remember: no subscript always means 1.`,
+      expl:`Correct! There ${cnt===1?'is':'are'} ${cnt} ${el} atom${cnt>1?'s':''} in ${f}.`});
+  });
+  list.forEach(([el])=>{
+    const m=AM[el];
+    ss.push({ph:'phg',pl:'Atomic Mass',inst:'Look up the atomic mass from the periodic table',q:`What is the atomic mass of ${el}? (g/mol)`,exp:String(m),tol:0.05,unit:'g/mol',
+      h1:`Find ${el} on the periodic table. The decimal number below the symbol = atomic mass in amu = molar mass in g/mol.`,
+      h2:`The atomic mass of ${el} = ${m} g/mol. Key values: H=1.008, C=12.01, N=14.01, O=16.00, Na=22.99, Ca=40.08, Cl=35.45, S=32.07.`,
+      expl:`Correct! Atomic mass of ${el} = ${m} g/mol (per the periodic table).`});
+  });
+  list.forEach(([el,cnt])=>{
+    const m=AM[el];const contrib=rnd(cnt*m);
+    ss.push({ph:'pht',pl:'Multiply',inst:'Contribution = number of atoms × atomic mass',q:`Total mass of ${el} = ${cnt} × ${m} = ?`,exp:String(contrib),tol:0.06,unit:'g/mol',
+      h1:`Multiply: ${cnt} atom${cnt>1?'s':''} of ${el} × ${m} g/mol per atom.`,
+      h2:`${cnt} × ${m} = ${contrib} g/mol. This is ${el}'s total contribution to the molar mass.`,
+      expl:`Correct! ${cnt} × ${m} = ${contrib} g/mol — ${el}'s contribution.`});
+  });
+  const parts=list.map(([el,c])=>rnd(c*AM[el]));
+  ss.push({ph:'phy',pl:'Final Sum',inst:'Add all contributions together',q:`Molar mass = ${parts.join(' + ')} = ?`,exp:String(total),tol:0.15,unit:'g/mol',
+    h1:`Add all the element contributions: ${parts.join(' + ')}. Use your calculator.`,
+    h2:`${parts.join(' + ')} = ${total} g/mol.`,
+    expl:`Excellent! Molar mass of ${f} = ${total} g/mol — the mass of one mole of this compound.`});
+  return {title:`Molar Mass of ${f}`,stmt:`Calculate the molar mass of ${f} step by step, using the periodic table.`,
+    given:[`Formula: ${f}`,...list.map(([e,c])=>`${e}: ${c} atom${c>1?'s':''}`)],
+    final:`${total} g/mol`,concept:`Molar mass = Σ(atoms × atomic mass). The module example: H₂O = 2(1.008)+16.00 = 18.016 g/mol.`,
+    phases:[{k:'phv',l:'Phase 1 — Count the Atoms',d:'How many atoms of each element?'},{k:'phg',l:'Phase 2 — Atomic Masses',d:'Look up each element on the periodic table.'},{k:'pht',l:'Phase 3 — Multiply',d:'atoms × atomic mass for each element.'},{k:'phy',l:'Phase 4 — Add Everything',d:'Sum all contributions for the final molar mass.'}],steps:ss};
+}
+
+function genG2M(){
+  const f=document.getElementById('f-formula')?.value.trim();
+  const mass=parseFloat(document.getElementById('f-mass')?.value);
+  if(!f){showErr('Enter a chemical formula.');return null;}
+  if(isNaN(mass)||mass<=0){showErr('Enter a valid mass in grams.');return null;}
+  const els=parseFormula(f);if(!els){showErr('Formula not recognized.');return null;}
+  const mm=rnd(mmOf(els));const moles=rnd(mass/mm,4);
+  return{title:`Grams → Moles: ${f}`,stmt:`How many moles are in ${mass} g of ${f}? (Module method: Mol = Mass ÷ Molar Mass)`,
+    given:[`Mass = ${mass} g`,`Formula: ${f}`],final:`${moles} mol of ${f}`,
+    concept:`Module formula: Mol = Mass ÷ Molar Mass. No Avogadro's number needed for grams↔moles.`,
+    phases:[{k:'phv',l:'Phase 1 — Identify Given',d:'What values are stated in the problem?'},{k:'phg',l:'Phase 2 — Get Molar Mass',d:'Calculate the molar mass of the formula.'},{k:'pht',l:'Phase 3 — Apply Formula',d:'Moles = Mass ÷ Molar Mass.'}],
+    steps:[
+      {ph:'phv',pl:'Identify Given',inst:'Read the problem and state the known mass',q:`What is the given mass of ${f} in this problem?`,exp:String(mass),tol:0.01,unit:'g',h1:'The "given" value is the mass stated in the problem. Write it down first.',h2:`The problem gives us ${mass} g of ${f}. This is our starting value.`,expl:`Correct! Given mass = ${mass} g of ${f}.`},
+      {ph:'phg',pl:'Molar Mass',inst:`Calculate the molar mass of ${f} (sum of atoms × atomic masses)`,q:`What is the molar mass of ${f}?`,exp:String(mm),tol:0.1,unit:'g/mol',h1:`Add (atoms × atomic mass) for each element in ${f}. Use the periodic table.`,h2:`Molar mass of ${f} = ${mm} g/mol.`,expl:`Correct! Molar mass of ${f} = ${mm} g/mol.`},
+      {ph:'pht',pl:'Apply Formula',inst:'Module formula: Moles = Mass ÷ Molar Mass',q:`Moles = ${mass} ÷ ${mm} = ?`,exp:String(moles),tol:Math.max(0.05,moles*0.02),unit:'mol',h1:`Divide the given mass (${mass} g) by the molar mass (${mm} g/mol). Units: g ÷ g/mol = mol.`,h2:`${mass} ÷ ${mm} = ${moles} mol. (Module Example 2: 100÷1.008=99.2 mol H)`,expl:`Correct! ${mass} ÷ ${mm} = ${moles} mol of ${f}.`},
+    ]};
+}
+
+function genM2G(){
+  const f=document.getElementById('f-formula')?.value.trim();
+  const moles=parseFloat(document.getElementById('f-moles')?.value);
+  if(!f){showErr('Enter a chemical formula.');return null;}
+  if(isNaN(moles)||moles<=0){showErr('Enter a valid number of moles.');return null;}
+  const els=parseFormula(f);if(!els){showErr('Formula not recognized.');return null;}
+  const mm=rnd(mmOf(els));const mass=rnd(moles*mm);
+  return{title:`Moles → Grams: ${f}`,stmt:`How many grams are in ${moles} mol of ${f}? (Module method: Mass = Moles × Molar Mass)`,
+    given:[`Moles = ${moles} mol`,`Formula: ${f}`],final:`${mass} g of ${f}`,
+    concept:`Module formula: Mass = Moles × Molar Mass. Module Example 1: 5.0 mol H × 1.008 = 5.04 g.`,
+    phases:[{k:'phv',l:'Phase 1 — Identify Given',d:'What is the given number of moles?'},{k:'phg',l:'Phase 2 — Molar Mass',d:'Calculate molar mass of the formula.'},{k:'pht',l:'Phase 3 — Apply Formula',d:'Mass = Moles × Molar Mass.'}],
+    steps:[
+      {ph:'phv',pl:'Identify Given',inst:'State the known number of moles',q:`How many moles of ${f} are given?`,exp:String(moles),tol:0.01,unit:'mol',h1:'The "given" is always the value stated in the problem.',h2:`Given: ${moles} mol of ${f}.`,expl:`Correct! Given = ${moles} mol of ${f}.`},
+      {ph:'phg',pl:'Molar Mass',inst:`Calculate the molar mass of ${f}`,q:`Molar mass of ${f} = ?`,exp:String(mm),tol:0.1,unit:'g/mol',h1:`Sum (atoms × atomic mass) for each element in ${f}.`,h2:`Molar mass of ${f} = ${mm} g/mol.`,expl:`Correct! Molar mass of ${f} = ${mm} g/mol.`},
+      {ph:'pht',pl:'Apply Formula',inst:'Module formula: Mass = Moles × Molar Mass',q:`Mass = ${moles} × ${mm} = ?`,exp:String(mass),tol:Math.max(0.1,mass*0.01),unit:'g',h1:`Multiply moles (${moles}) × molar mass (${mm} g/mol). Units: mol × g/mol = g.`,h2:`${moles} × ${mm} = ${mass} g. (Module Example 1: 5.0 mol H × 1.008 = 5.04 g)`,expl:`Correct! ${moles} × ${mm} = ${mass} g of ${f}.`},
+    ]};
+}
+
+function genPC(){
+  const f=document.getElementById('f-formula')?.value.trim();
+  if(!f){showErr('Enter a chemical formula.');return null;}
+  const els=parseFormula(f);if(!els){showErr('Formula not recognized.');return null;}
+  const list=Object.entries(els);const mm=rnd(mmOf(els));const ss=[];
+  ss.push({ph:'phg',pl:'Total Molar Mass',inst:'First calculate the total molar mass of the compound',q:`What is the total molar mass of ${f}?`,exp:String(mm),tol:0.1,unit:'g/mol',h1:`Sum (atoms × atomic mass) for ALL elements in ${f}. This is the denominator.`,h2:`Molar mass of ${f} = ${mm} g/mol.`,expl:`Correct! Total molar mass of ${f} = ${mm} g/mol. This is the denominator for all % calculations.`});
+  list.forEach(([el,cnt])=>{
+    const cb=rnd(cnt*AM[el]);
+    ss.push({ph:'pht',pl:'Element Contribution',inst:`${el}: contribution = atoms × atomic mass`,q:`Total mass of ${el} = ${cnt} × ${AM[el]} = ?`,exp:String(cb),tol:0.06,unit:'g/mol',h1:`Multiply: ${cnt} ${el} atoms × ${AM[el]} g/mol.`,h2:`${cnt} × ${AM[el]} = ${cb} g/mol.`,expl:`Correct! ${el} contributes ${cb} g/mol to ${f}.`});
+    const pct=rnd((cb/mm)*100,2);
+    ss.push({ph:'phv',pl:'Calculate %',inst:'Apply: % = (contribution ÷ molar mass) × 100',q:`% ${el} = (${cb} ÷ ${mm}) × 100 = ?`,exp:String(pct),tol:0.6,unit:'%',h1:`Divide ${el}'s contribution (${cb}) by total molar mass (${mm}), then × 100.`,h2:`(${cb}/${mm}) × 100 = ${pct}%.`,expl:`Correct! ${el} = ${pct}% of ${f} by mass.`});
+  });
+  ss.push({ph:'phy',pl:'Verify (Sum = 100%)',inst:'All percentages should sum to approximately 100%',q:`What should the sum of all element percentages equal?`,exp:'100',tol:2,unit:'%',h1:'Add all percentages. Close to 100% means your calculations are correct. Rounding causes small deviations.',h2:'The sum should be ~100%. Type 100.',expl:`Correct! All percentages sum to ~100%, confirming accuracy of your calculations.`});
+  const summary=list.map(([el,c])=>`${el}: ${rnd((c*AM[el]/mm)*100,1)}%`).join(', ');
+  return{title:`% Composition of ${f}`,stmt:`Calculate the percentage by mass of each element in ${f}.`,
+    given:[`Formula: ${f}`,`Molar mass: ${mm} g/mol`],final:summary,
+    concept:`% element = (element mass contribution ÷ molar mass) × 100%. All percentages sum to 100%.`,
+    phases:[{k:'phg',l:'Phase 1 — Molar Mass',d:'Calculate total molar mass first.'},{k:'pht',l:'Phase 2 — Element Contribution',d:'atoms × atomic mass per element.'},{k:'phv',l:'Phase 3 — Calculate %',d:'Apply the percentage formula.'},{k:'phy',l:'Phase 4 — Verify',d:'Sum should equal 100%.'}],steps:ss};
+}
+
+function genEF(){
+  const rows=getEmpData();
+  if(rows.length<2){showErr('Add at least 2 elements with percentages.');return null;}
+  const total=rows.reduce((s,r)=>s+r.pct,0);
+  if(Math.abs(total-100)>2){showErr(`Percentages sum to ${rnd(total,1)}% — must total ~100%.`);return null;}
+  const moles=rows.map(r=>({el:r.el,pct:r.pct,mol:rnd(r.pct/(AM[r.el]||r.pct),4)}));
+  const minMol=Math.min(...moles.map(m=>m.mol));
+  const ratios=moles.map(m=>rnd(m.mol/minMol,2));
+  const ints=ratios.map(r=>Math.round(r));
+  const ef=moles.map((m,i)=>ints[i]===1?m.el:`${m.el}${ints[i]}`).join('');
+  const ss=[];
+  ss.push({ph:'phv',pl:'Assume 100g',inst:'The key first step: assume a 100g sample',q:`If we assume 100g of this compound, how many grams of ${rows[0].el} do we have? (${rows[0].pct}%)`,exp:String(rows[0].pct),tol:0.1,unit:'g',
+    h1:`With a 100g sample, the percentage becomes the mass in grams directly. ${rows[0].pct}% of 100g = ${rows[0].pct}g. This is the module's trick!`,
+    h2:`${rows[0].pct}% of 100g = ${rows[0].pct}g of ${rows[0].el}. Simple!`,
+    expl:`Correct! The 100g assumption converts % directly to grams: ${rows[0].pct}g of ${rows[0].el}.`});
+  moles.forEach(m=>{
+    ss.push({ph:'phg',pl:'Convert to Moles',inst:`Moles = mass ÷ atomic mass (divide ${m.el} grams by its atomic mass)`,q:`Moles of ${m.el} = ${m.pct} ÷ ${AM[m.el]||'?'} = ?`,exp:String(m.mol),tol:0.06,unit:'mol',
+      h1:`Divide the mass of ${m.el} (${m.pct}g) by its atomic mass (${AM[m.el]} g/mol).`,
+      h2:`${m.pct} ÷ ${AM[m.el]} = ${m.mol} mol.`,
+      expl:`Correct! ${m.pct} ÷ ${AM[m.el]} = ${m.mol} mol of ${m.el}.`});
+  });
+  ss.push({ph:'pht',pl:'Find Smallest',inst:'Find the smallest mole value — this becomes the divisor',q:`What is the smallest mole value? (from: ${moles.map(m=>m.mol).join(', ')})`,exp:String(minMol),tol:0.05,unit:'mol',
+    h1:'Compare all mole values. The smallest one is what you divide everything by.',
+    h2:`The smallest mole value is ${minMol} mol. We divide all values by this.`,
+    expl:`Correct! Smallest = ${minMol} mol. This becomes our divisor.`});
+  moles.forEach((m,i)=>{
+    ss.push({ph:'pht',pl:'Calculate Ratio',inst:`Ratio of ${m.el} = moles ÷ smallest mole value`,q:`${m.el} ratio = ${m.mol} ÷ ${minMol} = ? (round to nearest whole number)`,exp:String(ints[i]),tol:0.2,
+      h1:`Divide ${m.el}'s moles (${m.mol}) by the smallest (${minMol}).`,
+      h2:`${m.mol} ÷ ${minMol} = ${ratios[i]} ≈ ${ints[i]}. This is the subscript for ${m.el}.`,
+      expl:`Correct! ${m.el} ratio = ${ints[i]} (subscript in empirical formula).`});
+  });
+  ss.push({ph:'phy',pl:'Write Formula',inst:'Assemble the empirical formula using the whole-number ratios',q:`Write the empirical formula. (Type like: CH2O — letters then numbers, no spaces)`,exp:ef,tol:0,unit:'',inputType:'text',
+    h1:`Use ratios: ${moles.map((m,i)=>`${m.el}:${ints[i]}`).join(', ')}. Write the formula combining element symbols with subscripts.`,
+    h2:`The empirical formula is ${ef}. Type it exactly as shown.`,
+    expl:`Correct! Empirical formula = ${ef} — the simplest whole-number ratio of atoms. (Module example: 40%C 6.7%H 53.3%O → CH₂O)`});
+  return{title:'Empirical Formula',stmt:`Find empirical formula from: ${rows.map(r=>`${r.pct}% ${r.el}`).join(', ')}.`,
+    given:rows.map(r=>`${r.el}: ${r.pct}%`),final:ef,
+    concept:'Module 4 steps: (1) Assume 100g, (2) Convert to moles, (3) Divide by smallest, (4) Round to whole numbers.',
+    phases:[{k:'phv',l:'Phase 1 — Assume 100g',d:'Convert % to grams by assuming 100g sample.'},{k:'phg',l:'Phase 2 — Convert to Moles',d:'Divide each mass by atomic mass.'},{k:'pht',l:'Phase 3 — Find Ratios',d:'Divide by smallest, round to whole number.'},{k:'phy',l:'Phase 4 — Write Formula',d:'Assemble the empirical formula.'}],steps:ss};
+}
+
+function genMF(){
+  const ef=document.getElementById('f-emp')?.value.trim();
+  const mmG=parseFloat(document.getElementById('f-mm')?.value);
+  if(!ef){showErr('Enter the empirical formula.');return null;}
+  if(isNaN(mmG)||mmG<=0){showErr('Enter a valid molar mass.');return null;}
+  const els=parseFormula(ef);if(!els){showErr('Empirical formula not recognized.');return null;}
+  const empMM=rnd(mmOf(els));
+  const n=Math.round(mmG/empMM);
+  const mf=Object.entries(els).map(([el,c])=>{const nc=c*n;return nc===1?el:`${el}${nc}`;}).join('');
+  const ver=rnd(empMM*n);
+  return{title:'Molecular Formula',stmt:`Empirical formula = ${ef}, Molar mass = ${mmG} g/mol. Find the molecular formula.`,
+    given:[`Empirical formula: ${ef}`,`Molar mass: ${mmG} g/mol`],final:mf,
+    concept:`Module formula: n = Molar Mass ÷ Empirical Mass. Example: CH₂O, 180 g/mol → n=6 → C₆H₁₂O₆.`,
+    phases:[{k:'phv',l:'Phase 1 — Empirical Mass',d:'Calculate the empirical formula mass.'},{k:'phg',l:'Phase 2 — Find n',d:'n = Molar Mass ÷ Empirical Mass.'},{k:'pht',l:'Phase 3 — Multiply Subscripts',d:'Multiply all subscripts by n.'},{k:'phy',l:'Phase 4 — Verify',d:'Confirm molecular mass = given molar mass.'}],
+    steps:[
+      {ph:'phv',pl:'Empirical Mass',inst:'Calculate the empirical formula mass',q:`What is the formula mass of "${ef}"?`,exp:String(empMM),tol:0.5,unit:'g/mol',h1:`Calculate molar mass of ${ef} normally: Σ(atoms × atomic mass).`,h2:`Empirical formula mass of ${ef} = ${empMM} g/mol.`,expl:`Correct! Empirical formula mass of ${ef} = ${empMM} g/mol.`},
+      {ph:'phg',pl:'Find n',inst:'Module formula: n = Molar Mass ÷ Empirical Formula Mass',q:`n = ${mmG} ÷ ${empMM} = ?`,exp:String(n),tol:0.1,h1:`Divide given molar mass (${mmG}) by empirical formula mass (${empMM}).`,h2:`n = ${mmG} ÷ ${empMM} = ${n}. Multiply each subscript in ${ef} by ${n}.`,expl:`Correct! n = ${n}. (Module: CH₂O, 180÷30=6; NO₂, 92÷46=2)`},
+      {ph:'pht',pl:'Multiply Subscripts',inst:`Multiply every subscript in ${ef} by ${n}`,q:`What is the complete molecular formula?`,exp:mf,tol:0,unit:'',inputType:'text',h1:`Take each element in ${ef} and multiply its subscript by ${n}.`,h2:`Multiplying all subscripts by ${n}: ${mf}.`,expl:`Correct! Molecular formula = ${mf}. (Module examples: CH₂O×6=C₆H₁₂O₆, NO₂×2=N₂O₄)`},
+      {ph:'phy',pl:'Verify',inst:'Verify: empirical mass × n should equal given molar mass',q:`${empMM} × ${n} = ?  (should equal ${mmG} g/mol)`,exp:String(ver),tol:1,unit:'g/mol',h1:`Multiply empirical mass (${empMM}) by n (${n}) to confirm.`,h2:`${empMM} × ${n} = ${ver} g/mol ✓`,expl:`Correct! ${empMM} × ${n} = ${ver} g/mol — matches given molar mass. Molecular formula ${mf} verified!`},
+    ]};
+}
+
+function genLR(){
+  let eq, parsed, r1, r2, r0mol, r1mol;
+  
+  // Check if using custom parsed equation
+  if(window.customEqData && window.customEqData.type === 'limiting'){
+    parsed = window.customEqData.parsed;
+    eq = window.customEqData.equation;
+    
+    // Get mole values from dynamically generated inputs
+    r0mol=parseFloat(document.getElementById('f-r0')?.value);
+    r1mol=parseFloat(document.getElementById('f-r1')?.value);
+    
+    if(isNaN(r0mol)||r0mol<=0){showErr('Enter moles for first reactant.');return null;}
+    if(isNaN(r1mol)||r1mol<=0){showErr('Enter moles for second reactant.');return null;}
+    
+    r1=parsed.reactants[0];
+    r2=parsed.reactants[1];
+    
+  } else {
+    eq=document.getElementById('f-eq')?.value.trim();
+    if(!eq){showErr('Enter a balanced equation and click "Parse Equation".');return null;}
+    
+    // Get mole values from dynamically generated inputs
+    r0mol=parseFloat(document.getElementById('f-r0')?.value);
+    r1mol=parseFloat(document.getElementById('f-r1')?.value);
+    
+    if(isNaN(r0mol)||r0mol<=0){showErr('Enter moles for first reactant.');return null;}
+    if(isNaN(r1mol)||r1mol<=0){showErr('Enter moles for second reactant.');return null;}
+    
+    // Parse equation
+    parsed=parseEquation(eq);
+    if(!parsed||parsed.reactants.length<2){showErr('Need at least 2 reactants. Check your equation.');return null;}
+    
+    r1=parsed.reactants[0];
+    r2=parsed.reactants[1];
+  }
+  
+  // Calculate which is limiting
+  const ratio1=r0mol/r1.coef;
+  const ratio2=r1mol/r2.coef;
+  const limiting=ratio1<ratio2?r1.formula:r2.formula;
+  const excess=ratio1<ratio2?r2.formula:r1.formula;
+  const limitMol=ratio1<ratio2?r0mol:r1mol;
+  
+  return{title:'Limiting Reactant',stmt:`${eq}. ${r1.formula}: ${r0mol} mol, ${r2.formula}: ${r1mol} mol. Identify the limiting reactant.`,
+    given:[`Equation: ${eq}`,`${r1.formula}: ${r0mol} mol`,`${r2.formula}: ${r1mol} mol`],
+    balancedEq:eq,  // ADD BALANCED EQUATION
+    final:`${limiting} = Limiting Reactant | ${excess} = Excess Reactant`,
+    concept:`Module method: divide moles by coefficient. Smaller ratio = limiting reactant.`,
+    phases:[{k:'p1',l:'Divide by Coefficients',d:'Find which ratio is smaller'}],
+    steps:[
+      {ph:'p1',pl:'First Ratio',inst:'Divide first reactant moles by its coefficient',q:`${r0mol} ÷ ${r1.coef} = ?`,exp:String(rnd(ratio1,2)),tol:0.05,h1:`Divide ${r0mol} mol ${r1.formula} by its coefficient ${r1.coef}`,h2:`${r0mol} ÷ ${r1.coef} = ${rnd(ratio1,2)}`,expl:`Correct!`},
+      {ph:'p1',pl:'Second Ratio',inst:'Divide second reactant moles by its coefficient',q:`${r1mol} ÷ ${r2.coef} = ?`,exp:String(rnd(ratio2,2)),tol:0.05,h1:`Divide ${r1mol} mol ${r2.formula} by its coefficient ${r2.coef}`,h2:`${r1mol} ÷ ${r2.coef} = ${rnd(ratio2,2)}`,expl:`Correct!`},
+      {ph:'p1',pl:'Compare',inst:'Smaller ratio = limiting reactant',q:`Which reactant is limiting? (type formula)`,exp:limiting,tol:0,inputType:'text',h1:`${rnd(ratio1,2)} vs ${rnd(ratio2,2)} - smaller ratio runs out first`,h2:`${limiting} is limiting (smaller ratio)`,expl:`Correct! ${limiting} is limiting reactant`},
+    ]};
+}
+
+function genTY(){
+  let eq, parsed, reactant, product, amount, unit;
+  
+  // Check if using custom parsed equation
+  if(window.customEqData && window.customEqData.type === 'theoretical'){
+    parsed = window.customEqData.parsed;
+    eq = window.customEqData.equation;
+    const selectedReactant = document.getElementById('f-which-reactant')?.value;
+    amount = parseFloat(document.getElementById('f-lim')?.value);
+    unit = 'moles';
+    
+    if(!amount || isNaN(amount) || amount<=0){
+      showErr('Enter moles of reactant.');
+      return null;
+    }
+    
+    // Find the selected reactant
+    reactant = parsed.reactants.find(r => r.formula === selectedReactant);
+    product = parsed.products[0]; // Use first product
+    
+    if(!reactant || !product){
+      showErr('Invalid reactant or product.');
+      return null;
+    }
+    
+  // Original code for non-custom equations
+  } else {
+    eq=document.getElementById('f-equation')?.value.trim();
+    amount=parseFloat(document.getElementById('f-amount')?.value);
+    unit=document.getElementById('f-unit')?.value||'grams';
+    const reactantIdx=parseInt(document.getElementById('f-reactant')?.value||'0');
+    const productIdx=parseInt(document.getElementById('f-product')?.value||'0');
+    
+    if(!eq){showErr('Enter a balanced equation.');return null;}
+    if(isNaN(amount)||amount<=0){showErr('Enter amount of reactant.');return null;}
+    
+    parsed=parseEquation(eq);
+    if(!parsed){showErr('Could not parse equation. Check format.');return null;}
+    
+    reactant=parsed.reactants[reactantIdx];
+    product=parsed.products[productIdx];
+    
+    if(!reactant||!product){showErr('Select valid reactant and product.');return null;}
+  }
+  
+  // Calculate theoretical yield
+  const rMM=getMM(reactant.formula);
+  const pMM=getMM(product.formula);
+  
+  let rMoles, pMoles, pMass;
+  if(unit==='grams'){
+    rMoles=rnd(amount/rMM,3);
+    pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
+    pMass=rnd(pMoles*pMM,2);
+  }else{
+    rMoles=amount;
+    pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
+    pMass=rnd(pMoles*pMM,2);
+  }
+  
+  return{title:'Theoretical Yield',stmt:`${eq}. Given ${amount} ${unit} of ${reactant.formula}, find theoretical yield of ${product.formula}.`,
+    given:[`Equation: ${eq}`,`${reactant.formula}: ${amount} ${unit}`],
+    balancedEq:eq,  // ADD BALANCED EQUATION
+    final:`${pMoles} mol (${pMass} g) of ${product.formula}`,
+    concept:`Calculate moles of product from moles of reactant using mole ratio.`,
+    phases:[{k:'p1',l:'Calculate',d:'Use mole ratios'}],
+    steps:unit==='grams'?[
+      {ph:'p1',pl:'Convert to Moles',inst:'Moles = mass ÷ molar mass',q:`${amount} g ${reactant.formula} ÷ ${rMM} g/mol = ? mol`,exp:String(rMoles),tol:0.05,unit:'mol',h1:`Divide ${amount} by molar mass ${rMM}`,h2:`${amount} ÷ ${rMM} = ${rMoles} mol`,expl:`Correct!`},
+      {ph:'p1',pl:'Mole Ratio',inst:'Use ratio from equation',q:`Moles ${product.formula} = ${rMoles} × (${product.coef}/${reactant.coef}) = ?`,exp:String(pMoles),tol:0.05,unit:'mol',h1:`Multiply by ratio ${product.coef}:${reactant.coef}`,h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol`,expl:`Correct!`},
+      {ph:'p1',pl:'Convert to Grams',inst:'Mass = moles × molar mass',q:`${pMoles} mol × ${pMM} g/mol = ? g`,exp:String(pMass),tol:0.5,unit:'g',h1:`Multiply ${pMoles} mol by molar mass ${pMM}`,h2:`${pMoles} × ${pMM} = ${pMass} g`,expl:`Correct! Theoretical yield = ${pMass} g`},
+    ]:[
+      {ph:'p1',pl:'Mole Ratio',inst:'Use ratio from equation',q:`Moles ${product.formula} = ${rMoles} × (${product.coef}/${reactant.coef}) = ?`,exp:String(pMoles),tol:0.05,unit:'mol',h1:`Multiply by ratio ${product.coef}:${reactant.coef}`,h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol`,expl:`Correct!`},
+      {ph:'p1',pl:'Convert to Grams',inst:'Mass = moles × molar mass',q:`${pMoles} mol × ${pMM} g/mol = ? g`,exp:String(pMass),tol:0.5,unit:'g',h1:`Multiply ${pMoles} mol by molar mass ${pMM}`,h2:`${pMoles} × ${pMM} = ${pMass} g`,expl:`Correct! Theoretical yield = ${pMass} g`},
+    ]};
+}
+
+function genPY(){
+  if(pyMode==='simple'){
+    // Simple mode - just calculate %
+    const actual=parseFloat(document.getElementById('f-actual')?.value);
+    const theor=parseFloat(document.getElementById('f-theoretical')?.value);
+    const unit=document.getElementById('f-unit')?.value||'g';
+    if(isNaN(actual)||actual<=0){showErr('Enter a valid actual yield.');return null;}
+    if(isNaN(theor)||theor<=0){showErr('Enter a valid theoretical yield.');return null;}
+    if(actual>theor*1.05){showErr('Actual yield cannot exceed theoretical yield. Check your values.');return null;}
+    const dec=rnd(actual/theor,4);
+    const pct=rnd(dec*100,1);
+    const eff=pct>=70;
+    return{title:'Percent Yield',stmt:`Theoretical yield = ${theor} ${unit}, Actual yield = ${actual} ${unit}. Calculate percent yield.`,
+      given:[`Actual yield: ${actual} ${unit}`,`Theoretical yield: ${theor} ${unit}`],
+      final:`${pct}% (${eff?'Efficient reaction':'Significant losses occurred'})`,
+      concept:`Module formula: % Yield = (Actual ÷ Theoretical) × 100. Examples: 30/36×100=83.3%, 18/25×100=72%.`,
+      phases:[{k:'phv',l:'Phase 1 — Identify Given',d:'Know actual and theoretical yield.'},{k:'phg',l:'Phase 2 — Write Formula',d:'% Yield = (Actual ÷ Theoretical) × 100.'},{k:'pht',l:'Phase 3 — Divide',d:'Actual ÷ Theoretical.'},{k:'phy',l:'Phase 4 — Multiply by 100',d:'Get the percentage.'},{k:'pho',l:'Phase 5 — Interpret',d:'Is the yield efficient?'}],
+      steps:[
+        {ph:'phv',pl:'Identify Given',inst:'State the actual yield from the problem',q:`What is the actual yield in this problem?`,exp:String(actual),tol:0.01,unit,h1:'"Actual yield" is the real experimental result — the amount collected in the lab.',h2:`Actual yield = ${actual} ${unit}. This is always ≤ theoretical yield.`,expl:`Correct! Actual yield = ${actual} ${unit}.`},
+        {ph:'phg',pl:'Write Formula',inst:'State the module formula for percent yield',q:`% Yield = (Actual Yield ÷ __________ Yield) × 100. What fills the blank?`,exp:'theoretical',tol:0,inputType:'text',h1:'Percent yield compares actual results to the maximum possible amount.',h2:'% Yield = (Actual ÷ THEORETICAL) × 100. Type "theoretical".',expl:'Correct! % Yield = (Actual ÷ Theoretical) × 100 — directly from the module.'},
+        {ph:'pht',pl:'Divide',inst:'Calculate actual ÷ theoretical',q:`${actual} ÷ ${theor} = ?`,exp:String(dec),tol:0.002,h1:`Divide ${actual} by ${theor}. This gives a decimal between 0 and 1.`,h2:`${actual} ÷ ${theor} = ${dec}.`,expl:`Correct! ${actual} ÷ ${theor} = ${dec}.`},
+        {ph:'phy',pl:'Multiply by 100',inst:'Convert decimal to percentage',q:`${dec} × 100 = ?`,exp:String(pct),tol:0.5,unit:'%',h1:`Multiply ${dec} × 100 to convert the decimal fraction to a percentage.`,h2:`${dec} × 100 = ${pct}%. (Module examples: 30÷36×100=83.3%, 18÷25×100=72%)`,expl:`Correct! Percent yield = ${pct}%.`},
+        {ph:'pho',pl:'Interpret',inst:'What does this percent yield tell us?',q:`A percent yield of ${pct}% means the reaction is ______. (type: efficient or inefficient)`,exp:eff?'efficient':'inefficient',tol:0,inputType:'text',h1:`Values near 100% = efficient. Values far below 100% = significant losses.`,h2:`${pct}% is ${eff?'relatively high — efficient':'relatively low — losses occurred'}. Type "${eff?'efficient':'inefficient'}".`,expl:eff?`Correct! ${pct}% is a good yield. Perfect = 100% (never truly achieved).`:`Correct! ${pct}% indicates product was lost to incomplete reaction, side reactions, or handling.`},
+      ]};
+  }else{
+    // Full mode - calculate theoretical first, then %
+    const eq=document.getElementById('f-equation')?.value.trim();
+    const rMass=parseFloat(document.getElementById('f-reactant-mass')?.value);
+    const rForm=document.getElementById('f-reactant-formula')?.value.trim();
+    const pForm=document.getElementById('f-product-formula')?.value.trim();
+    const actual=parseFloat(document.getElementById('f-actual')?.value);
+    if(!eq){showErr('Enter balanced equation');return null;}
+    if(isNaN(rMass)||rMass<=0){showErr('Enter valid reactant mass');return null;}
+    if(!rForm||!pForm){showErr('Enter reactant and product formulas');return null;}
+    if(isNaN(actual)||actual<=0){showErr('Enter valid actual yield');return null;}
+    
+    // Calculate theoretical yield
+    const rMM=getMM(rForm);
+    const pMM=getMM(pForm);
+    if(!rMM||!pMM){showErr('Could not calculate molar masses');return null;}
+    
+    // Extract coefficients from equation (simplified - assumes proper format)
+    const parts=eq.split('→');
+    const reactants=parts[0].split('+').map(r=>r.trim());
+    const products=parts[1].split('+').map(p=>p.trim());
+    
+    // Find coefficients
+    let rCoef=1,pCoef=1;
+    reactants.forEach(r=>{const m=r.match(/^(\d+)/);if(m&&r.includes(rForm))rCoef=parseInt(m[1]);});
+    products.forEach(p=>{const m=p.match(/^(\d+)/);if(m&&p.includes(pForm))pCoef=parseInt(m[1]);});
+    
+    const rMoles=rnd(rMass/rMM,3);
+    const pMoles=rnd(rMoles*(pCoef/rCoef),3);
+    const theor=rnd(pMoles*pMM,2);
+    const pct=rnd((actual/theor)*100,1);
+    
+    return{title:'Percent Yield (Full Calculation)',stmt:`${eq}. If ${rMass} g ${rForm} produces ${actual} g ${pForm}, what is the percent yield?`,
+      given:[`Equation: ${eq}`,`Reactant: ${rMass} g ${rForm}`,`Actual: ${actual} g ${pForm}`],
+      final:`${pct}%`,
+      concept:`Calculate theoretical yield first, then find percent yield.`,
+      phases:[{k:'p1',l:'Calculate Theoretical',d:'Find max possible product'}],
+      steps:[
+        {ph:'p1',pl:'Molar Mass',inst:'Calculate molar masses',q:`Molar mass of ${rForm} (g/mol)?`,exp:String(rMM),tol:0.5,h1:`Look up atomic masses and add them up.`,h2:`${rForm} = ${rMM} g/mol`,expl:`Correct!`},
+        {ph:'p1',pl:'Convert to Moles',inst:'Convert reactant to moles',q:`${rMass} g ${rForm} = ? moles`,exp:String(rMoles),tol:0.02,unit:'mol',h1:`Moles = mass ÷ molar mass = ${rMass} ÷ ${rMM}`,h2:`${rMass} ÷ ${rMM} = ${rMoles} mol`,expl:`Correct! ${rMoles} mol ${rForm}`},
+        {ph:'p1',pl:'Mole Ratio',inst:'Use mole ratio from equation',q:`Moles of ${pForm} produced? (ratio ${rCoef}:${pCoef})`,exp:String(pMoles),tol:0.02,unit:'mol',h1:`${rMoles} mol ${rForm} × (${pCoef} mol ${pForm} / ${rCoef} mol ${rForm})`,h2:`= ${pMoles} mol ${pForm}`,expl:`Correct! ${pMoles} mol ${pForm}`},
+        {ph:'p1',pl:'Theoretical Mass',inst:'Convert to grams',q:`${pMoles} mol ${pForm} = ? grams (MM=${pMM})`,exp:String(theor),tol:0.5,unit:'g',h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,h2:`= ${theor} g (theoretical yield)`,expl:`Correct! Theoretical = ${theor} g`},
+        {ph:'p1',pl:'Percent Yield',inst:'Calculate % yield',q:`% Yield = (${actual} ÷ ${theor}) × 100 = ?`,exp:String(pct),tol:1,unit:'%',h1:`Actual ÷ Theoretical × 100`,h2:`(${actual} ÷ ${theor}) × 100 = ${pct}%`,expl:`Correct! Percent yield = ${pct}%`},
+      ]};
+  }
+}
+
+// ═══════════════════════ SOLVER ENGINE ═══════════════════════
+function renderSolver(){
+  const r=document.getElementById('calc-right');
+  if(!solverData||!steps.length){resetSolver();return;}
+  const done=sts.filter(s=>s.status==='sc'||s.status==='srev').length;
+  const pct=Math.round(done/steps.length*100);
+  if(done===steps.length){
+    const correct=sts.filter(s=>s.status==='sc').length;
+    const p=Math.round(correct/steps.length*100);
+    r.innerHTML=`<div class="compl">
+      <div class="trophy" style="background:${p===100?'var(--g50)':'var(--y50)'};">${p===100?'🏆':p>=70?'🎯':'📚'}</div>
+      <div style="font-size:18px;font-weight:600;margin-bottom:5px">${p===100?'Perfect Score! 🎉':p>=70?'Well Done! 👍':'Keep Practicing! 💪'}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:9px">You answered ${correct} of ${steps.length} steps correctly.</div>
+      <div class="scprog"><div class="scfill" style="width:${p}%;background:${p===100?'#22C55E':p>=70?'var(--g500)':'#F59E0B'}"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${p}% correct</div>
+      <div class="final-box">
+        <div class="fl">Final Answer</div>
+        <div class="fv">${solverData.final}</div>
+        <div class="fs">${solverData.concept}</div>
+      </div>
+      <div class="cbtns">
+        <button class="btn btn-o" onclick="retryS()">↺ Try Again</button>
+        <button class="btn btn-g" onclick="newS()">⚗ New Problem</button>
+        <button class="btn" style="background:var(--y50);color:var(--y600);border:.5px solid var(--y100)" onclick="goLearnTopic('${activeCalc}')">📖 Review Module</button>
+      </div>
+    </div>`;
+    return;
+  }
+  let h=`<div class="prob-hdr">
+    <div class="ph-lbl">${CALCS.find(c=>c.id===activeCalc)?.icon||''} ${CALCS.find(c=>c.id===activeCalc)?.name||''}</div>
+    <div class="ph-title">${solverData.title}</div>
+    <div class="ph-stmt">${solverData.stmt}</div>
+    ${solverData.balancedEq?`<div class="balanced-eq-box">
+      <div class="beq-lbl">⚗️ Balanced Chemical Equation</div>
+      <div class="beq-formula">${solverData.balancedEq}</div>
+      <div class="beq-note">All stoichiometry calculations must start from a balanced equation. The coefficients show the exact mole ratios between reactants and products.</div>
+    </div>`:''}
+    <div class="given">
+      <div class="given-lbl">Given Information</div>
+      <div class="given-pills">${solverData.given.map(g=>`<div class="gpill">${g}</div>`).join('')}</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-txt">${done}/${steps.length} steps</div>
+    </div>
+  </div>
+  <div class="notice">ℹ️ 3 attempts per step. Wrong answers reveal progressive hints based on the module. <a href="#" onclick="goLearnTopic('${activeCalc}')" style="color:var(--g700);font-weight:600">Review lesson</a> if stuck. Need atomic masses? <a href="https://ptable.com" target="_blank" style="color:var(--g700);font-weight:600">Periodic Table 🧪</a></div>`;
+
+  const phases=solverData.phases||[];
+  phases.forEach(ph=>{
+    const phSteps=steps.map((s,i)=>({s,i})).filter(({s})=>s.ph===ph.k);
+    if(!phSteps.length)return;
+    h+=`<div class="phase-banner ${ph.k}"><div class="ph-ttl">${ph.l}</div><div class="ph-dsc">${ph.d}</div></div>`;
+    phSteps.forEach(({s,i})=>{
+      const st=sts[i];
+      const nc=st.status==='sc'?'snc':st.status==='srev'?'snr':st.status==='sa'?'sna':st.status.startsWith('sh')?'snh':'sn0';
+      h+=`<div class="scard ${st.status}" id="sc-${i}">
+        <div class="shead">
+          <div class="snum ${nc}">${st.status==='sc'?'✓':i+1}</div>
+          <div style="flex:1">
+            <span class="stag ${s.ph}" style="font-size:10px;padding:2px 7px;border-radius:10px">${s.pl}</span>
+            <div class="sinst">${s.inst}</div>
+            <div class="sq">${s.q}</div>
+          </div>
+        </div>`;
+      if(st.status==='sa'){
+        h+=`<div class="sinrow"><input class="sinp" id="si-${i}" value="${st.val}" placeholder="Enter your answer…" onkeydown="if(event.key==='Enter'&&this.value.trim())checkStep(${i})" oninput="sv(${i},this.value)"/>${s.unit?`<span class="ulbl">${s.unit}</span>`:''}<button class="cbtn" onclick="checkStep(${i})">Check ✓</button></div><div style="font-size:11px;color:var(--muted);margin-top:4px">Press Enter to submit</div>`;
+      }else if(st.status==='sh1'){
+        h+=`<div class="hbox hb1"><span>💡</span><div><div class="htitle" style="color:#92400E">Hint 1 — try again:</div><div class="htext">${s.h1}</div></div></div>
+        <div class="sinrow"><input class="sinp h1b" id="si-${i}" value="" placeholder="Try again with the hint…" onkeydown="if(event.key==='Enter'&&this.value.trim())checkStep(${i})" oninput="sv(${i},this.value)"/>${s.unit?`<span class="ulbl">${s.unit}</span>`:''}<button class="tbtn t1" onclick="checkStep(${i})">Try Again</button></div>`;
+      }else if(st.status==='sh2'){
+        h+=`<div class="hbox hb2"><span>💡</span><div><div class="htitle" style="color:#9A3412">Hint 2 — one more try:</div><div class="htext">${s.h2}</div></div></div>
+        <div class="sinrow"><input class="sinp h2b" id="si-${i}" value="" placeholder="One more try…" onkeydown="if(event.key==='Enter'&&this.value.trim())checkStep(${i})" oninput="sv(${i},this.value)"/>${s.unit?`<span class="ulbl">${s.unit}</span>`:''}<button class="tbtn t2" onclick="checkStep(${i})">Try Again</button></div>`;
+      }else if(st.status==='sc'){
+        h+=`<div class="fbbox fbok"><span>✅</span><div><div class="fbtitle" style="color:#166534">Correct!</div><div class="fbtext">${s.expl}</div></div></div>`;
+      }else if(st.status==='srev'){
+        h+=`<div class="fbbox fbrev"><span>⚠️</span><div><div class="fbtitle" style="color:#991B1B">Answer: ${s.exp}${s.unit?' '+s.unit:''}</div><div class="fbtext">${s.expl}</div><div style="font-size:11px;color:#EF4444;margin-top:3px;font-style:italic">Review the module lesson and try again.</div></div></div>`;
+      }
+      h+=`</div>`;
+    });
+  });
+  r.innerHTML=h;
+  const ai=document.getElementById('si-'+activeStep);
+  if(ai)setTimeout(()=>ai.focus(),60);
+}
+
+function sv(i,v){if(sts[i])sts[i].val=v;}
+
+function checkStep(i){
+  const s=steps[i];const st=sts[i];
+  const inp=document.getElementById('si-'+i);
+  const val=inp?inp.value:st.val;
+  if(!val||!val.trim())return;
+  st.val=val;
+  const ok=chk(val,s.exp,s.tol||0.05);
+  if(ok){
+    st.status='sc';
+    renderSolver();
+    setTimeout(()=>{
+      const ni=i+1;
+      if(ni<steps.length){sts[ni].status='sa';activeStep=ni;}
+      renderSolver();
+    },700);
+  }else{
+    const att=++st.attempts;st.val='';
+    if(att>=3){
+      st.status='srev';
+      renderSolver();
+      setTimeout(()=>{
+        const ni=i+1;
+        if(ni<steps.length){sts[ni].status='sa';activeStep=ni;}
+        renderSolver();
+      },1200);
+    }else{
+      st.status=att===1?'sh1':'sh2';
+      renderSolver();
+      setTimeout(()=>{const inp=document.getElementById('si-'+i);if(inp)inp.focus();},60);
+    }
+  }
+}
+
+function retryS(){sts=steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0}));activeStep=0;renderSolver();}
+function newS(){if(activeCalc)selectCalc(activeCalc);}
+
+// ═══════════════════════ ASSESSMENT ═══════════════════════
+const ASSESS=[
+  {id:'u1',title:'Unit 1 Assessment',sub:'Chemical Formulas & Equations',hcls:'h1',
+   qs:[
+    {type:'mc',topic:'Stoichiometry History',q:'Who first coined the term "stoichiometry" in 1792 and defined it as the science of measuring quantitative proportions in chemical reactions?',opts:['Amedeo Avogadro','Wilhelm Ostwald','Jeremias Benjamin Richter','John Dalton'],ans:2,exp:'Jeremias Benjamin Richter (1762–1807), a German chemist, first coined "stoichiometry" in 1792. He described it as the science of measuring quantitative proportions in which chemical elements interact as reactants or products.'},
+    {type:'mc',topic:'Chemical Formulas',q:'What type of chemical formula shows the simplest whole-number ratio of atoms?',opts:['Molecular formula','Structural formula','Empirical formula','Condensed formula'],ans:2,exp:'The empirical formula shows the simplest whole-number ratio. Example: C₆H₁₂O₆ (glucose) simplifies to CH₂O — both C, H, O are in 1:2:1 ratio.'},
+    {type:'mc',topic:'Empirical Formula',q:'The molecular formula of glucose is C₆H₁₂O₆. What is its empirical formula?',opts:['C₆H₁₂O₆','CH₂O','C₂H₄O₂','CHO'],ans:1,exp:'Divide all subscripts by the GCF (6): C₆÷6=1, H₁₂÷6=2, O₆÷6=1. Empirical formula = CH₂O.'},
+    {type:'mc',topic:'Balancing Equations',q:'When balancing a chemical equation, what must you adjust (and what must you NOT change)?',opts:['Change subscripts only','Change coefficients only','Change both coefficients and subscripts','Change neither — just rearrange formulas'],ans:1,exp:'Always change COEFFICIENTS (numbers in front) — never subscripts. Changing subscripts alters the compound itself, violating chemistry and the law of conservation of mass.'},
+    {type:'fill',topic:'Molecular Formula',q:'Empirical formula = NO₂, Molar mass = 92 g/mol. Empirical formula mass = 46 g/mol. Calculate n.',ans:'2',tol:0,unit:'',exp:'n = Molar Mass ÷ Empirical Mass = 92 ÷ 46 = 2. Therefore Molecular Formula = N₂O₄. (This exact example is in the module.)'},
+    {type:'fill',topic:'Molar Mass',q:'Calculate the molar mass of CO₂. (C = 12.01 g/mol, O = 16.00 g/mol)',ans:'44.01',tol:0.05,unit:'g/mol',exp:'CO₂: 1(12.01) + 2(16.00) = 12.01 + 32.00 = 44.01 g/mol.'},
+    {type:'mc',topic:'Structural Formulas',q:'The line-bond structural formula represents covalent bonds as:',opts:['Dots between atoms','Lines between atoms','Numbers after atoms','Circles around atoms'],ans:1,exp:'The line-bond formula uses lines to represent bonds. One line = one pair of bonding electrons. Double line = double bond, triple line = triple bond.'},
+    {type:'mc',topic:'Chemical Formulas',q:'In Al₂(SO₄)₃, how many total oxygen atoms are present?',opts:['3','4','8','12'],ans:3,exp:'(SO₄)₃ → 4 O atoms × 3 = 12 oxygen atoms total. The subscript outside parentheses multiplies all atoms inside.'},
+  ]},
+  {id:'u2',title:'Unit 2 Assessment',sub:'Mole Concept & Calculations',hcls:'h2',
+   qs:[
+    {type:'mc',topic:'Mole Concept',q:"Avogadro's number (6.022 × 10²³) represents the number of:",opts:['Electrons in one mole of an element','Particles in one mole of a substance','Grams in one mole of any compound','Neutrons in one mole of a substance'],ans:1,exp:"One mole of ANY substance contains 6.022 × 10²³ particles (atoms, molecules, ions). This is Avogadro's number — a fundamental constant."},
+    {type:'mc',topic:'History of Mole',q:'Who introduced the term "mole" in chemistry?',opts:['Amedeo Avogadro','Jeremias Richter','Wilhelm Ostwald','John Dalton'],ans:2,exp:'Wilhelm Ostwald, a German chemist, introduced the term "mole." The module states: "Because of Ostwald, scientists finally had a name for the counting unit mole."'},
+    {type:'fill',topic:'Grams to Moles',q:'How many moles are in 52 g of He? (He atomic mass = 4.003 g/mol)',ans:'13',tol:0.2,unit:'mol',exp:'Moles = Mass ÷ Molar Mass = 52 ÷ 4.003 ≈ 13 mol. (This exact problem is in the module practice problems.)'},
+    {type:'fill',topic:'Molar Mass',q:'Calculate the molar mass of H₂O. (H = 1.008, O = 16.00)',ans:'18.016',tol:0.05,unit:'g/mol',exp:'H₂O: 2(1.008) + 16.00 = 2.016 + 16.00 = 18.016 g/mol. (Module worked example.)'},
+    {type:'mc',topic:'Molar Mass',q:'What is the molar mass of Al₂(SO₄)₃? (Al=27, S=32, O=16)',opts:['214 g/mol','270 g/mol','342 g/mol','386 g/mol'],ans:2,exp:'Al: 2×27=54, S: 3×32=96, O: 12×16=192. Total = 54+96+192 = 342 g/mol.'},
+    {type:'fill',topic:'% Composition',q:'What is the percentage of H in H₂O? (molar mass = 18.016, H total = 2.016). Round to 1 decimal.',ans:'11.2',tol:0.5,unit:'%',exp:'% H = (2.016 ÷ 18.016) × 100 = 11.2%.'},
+    {type:'mc',topic:'Empirical Formula',q:'A compound is: 40% C, 6.7% H, 53.3% O. After module steps (100g assume, moles, divide by smallest), what is the empirical formula?',opts:['C₂H₄O₂','CHO₂','CH₂O','C₂H₂O'],ans:2,exp:'C: 40÷12=3.33, H: 6.7÷1=6.7, O: 53.3÷16=3.33. Divide by 3.33: C=1, H=2, O=1. Empirical formula = CH₂O. (Module exact example.)'},
+    {type:'mc',topic:'Simple Rule',q:"The module's Simple Rule states that which conversion does NOT require Avogadro's number?",opts:['Moles → Particles','Particles → Moles','Grams → Moles','Atoms → Formula units'],ans:2,exp:"Module Simple Rule: Grams ↔ Moles → NO need for 6.022×10²³. Moles ↔ Particles → NEED 6.022×10²³."},
+    {type:'fill',topic:'Mass → Mole',q:'Convert 36.0 g of H₂O to moles. (H₂O molar mass = 18 g/mol)',ans:'2.0',tol:0.1,unit:'mol',exp:'Step 1: (No equation needed). Step 2: Formula = grams H₂O → moles H₂O = 36.0 g H₂O × (1 mol / 18 g). Step 3: Cancel grams H₂O. Step 4: Answer = 2.0 mol H₂O. (Sample Problem from BSED Module.)'},
+    {type:'fill',topic:'Mass → Mole',q:'Convert 80.0 g of O₂ to moles. (O₂ molar mass = 32 g/mol)',ans:'2.5',tol:0.1,unit:'mol',exp:'Step 1: (No equation needed). Step 2: Formula = grams O₂ → moles O₂ = 80.0 g O₂ × (1 mol / 32 g). Step 3: Cancel grams O₂. Step 4: Answer = 2.5 mol O₂. (Sample Problem from BSED Module.)'},
+  ]},
+  {id:'u3',title:'Unit 3 Assessment',sub:'Stoichiometric Calculations & Yield',hcls:'h3',
+   qs:[
+    {type:'mc',topic:'Limiting Reactant',q:'N₂ + 3H₂ → 2NH₃. If 4 mol N₂ reacts with 9 mol H₂, which is the limiting reactant?',opts:['N₂','H₂','NH₃','Neither — both are in excess'],ans:1,exp:'4 mol N₂ needs 4×3=12 mol H₂. Only 9 mol H₂ available. 9 < 12, so H₂ is limiting. (Module exact example.)'},
+    {type:'mc',topic:'Excess Reactant',q:'The excess reactant in a chemical reaction:',opts:['Is completely consumed first','Determines the amount of product','Remains after the reaction stops','Is the same as the product formed'],ans:2,exp:'The excess reactant remains after the limiting reactant is used up. The module defines it as "the reactant that remains after the reaction is complete."'},
+    {type:'mc',topic:'Theoretical Yield',q:'Theoretical yield is defined as:',opts:['Actual amount collected in the lab','Maximum product from the limiting reactant','Product lost to side reactions','Percentage of reactant consumed'],ans:1,exp:'Theoretical yield = "maximum amount of product predicted based on the limiting reactant. Calculated without considering losses." (Module definition.)'},
+    {type:'fill',topic:'Theoretical Yield (Module)',q:'N₂ + 3H₂ → 2NH₃. If 6 mol H₂ reacts (N₂ excess), how many moles of NH₃ are produced?',ans:'4',tol:0.1,unit:'mol',exp:'Moles NH₃ = 6 mol H₂ × (2 mol NH₃ / 3 mol H₂) = 4 mol NH₃. (This is the module\'s exact example.)'},
+    {type:'fill',topic:'Percent Yield (Module Ex. 1)',q:'Theoretical yield = 36 g H₂O, actual yield = 30 g H₂O. Calculate percent yield.',ans:'83.3',tol:1,unit:'%',exp:'% Yield = (30 ÷ 36) × 100 = 83.3%. (This is the module\'s exact example — "Percent Yield = 30/36 × 100 = 83.3%".)'},
+    {type:'fill',topic:'Percent Yield (Module Ex. 2)',q:'Theoretical yield = 25 g, actual yield = 18 g. Calculate percent yield.',ans:'72',tol:1,unit:'%',exp:'% Yield = (18 ÷ 25) × 100 = 72%. (This is the second module example.)'},
+    {type:'mc',topic:'Percent Yield Interpretation',q:'A percent yield greater than 100% usually indicates:',opts:['A perfectly efficient reaction','Measurement error or impurities in the product','A very fast reaction rate','The excess reactant reacted too'],ans:1,exp:'% Yield > 100% usually means measurement error or impurities added mass to the product. A true yield cannot exceed 100%.'},
+    {type:'fill',topic:'Theoretical Yield (Grams)',q:'2H₂ + O₂ → 2H₂O. 10 g H₂ with excess O₂. Theoretical yield of H₂O in grams? (H₂=2 g/mol, H₂O=18 g/mol)',ans:'90',tol:1,unit:'g',exp:'Moles H₂ = 10÷2 = 5 mol. Ratio H₂:H₂O = 2:2 = 1:1. Moles H₂O = 5 mol. Mass = 5×18 = 90 g. (Module example.)'},
+    {type:'fill',topic:'Mole → Mole',q:'N₂ + 3H₂ → 2NH₃. If 9.0 moles of H₂ react with N₂, how many moles of NH₃ are formed?',ans:'6.0',tol:0.1,unit:'mol',exp:'Step 1: Balanced equation = N₂ + 3H₂ → 2NH₃. Step 2: Mole Ratio = (2 moles NH₃ / 3 moles H₂). Step 3: Formula = 9.0 mol H₂ × (2 mol NH₃ / 3 mol H₂). Step 4: Cancel mol H₂. Step 5: Answer = 6.0 mol NH₃. (Example Problem 1 from BSED Module.)'},
+    {type:'fill',topic:'Mole → Mole',q:'2KClO₃ → 2KCl + 3O₂. If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced?',ans:'6.0',tol:0.1,unit:'mol',exp:'Step 1: Balanced equation = 2KClO₃ → 2KCl + 3O₂. Step 2: Mole Ratio = (3 moles O₂ / 2 moles KClO₃). Step 3: Formula = 4.0 mol KClO₃ × (3 mol O₂ / 2 mol KClO₃). Step 4: Cancel mol KClO₃. Step 5: Answer = 6.0 mol O₂. (Example Problem 2 from BSED Module.)'},
+    {type:'fill',topic:'Mass → Mass',q:'2H₂ + O₂ → 2H₂O. If 10.0 g of H₂ reacts, how many grams of H₂O are formed? (H₂ = 2.016 g/mol, H₂O = 18 g/mol)',ans:'89.3',tol:1,unit:'g',exp:'Step 1: Balanced equation = 2H₂ + O₂ → 2H₂O. Step 2: Formula = grams H₂ → mol H₂ → mol H₂O → grams H₂O = 10.0 g H₂ × (1 mol H₂ / 2.016 g H₂) × (2 mol H₂O / 2 mol H₂) × (18 g H₂O / 1 mol H₂O). Step 3: Cancel g H₂, mol H₂, mol H₂O. Step 4: Answer = 89.3 g H₂O. (Example Problem 1 from BSED Module.)'},
+  ]},
+];
+
+function buildAssessCards(){
+  const c=document.getElementById('assess-cards');
+  c.innerHTML=ASSESS.map(a=>`<div class="ac" onclick="startQuiz('${a.id}')">
+    <div class="ach ${a.hcls}"><h3>${a.title}</h3><p>${a.sub}</p></div>
+    <div class="acb">
+      <div class="acm"><span>${a.qs.length} questions</span><span>${a.qs.filter(q=>q.type==='mc').length} MC · ${a.qs.filter(q=>q.type==='fill').length} Fill-in</span></div>
+      <ul class="act">${[...new Set(a.qs.map(q=>q.topic))].slice(0,4).map(t=>`<li><span style="color:var(--g500);font-weight:600">✓</span>${t}</li>`).join('')}</ul>
+      <button class="asb">Start Assessment</button>
+    </div>
+  </div>`).join('');
+}
+
+let quizUnit=null,qAns=[],qCur=0,qDone=false;
+function startQuiz(id){
+  quizUnit=ASSESS.find(a=>a.id===id);
+  qAns=quizUnit.qs.map(()=>null);qCur=0;qDone=false;
+  document.getElementById('assess-hub').style.display='none';
+  document.getElementById('quiz-view').style.display='block';
+  renderQuiz();
+}
+function renderQuiz(){
+  const qv=document.getElementById('quiz-view');
+  if(qDone){renderResult();return;}
+  const a=quizUnit;const q=a.qs[qCur];const tot=a.qs.length;
+  const pct=Math.round(((qCur+1)/tot)*100);
+  const ans=qAns[qCur];
+  let h=`<div class="qwrap">
+    <div class="qhdr"><h3>${a.title} — ${a.sub}</h3>
+      <div class="qpb"><div class="qpbf" style="width:${pct}%"></div></div>
+      <div class="qmeta"><span>Question ${qCur+1} of ${tot}</span><span>${qAns.filter(x=>x!==null&&x!=='').length}/${tot} answered</span></div>
+    </div>
+    <div class="qcard">
+      <div class="qtopic">${q.topic}</div>
+      <div class="qtext">${q.q}</div>`;
+  if(q.type==='mc'){
+    h+=`<div class="qopts">${q.opts.map((o,i)=>`<button class="qopt${ans===i?' sel':''}" onclick="qSel(${i})">${o}</button>`).join('')}</div>`;
+  }else{
+    h+=`<div class="qfr"><input class="qfi" placeholder="Type your answer…" value="${ans||''}" oninput="qFill(this.value)"/>${q.unit?`<span style="font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap;margin-left:4px">${q.unit}</span>`:''}</div>`;
+  }
+  h+=`</div>
+  <div class="qnav">
+    <button class="qnbtn" onclick="qNav(-1)" ${qCur===0?'disabled':''}>← Prev</button>
+    <div class="qdots">${a.qs.map((_,i)=>{const f=qAns[i]!==null&&qAns[i]!=='';return`<div class="qdot" onclick="qGoTo(${i})" style="background:${i===qCur?'var(--g800)':f?'var(--g100)':'var(--border)'};color:${i===qCur?'#fff':f?'var(--g800)':'var(--muted)'};border:.5px solid ${i===qCur?'var(--g800)':f?'var(--g200)':'var(--border)'}">${i+1}</div>`;}).join('')}</div>
+    ${qCur<tot-1?`<button class="qnbtn" onclick="qNav(1)" style="background:var(--g800);color:#fff;border-color:var(--g800)">Next →</button>`:`<button class="qsub" onclick="submitQuiz()">Submit</button>`}
+  </div>
+  ${qCur===tot-1?`<button class="btn btn-g btn-full" style="margin-top:0" onclick="submitQuiz()">Submit Assessment</button>`:''}
+  </div>`;
+  qv.innerHTML=h;
+}
+function qSel(i){qAns[qCur]=i;renderQuiz();}
+function qFill(v){qAns[qCur]=v;renderQuiz();}
+function qNav(d){qCur=Math.max(0,Math.min(quizUnit.qs.length-1,qCur+d));renderQuiz();}
+function qGoTo(i){qCur=i;renderQuiz();}
+function submitQuiz(){
+  const un=qAns.filter(x=>x===null||x==='').length;
+  if(un>0&&!confirm(`${un} question(s) unanswered. Submit anyway?`))return;
+  qDone=true;renderResult();
+}
+function isCorrect(q,a){
+  if(a===null||a==='')return false;
+  if(q.type==='mc')return Number(a)===q.ans;
+  const n1=parseFloat(String(a)),n2=parseFloat(q.ans);
+  return !isNaN(n1)&&!isNaN(n2)?Math.abs(n1-n2)<=(q.tol||0.5):String(a).trim().toLowerCase()===q.ans.toLowerCase();
+}
+function renderResult(){
+  const a=quizUnit;
+  const cor=a.qs.filter((q,i)=>isCorrect(q,qAns[i])).length;
+  const pct=Math.round(cor/a.qs.length*100);
+  const grade=pct>=90?'Excellent 🌟':pct>=75?'Proficient 👍':pct>=60?'Developing 📈':'Needs Review 📚';
+  let h=`<div style="overflow-y:auto;padding-bottom:20px">
+  <div class="rcard">
+    <div class="rtrophy">${pct>=75?'🏆':'📚'}</div>
+    <div class="rgrade">${grade}</div>
+    <div class="rscore">${cor}/${a.qs.length}</div>
+    <div class="rbar"><div class="rbarfill" style="width:${pct}%"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">${pct}% correct</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-o" onclick="retryQuiz()">↺ Retake</button>
+      <button class="btn btn-g" onclick="backToHub()">← Assessments</button>
+      <button class="btn" style="background:var(--g50);color:var(--g800);border:.5px solid var(--g100)" onclick="goPage('learn')">📖 Review Module</button>
+    </div>
+  </div>
+  <div style="font-size:13px;font-weight:600;color:var(--dark);padding:14px 20px 8px">Full Answer Review</div>
+  <div class="rev-section">`;
+  a.qs.forEach((q,i)=>{
+    const ok=isCorrect(q,qAns[i]);
+    h+=`<div class="rev-item ${ok?'ok':'wrong'}">
+      <div class="riq">${ok?'✓':'✗'} [${q.topic}] ${q.q}</div>`;
+    if(q.type==='mc'){
+      if(!ok&&qAns[i]!==null)h+=`<div class="ria" style="color:#991B1B">Your answer: ${q.opts[qAns[i]]}</div>`;
+      h+=`<div class="ria" style="color:var(--g700);font-weight:500">Correct: ${q.opts[q.ans]}</div>`;
+    }else{
+      if(!ok)h+=`<div class="ria" style="color:#991B1B">Your answer: "${qAns[i]||'(blank)'}" | Correct: ${q.ans}${q.unit?' '+q.unit:''}</div>`;
+    }
+    h+=`<div class="rie">📖 ${q.exp}</div></div>`;
+  });
+  h+=`</div></div>`;
+  document.getElementById('quiz-view').innerHTML=h;
+}
+function retryQuiz(){qAns=quizUnit.qs.map(()=>null);qCur=0;qDone=false;renderQuiz();}
+function backToHub(){document.getElementById('assess-hub').style.display='flex';document.getElementById('quiz-view').style.display='none';}
+
+// ═══════════════════════ PROBLEM SOLVER ═══════════════════════
+function setPracMode(mode){
+  const isPS = mode === 'ps';
+  document.getElementById('mode-calc').classList.toggle('active', !isPS);
+  document.getElementById('mode-ps').classList.toggle('active', isPS);
+  document.getElementById('calc-mode-content').style.display = isPS ? 'none' : 'flex';
+  document.getElementById('ps-mode-content').style.display = isPS ? 'flex' : 'none';
+  if(isPS){
+    document.getElementById('calc-right').innerHTML = '<div class="waiting"><div class="wicon">📝</div><h3>Problem Solver</h3><p>Paste a word problem on the left and click "Analyze Problem". The system will extract the values and guide you through solving it step by step.</p></div>';
+  }
+}
+
+const PS_EXAMPLES = {
+  mole: 'If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced? The balanced equation is: 2KClO₃ → 2KCl + 3O₂',
+  mass: 'How many grams of CO₂ are produced when 44 grams of propane (C₃H₈) completely combusts? The equation is: C₃H₈ + 5O₂ → 3CO₂ + 4H₂O',
+  limiting: 'If 10 grams of H₂ reacts with 80 grams of O₂ to produce water (2H₂ + O₂ → 2H₂O), which is the limiting reactant and how many grams of water are produced?',
+  yield: 'In a reaction, the theoretical yield of CaCO₃ is 25 grams but only 19.5 grams were actually produced. What is the percent yield?',
+  empirical: 'A compound contains 40.0% carbon, 6.7% hydrogen, and 53.3% oxygen by mass. Determine the empirical formula.'
+};
+
+function fillPSExample(type){
+  document.getElementById('ps-problem-input').value = PS_EXAMPLES[type];
+}
+
+function analyzeProblem(){
+  const text = document.getElementById('ps-problem-input').value.trim();
+  if(!text){ alert('Please enter a word problem first.'); return; }
+  const parsed = parseProblemText(text);
+  if(!parsed.type){
+    document.getElementById('calc-right').innerHTML = '<div style="padding:40px 24px;text-align:center"><div style="font-size:48px;margin-bottom:12px">⚠️</div><h3 style="color:var(--dark);margin-bottom:8px">Could Not Detect Problem Type</h3><p style="color:var(--muted);font-size:13px;line-height:1.65;max-width:380px;margin:0 auto">Make sure your problem includes:<br>• Chemical formulas (e.g., H₂O, CO₂)<br>• Numbers with units (grams, moles, %)<br>• A clear question or goal</p></div>';
+    return;
+  }
+  showAnalysisSteps(parsed, text);
+}
+
+function showAnalysisSteps(parsed, originalText){
+  const html = '<div style="padding:20px;overflow-y:auto;height:100%"><div style="text-align:center;margin-bottom:20px"><div style="width:56px;height:56px;background:var(--g800);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px">✓</div><h3 style="color:var(--dark);margin-bottom:4px">Problem Analysis Complete</h3><p style="font-size:12px;color:var(--muted)">Here\'s how I identified your problem step by step</p></div><div class="step-card"><div class="step-num">STEP 1</div><h4 class="step-title">📖 Read the Problem</h4><div class="step-content"><div style="background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:8px">"' + originalText.substring(0, 200) + (originalText.length > 200 ? '...' : '') + '"</div><div class="step-note">✓ Problem text captured</div></div></div><div class="step-card"><div class="step-num">STEP 2</div><h4 class="step-title">🔍 Identify Keywords & Patterns</h4><div class="step-content">' + getKeywordsHTML(parsed, originalText) + '</div></div><div class="step-card"><div class="step-num">STEP 3</div><h4 class="step-title">📊 Extract Given Values</h4><div class="step-content">' + getExtractedHTML(parsed, originalText) + '</div></div><div class="step-card"><div class="step-num">STEP 4</div><h4 class="step-title">🎯 Determine Problem Type</h4><div class="step-content"><div class="detected-type">' + parsed.typeLabel + '</div><div class="step-note">This is a <strong>' + parsed.typeLabel + '</strong> problem</div></div></div><div class="step-card" style="background:linear-gradient(135deg,var(--g50),var(--y50));border-color:var(--g200)"><div class="step-num">STEP 5</div><h4 class="step-title">👉 What to Do Next</h4><div class="step-content"><p style="font-size:12px;line-height:1.65;color:var(--text);margin-bottom:10px">Now that you understand the problem, <strong>switch to the Calculators tab</strong> and select the <strong>' + parsed.typeLabel + '</strong> calculator.</p><div style="background:#fff;border:.5px solid var(--g200);border-radius:7px;padding:9px 12px;font-size:11px;color:var(--muted);line-height:1.6">💡 <strong>Hint:</strong> Input the values we extracted above into the calculator fields, then click "Start Solving" for step-by-step guidance.</div><button class="btn btn-g" style="width:100%;margin-top:12px;font-size:13px" onclick="goToCalcFor(\'' + parsed.type + '\')">Open ' + parsed.typeLabel + ' Calculator →</button></div></div></div>';
+  psAnalysisHTML = html; // Save the analysis
+  document.getElementById('calc-right').innerHTML = html;
+}
+
+function getKeywordsHTML(parsed, text){
+  const keywords = [];
+  const lower = text.toLowerCase();
+  if(/limiting\s+reactant|which\s+(is\s+)?limiting|excess/i.test(lower)) keywords.push('"limiting reactant"', '"excess"', '"which is limiting"');
+  if(/percent\s+yield|%\s+yield/i.test(lower)) keywords.push('"percent yield"', '"% yield"');
+  if(/empirical\s+formula/i.test(lower)) keywords.push('"empirical formula"');
+  if(/how\s+many\s+moles/i.test(lower)) keywords.push('"how many moles"', '"produced"', '"formed"');
+  if(/how\s+many\s+grams/i.test(lower)) keywords.push('"how many grams"');
+  if(/theoretical|actual/i.test(lower)) keywords.push('"theoretical"', '"actual"');
+  
+  // Fixed: Better chemical formula detection
+  const commonWords = ['if', 'of', 'the', 'how', 'many', 'what', 'when', 'where', 'which', 'who', 'why', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'to', 'in', 'for', 'on', 'at', 'by', 'from', 'as', 'or', 'and', 'but', 'not'];
+  const formulas = text.match(/[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]+/g) || []; // Must have numbers/subscripts
+  const uniqueFormulas = [...new Set(formulas)].filter(f => {
+    const lower = f.toLowerCase();
+    return f.length > 1 && !commonWords.includes(lower) && /[₀₁₂₃₄₅₆₇₈₉\d]/.test(f); // Must contain at least one digit
+  });
+  
+  let html = '<div class="keyword-list">';
+  if(keywords.length > 0){
+    html += '<div style="margin-bottom:6px"><strong>Keywords found:</strong></div>';
+    keywords.forEach(kw => { html += '<span class="keyword-pill">' + kw + '</span>'; });
+  }
+  if(uniqueFormulas.length > 0){
+    html += '<div style="margin-top:8px;margin-bottom:6px"><strong>Chemical formulas found:</strong></div>';
+    uniqueFormulas.slice(0, 5).forEach(f => { html += '<span class="keyword-pill">' + f + '</span>'; });
+  }
+  html += '</div><div class="step-note">✓ Keywords matched to stoichiometry concepts</div>';
+  return html;
+}
+
+function getExtractedHTML(parsed, text){
+  let html = '';
+  if(parsed.extractedValues && parsed.extractedValues.length > 0){
+    html += '<div class="extracted-values">';
+    parsed.extractedValues.forEach(val => {
+      let displayText = '';
+      if(val.status === 'excess'){
+        displayText = `${val.substance} (in excess)`;
+      } else {
+        displayText = `${val.value} ${val.unit} of ${val.substance}`;
+      }
+      html += '<div class="value-row"><span class="value-icon">📌</span><span class="value-text">' + displayText + '</span></div>';
+    });
+    html += '</div><div class="step-note">✓ Extracted ' + parsed.extractedValues.length + ' value(s) with substances</div>';
+  } else {
+    html += '<div class="step-note" style="color:var(--muted)">No values extracted</div>';
+  }
+  if(parsed.equation){
+    html += '<div style="margin-top:10px"><strong>Equation:</strong></div><div style="background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--dark);font-family:monospace;margin-top:4px">' + parsed.equation + '</div>';
+  }
+  return html;
+}
+
+function goToCalcFor(type){
+  const typeMap = {'limiting':'limiting','yield':'pct-yield','empirical':'empirical','mole-ratio':'theoretical','mass-mass':'theoretical','molar-mass':'molar-mass','pct-comp':'pct-comp'};
+  setPracMode('calc');
+  setTimeout(function(){ selectCalc(typeMap[type]); }, 100);
+}
+
+function parseProblemText(text){
+  const result = {type:null, typeLabel:'', given:'', find:'', equation:'', extractedValues:[]};
+  const lower = text.toLowerCase();
+  
+  // Extract equation
+  const eqMatch = text.match(/equation[:\s]+([\w\s+→\d()₀₁₂₃₄₅₆₇₈₉]+)/i) || text.match(/([\w\d₀₁₂₃₄₅₆₇₈₉]+\s*\+\s*[\w\d₀₁₂₃₄₅₆₇₈₉\s+]+→[\w\d₀₁₂₃₄₅₆₇₈₉\s+]+)/);
+  if(eqMatch) result.equation = eqMatch[1].trim();
+  
+  // IMPROVED: Extract value-unit-substance combinations
+  // Handles both formulas (Mg, HCl) and full names (magnesium, hydrochloric acid)
+  const valuePattern = /(\d+\.?\d*)\s*(grams?|g|moles?|mol|%|percent)\s*(?:of\s+)?([A-Z][a-z]*(?:\s+[a-z]+)?|[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]*)/gi;
+  let match;
+  while((match = valuePattern.exec(text)) !== null){
+    result.extractedValues.push({
+      value: parseFloat(match[1]),
+      unit: match[2],
+      substance: match[3].trim()
+    });
+  }
+  
+  // Also capture "X is in excess" or "excess X" - handles both names and formulas
+  const excessPattern = /(?:excess\s+)?([A-Z][a-z]*(?:\s+[a-z]+(?:\s+[a-z]+)?)?|[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]*)\s+(?:is\s+)?(?:in\s+)?(?:excess|assumed\s+in\s+excess)/gi;
+  while((match = excessPattern.exec(text)) !== null){
+    const substance = match[1].trim();
+    if(substance && !result.extractedValues.find(v => v.substance === substance)){
+      result.extractedValues.push({
+        value: null,
+        unit: null,
+        substance: substance,
+        status: 'excess'
+      });
+    }
+  }
+  
+  // FIXED: Determine problem type based on what the QUESTION asks for, not just keywords present
+  // Priority: Look at the actual question being asked first
+  
+  if(/what\s+is\s+the\s+theoretical\s+yield|find\s+(?:the\s+)?theoretical\s+yield|calculate\s+(?:the\s+)?theoretical\s+yield/i.test(lower)){
+    // Explicitly asks for theoretical yield
+    result.type = 'mole-ratio'; result.typeLabel = 'Theoretical Yield';
+    if(result.extractedValues.length >= 1){ 
+      const v = result.extractedValues.find(e => e.value !== null);
+      if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
+      result.find = 'Theoretical yield'; 
+    }
+  }
+  else if(/which\s+(?:is\s+)?(?:the\s+)?limiting\s+reactant|identify\s+(?:the\s+)?limiting\s+reactant|find\s+(?:the\s+)?limiting\s+reactant/i.test(lower)){
+    // Explicitly asks which is limiting
+    result.type = 'limiting'; result.typeLabel = 'Limiting Reactant';
+    const reactants = result.extractedValues.filter(v => v.value !== null);
+    if(reactants.length >= 2){ 
+      result.given = reactants.map(r => `${r.value} ${r.unit} ${r.substance}`).join(', '); 
+      result.find = 'Limiting reactant & product mass'; 
+    }
+  }
+  else if(/percent\s+yield|%\s+yield|what\s+is\s+the\s+%?\s*yield/i.test(lower)){
+    result.type = 'yield'; result.typeLabel = 'Percent Yield';
+    if(result.extractedValues.length >= 2){ 
+      result.given = result.extractedValues.filter(v => v.value).map(r => `${r.value} ${r.unit}${r.substance?' '+r.substance:''}`).join(', '); 
+      result.find = 'Percent yield'; 
+    }
+  }
+  else if(/empirical\s+formula/i.test(lower)){
+    result.type = 'empirical'; result.typeLabel = 'Empirical Formula';
+    const pcts = text.match(/(\d+\.?\d*)\s*%/g) || [];
+    if(pcts.length >= 2){ result.given = pcts.join(', ') + ' composition'; result.find = 'Empirical formula'; }
+  }
+  else if(/how\s+many\s+moles/i.test(lower) && /produced|formed|consumed|needed/i.test(lower)){
+    result.type = 'mole-ratio'; result.typeLabel = 'Mole-to-Mole Conversion';
+    if(result.extractedValues.length >= 1){ 
+      const v = result.extractedValues.find(e => e.value !== null);
+      if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
+      result.find = 'Moles of product'; 
+    }
+  }
+  else if(/how\s+many\s+grams/i.test(lower) && result.extractedValues.length >= 1){
+    result.type = 'mass-mass'; result.typeLabel = 'Mass-to-Mass Conversion';
+    const v = result.extractedValues.find(e => e.value !== null);
+    if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
+    result.find = 'Mass of product (grams)';
+  }
+  else if(/molar\s+mass/i.test(lower)){ result.type = 'molar-mass'; result.typeLabel = 'Molar Mass Calculation'; }
+  else if(/percent\s+composition|%\s+composition/i.test(lower)){ result.type = 'pct-comp'; result.typeLabel = 'Percent Composition'; }
+  
+  return result;
+}
+
+// ═══════════════════════ HOME ═══════════════════════
+function buildHome(){
+  const g=document.getElementById('home-calcs');
+  g.innerHTML=CALCS.map(c=>{
+    const dc=c.diff==='Beginner'?'bg-':c.diff==='Intermediate'?'bi-':'ba-';
+    return`<div class="hcc" onclick="goToCalc('${c.id}')">
+      <div class="hcci">${c.icon}</div>
+      <div class="hccn">${c.name}</div>
+      <div class="hccd">${c.desc}</div>
+      <div class="badge ${dc}" style="margin-top:8px">${c.diff}</div>
+    </div>`;
+  }).join('');
+}
+function goToCalc(id){goPage('practice');selectCalc(id);}
+
+// ═══════════════════════ NAVIGATION ═══════════════════════
+function goPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const nb=document.getElementById('nb-'+p);if(nb)nb.classList.add('active');
+}
+
+// ═══════════════════════ INIT ═══════════════════════
+buildHome();
+buildSidebar();
+buildCalcSelector();
+buildAssessCards();
+setupChemKeyboard();
+
+// ═══════════════════════ EQUATION PARSER ═══════════════════════
+function parseEquation(eq){
+  // Parse chemical equation to extract reactants and products
+  // Example: "2H₂ + O₂ → 2H₂O" returns {reactants: [{coef:2, formula:'H₂'}, {coef:1, formula:'O₂'}], products: [{coef:2, formula:'H₂O'}]}
+  eq = eq.replace(/\s+/g, ' ').trim();
+  const parts = eq.split('→');
+  if(parts.length !== 2) return null;
+  
+  const parseSide = (side) => {
+    return side.split('+').map(term => {
+      term = term.trim();
+      const match = term.match(/^(\d*)(.+)$/);
+      if(!match) return null;
+      const coef = match[1] ? parseInt(match[1]) : 1;
+      const formula = match[2].trim();
+      return {coef, formula};
+    }).filter(x => x);
+  };
+  
+  return {
+    reactants: parseSide(parts[0]),
+    products: parseSide(parts[1])
+  };
+}
+
+function getMolarMass(formula){
+  // Simple molar mass calculator for common elements
+  const masses = {
+    'H':1.008,'C':12.01,'N':14.01,'O':16.00,'S':32.07,'Cl':35.45,'Na':22.99,
+    'K':39.10,'Ca':40.08,'Mg':24.31,'Al':26.98,'Fe':55.85,'P':30.97,'Br':79.90,
+    'I':126.90,'F':19.00,'Ag':107.87,'Cu':63.55,'Zn':65.38,'Pb':207.2,'Au':196.97
+  };
+  
+  let total = 0;
+  // Parse formula like H₂O, CO₂, Ca(OH)₂
+  const regex = /([A-Z][a-z]?)([\d₀₁₂₃₄₅₆₇₈₉]*)/g;
+  let match;
+  while((match = regex.exec(formula)) !== null){
+    const element = match[1];
+    let count = match[2];
+    if(!count) count = '1';
+    // Convert subscript to regular numbers
+    count = count.replace(/₀/g,'0').replace(/₁/g,'1').replace(/₂/g,'2').replace(/₃/g,'3').replace(/₄/g,'4')
+                 .replace(/₅/g,'5').replace(/₆/g,'6').replace(/₇/g,'7').replace(/₈/g,'8').replace(/₉/g,'9');
+    count = parseInt(count) || 1;
+    total += (masses[element] || 0) * count;
+  }
+  return total;
+}
+
+// Wrapper for compatibility
+const getMM = getMolarMass;
+
+// ═══════════════════════ CHEMISTRY KEYBOARD ═══════════════════════
+function toggleChemKeyboard(){
+  document.getElementById('chem-keyboard').classList.toggle('active');
+}
+// Track last focused input for chemistry keyboard
+let lastFocusedInput = null;
+
+// Add focus tracking to all inputs
+function setupChemKeyboard(){
+  document.addEventListener('focusin', function(e){
+    if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')){
+      lastFocusedInput = e.target;
+    }
+  });
+}
+
+function insertChem(text){
+  const targetInput = lastFocusedInput || document.activeElement;
+  if(targetInput && (targetInput.tagName === 'INPUT' || targetInput.tagName === 'TEXTAREA')){
+    const start = targetInput.selectionStart || targetInput.value.length;
+    const end = targetInput.selectionEnd || targetInput.value.length;
+    const currentValue = targetInput.value;
+    targetInput.value = currentValue.substring(0, start) + text + currentValue.substring(end);
+    targetInput.selectionStart = targetInput.selectionEnd = start + text.length;
+    targetInput.focus();
+  } else {
+    // If no input is focused, show a hint
+    alert('Click on an input field first, then use the chemistry keyboard.');
+  }
+}
+</script>
+
+<!-- Chemistry Keyboard -->
+<div class="chem-keyboard" id="chem-keyboard">
+  <div class="ck-header">
+    <span>⚗ Chemistry Keyboard</span>
+    <span class="ck-close" onclick="toggleChemKeyboard()">×</span>
+  </div>
+  <div class="ck-section">
+    <div class="ck-label">Common Elements</div>
+    <div class="ck-grid">
+      <div class="ck-btn" onclick="insertChem('H')">H</div>
+      <div class="ck-btn" onclick="insertChem('C')">C</div>
+      <div class="ck-btn" onclick="insertChem('N')">N</div>
+      <div class="ck-btn" onclick="insertChem('O')">O</div>
+      <div class="ck-btn" onclick="insertChem('S')">S</div>
+      <div class="ck-btn" onclick="insertChem('Cl')">Cl</div>
+      <div class="ck-btn" onclick="insertChem('Na')">Na</div>
+      <div class="ck-btn" onclick="insertChem('K')">K</div>
+      <div class="ck-btn" onclick="insertChem('Ca')">Ca</div>
+      <div class="ck-btn" onclick="insertChem('Mg')">Mg</div>
+      <div class="ck-btn" onclick="insertChem('Al')">Al</div>
+      <div class="ck-btn" onclick="insertChem('Fe')">Fe</div>
+      <div class="ck-btn" onclick="insertChem('P')">P</div>
+      <div class="ck-btn" onclick="insertChem('Br')">Br</div>
+      <div class="ck-btn" onclick="insertChem('I')">I</div>
+      <div class="ck-btn" onclick="insertChem('F')">F</div>
+      <div class="ck-btn" onclick="insertChem('Ag')">Ag</div>
+      <div class="ck-btn" onclick="insertChem('Cu')">Cu</div>
+    </div>
+  </div>
+  <div class="ck-section">
+    <div class="ck-label">Subscripts</div>
+    <div class="ck-grid ck-grid-4">
+      <div class="ck-btn" onclick="insertChem('₀')">₀</div>
+      <div class="ck-btn" onclick="insertChem('₁')">₁</div>
+      <div class="ck-btn" onclick="insertChem('₂')">₂</div>
+      <div class="ck-btn" onclick="insertChem('₃')">₃</div>
+      <div class="ck-btn" onclick="insertChem('₄')">₄</div>
+      <div class="ck-btn" onclick="insertChem('₅')">₅</div>
+      <div class="ck-btn" onclick="insertChem('₆')">₆</div>
+      <div class="ck-btn" onclick="insertChem('₇')">₇</div>
+      <div class="ck-btn" onclick="insertChem('₈')">₈</div>
+      <div class="ck-btn" onclick="insertChem('₉')">₉</div>
+    </div>
+  </div>
+  <div class="ck-section">
+    <div class="ck-label">Symbols</div>
+    <div class="ck-grid ck-grid-3">
+      <div class="ck-btn" onclick="insertChem('(')">( )</div>
+      <div class="ck-btn" onclick="insertChem('→')">→</div>
+      <div class="ck-btn" onclick="insertChem('+')">+</div>
+    </div>
+  </div>
+</div>
+
+<button class="ck-toggle-btn" onclick="toggleChemKeyboard()" title="Chemistry Keyboard">⚗</button>
+
+</body></html>

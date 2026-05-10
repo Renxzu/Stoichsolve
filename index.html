@@ -514,7 +514,15 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
 .value-text{font-size:12px;color:var(--dark);font-weight:500}
 .detected-type{background:linear-gradient(135deg,var(--g800),var(--g600));color:#fff;padding:10px 14px;border-radius:9px;font-size:14px;font-weight:600;text-align:center;margin-bottom:8px}
 
-/* Chemistry Keyboard */
+/* COLLAPSIBLE CALC GROUP */
+.calc-group{border:.5px solid var(--g200);border-radius:10px;overflow:hidden;margin-bottom:4px}
+.calc-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:linear-gradient(135deg,var(--g800),var(--g600));cursor:pointer;user-select:none;transition:background .15s}
+.calc-group-hdr:hover{background:linear-gradient(135deg,var(--g700),var(--g500))}
+.calc-group-title{font-size:11px;font-weight:700;color:#fff;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+.calc-group-arrow{font-size:11px;color:rgba(255,255,255,.8);transition:transform .25s ease;display:inline-block}
+.calc-group-arrow.open{transform:rotate(180deg)}
+.calc-group-body{display:none;flex-direction:column;gap:3px;padding:6px;background:var(--g50)}
+.calc-group-body.open{display:flex}
 .chem-keyboard{position:fixed;right:20px;top:80px;width:280px;background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:100;display:none}
 .chem-keyboard.active{display:block}
 .ck-header{font-size:11px;font-weight:700;color:var(--g800);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
@@ -1417,8 +1425,39 @@ function openTopic(id){
 
 // ═══════════════════════ CALCULATOR SELECTOR ═══════════════════════
 function buildCalcSelector(){
-  const sel=document.getElementById('calc-sel');
-  sel.innerHTML=CALCS.map(c=>`<button class="csbtn" id="csbtn-${c.id}" onclick="selectCalc('${c.id}')"><span>${c.icon}</span>${c.name}</button>`).join('');
+  const sel = document.getElementById('calc-sel');
+  const SC_IDS = ['sc-mol2mol','sc-mass2mass','sc-mass2mol','sc-mol2mass'];
+
+  let html = '';
+  CALCS.forEach(c => {
+    if(SC_IDS.includes(c.id)) return; // handled separately in group
+    html += `<button class="csbtn" id="csbtn-${c.id}" onclick="selectCalc('${c.id}')"><span>${c.icon}</span>${c.name}</button>`;
+  });
+
+  // Insert collapsible group before the last few advanced calcs — put it after the 8 regular calcs
+  // Build group HTML
+  const groupHTML = `<div class="calc-group" id="sc-calc-group">
+    <div class="calc-group-hdr" onclick="toggleScGroup()">
+      <span class="calc-group-title">⚛ Stoichiometric Calculations</span>
+      <span class="calc-group-arrow" id="sc-arrow">▼</span>
+    </div>
+    <div class="calc-group-body" id="sc-group-body">
+      ${CALCS.filter(c=>SC_IDS.includes(c.id)).map(c=>
+        `<button class="csbtn" id="csbtn-${c.id}" onclick="selectCalc('${c.id}')"><span>${c.icon}</span>${c.name}</button>`
+      ).join('')}
+    </div>
+  </div>`;
+
+  sel.innerHTML = html + groupHTML;
+}
+
+function toggleScGroup(){
+  const body  = document.getElementById('sc-group-body');
+  const arrow = document.getElementById('sc-arrow');
+  if(!body || !arrow) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
 }
 
 // Problem Solver state
@@ -1427,12 +1466,18 @@ let psAnalysisHTML = '';
 function selectCalc(id){
   activeCalc=id;
   document.querySelectorAll('.csbtn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('csbtn-'+id).classList.add('active');
-  renderCalcForm(id);
-  // Don't reset if we have PS analysis saved
-  if(!psAnalysisHTML){
-    resetSolver();
+  const btn = document.getElementById('csbtn-'+id);
+  if(btn) btn.classList.add('active');
+  // If it's one of the SC calculators, open the collapsible group
+  const SC_IDS = ['sc-mol2mol','sc-mass2mass','sc-mass2mol','sc-mol2mass'];
+  if(SC_IDS.includes(id)){
+    const body  = document.getElementById('sc-group-body');
+    const arrow = document.getElementById('sc-arrow');
+    if(body)  body.classList.add('open');
+    if(arrow) arrow.classList.add('open');
   }
+  renderCalcForm(id);
+  if(!psAnalysisHTML){ resetSolver(); }
 }
 
 function errHide(){const e=document.getElementById('err-msg');if(e)e.style.display='none';}
@@ -1498,14 +1543,23 @@ function renderCalcForm(id){
       <span class="pill" onclick="fillEq('Zn + 2HCl → ZnCl₂ + H₂','limiting')">Zn + 2HCl → ZnCl₂ + H₂</span>
     </div>`;
   }else if(id==='theoretical'){
-    h+=`<label class="lbl">Balanced Equation</label>
-    <input class="inp mono" id="f-eq" placeholder="e.g. 2H₂ + O₂ → 2H₂O" oninput="errHide()" onkeydown="if(event.key==='Enter')parseCustomEquation('theoretical')"/>
-    <button class="btn btn-o" style="font-size:11px;padding:5px 10px;margin-top:6px" onclick="parseCustomEquation('theoretical')">Parse Equation</button>
+    h+=`<div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:.5px solid #93C5FD;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:#1E40AF;line-height:1.6">
+      📋 <strong>Module Process:</strong> This calculator follows the <strong>6-step combined process</strong> from the module — solving Theoretical Yield AND Percent Yield together in one flow.
+    </div>
+    <label class="lbl">Step 2 — Balanced Equation</label>
+    <input class="inp mono" id="f-eq" placeholder="e.g. C₃H₈ + 5O₂ → 3CO₂ + 4H₂O" oninput="errHide()" onkeydown="if(event.key==='Enter')parseCustomEquation('theoretical')"/>
+    <button class="btn btn-o" style="font-size:11px;padding:5px 10px;margin-top:6px" onclick="parseCustomEquation('theoretical')">Parse Equation →</button>
     <div id="ty-fields" style="margin-top:10px"></div>
+    <label class="lbl" style="margin-top:10px">Actual Yield (for Percent Yield)</label>
+    <div style="display:flex;gap:7px;align-items:center">
+      <input class="inp" id="f-ty-actual" type="number" placeholder="e.g. 70" style="flex:1" oninput="errHide()"/>
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap">g (actual collected)</span>
+    </div>
     <label class="lbl" style="margin-top:10px">Quick Examples</label>
     <div class="pills">
-      <span class="pill" onclick="fillEq('N₂ + 3H₂ → 2NH₃','theoretical')">N₂ + 3H₂ → 2NH₃</span>
-      <span class="pill" onclick="fillEq('2H₂ + O₂ → 2H₂O','theoretical')">2H₂ + O₂ → 2H₂O</span>
+      <span class="pill" onclick="fillTYFull('C₃H₈ + 5O₂ → 3CO₂ + 4H₂O',30,'C₃H₈','CO₂',70)">C₃H₈ → CO₂ (module ex.1)</span>
+      <span class="pill" onclick="fillTYFull('4Fe + 3O₂ → 2Fe₂O₃',56,'Fe','Fe₂O₃',72)">Fe → Fe₂O₃ (module ex.2)</span>
+      <span class="pill" onclick="fillTYFull('2H₂ + O₂ → 2H₂O',10,'H₂','H₂O',80)">H₂ → H₂O</span>
     </div>`;
   }else if(id==='pct-yield'){
     h+=`<div class="toggle-row" id="py-toggle">
@@ -2054,6 +2108,35 @@ function genLR(){
   };
 }
 
+// Fill Theoretical Yield form with a full example (module style)
+function fillTYFull(eq, rMass, rForm, pForm, actual){
+  // Parse and fill the equation
+  const eqEl = document.getElementById('f-eq');
+  if(eqEl){ eqEl.value = eq; }
+  parseCustomEquation('theoretical');
+  setTimeout(()=>{
+    const amtEl = document.getElementById('f-amount');
+    if(amtEl) amtEl.value = rMass;
+    const rEl = document.getElementById('f-reactant');
+    if(rEl){
+      for(let i=0;i<rEl.options.length;i++){
+        if(rEl.options[i].text.includes(rForm)){ rEl.selectedIndex=i; break; }
+      }
+    }
+    const pEl = document.getElementById('f-product');
+    if(pEl){
+      for(let i=0;i<pEl.options.length;i++){
+        if(pEl.options[i].text.includes(pForm)){ pEl.selectedIndex=i; break; }
+      }
+    }
+    const unitEl = document.getElementById('f-unit');
+    if(unitEl) unitEl.value = 'grams';
+    const actEl = document.getElementById('f-ty-actual');
+    if(actEl) actEl.value = actual;
+    errHide();
+  }, 200);
+}
+
 function genTY(){
   let eq, parsed, reactant, product, amount, unit;
   if(window.customEqData && window.customEqData.type === 'theoretical'){
@@ -2066,86 +2149,129 @@ function genTY(){
     product = parsed.products[0];
     if(!reactant||!product){showErr('Invalid reactant or product.');return null;}
   } else {
-    eq=document.getElementById('f-equation')?.value.trim();
+    eq=document.getElementById('f-eq')?.value.trim()||document.getElementById('f-equation')?.value.trim();
     amount=parseFloat(document.getElementById('f-amount')?.value);
     unit=document.getElementById('f-unit')?.value||'grams';
     const reactantIdx=parseInt(document.getElementById('f-reactant')?.value||'0');
     const productIdx=parseInt(document.getElementById('f-product')?.value||'0');
-    if(!eq){showErr('Enter a balanced equation.');return null;}
-    if(isNaN(amount)||amount<=0){showErr('Enter amount of reactant.');return null;}
+    if(!eq){showErr('Enter a balanced equation and click Parse Equation.');return null;}
+    if(isNaN(amount)||amount<=0){showErr('Enter the given mass (grams) of reactant.');return null;}
     parsed=parseEquation(eq);
-    if(!parsed){showErr('Could not parse equation.');return null;}
+    if(!parsed){showErr('Could not parse equation. Check format.');return null;}
     reactant=parsed.reactants[reactantIdx]; product=parsed.products[productIdx];
     if(!reactant||!product){showErr('Select valid reactant and product.');return null;}
   }
 
-  const rMM=getMM(reactant.formula);
-  const pMM=getMM(product.formula);
+  // Get actual yield for percent yield (step 6) — optional
+  const actualYield = parseFloat(document.getElementById('f-ty-actual')?.value);
+  const hasActual = !isNaN(actualYield) && actualYield > 0;
+
+  // ── Calculations
+  const rMM = getMM(reactant.formula);
+  const pMM = getMM(product.formula);
+  if(!rMM){showErr(`Cannot calculate molar mass of ${reactant.formula}`);return null;}
+  if(!pMM){showErr(`Cannot calculate molar mass of ${product.formula}`);return null;}
+
   let rMoles, pMoles, pMass;
   if(unit==='grams'){
-    rMoles=rnd(amount/rMM,3);
-    pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
-    pMass=rnd(pMoles*pMM,2);
+    rMoles = rnd(amount/rMM, 4);
+    pMoles = rnd(rMoles*(product.coef/reactant.coef), 4);
+    pMass  = rnd(pMoles*pMM, 2);
   } else {
-    rMoles=amount;
-    pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
-    pMass=rnd(pMoles*pMM,2);
+    rMoles = amount;
+    pMoles = rnd(rMoles*(product.coef/reactant.coef), 4);
+    pMass  = rnd(pMoles*pMM, 2);
   }
 
-  const stepsGrams = [
-    {ph:'p1',pl:'Step 1 — Convert Mass to Moles of '+reactant.formula,
-     inst:`Step 1: Convert the mass of ${reactant.formula} to moles.\nFormula: moles = mass ÷ molar mass\nMolar mass of ${reactant.formula} = ${rMM} g/mol\n${amount} g ÷ ${rMM} g/mol = ?`,
+  const pct = hasActual ? rnd((actualYield/pMass)*100, 2) : null;
+
+  // ── Build module-exact molar mass display
+  // e.g. C₃H₈ = 3(12)+8(1) = 36+8 = 44 g/mol
+  function mmBreakdown(formula, mm){
+    const els = parseFormula(formula.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>'0123456789'[['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'].indexOf(m)]));
+    if(!els) return `${formula} = ${mm} g/mol`;
+    const parts = Object.entries(els).map(([el,cnt])=>`${cnt>1?cnt+'('+AM[el]+')':AM[el]}`).join('+');
+    const expanded = Object.entries(els).map(([el,cnt])=>`${cnt>1?cnt*AM[el]:AM[el]}`).join('+');
+    return `${formula} = ${parts} = ${expanded} = ${mm} g/mol`;
+  }
+
+  // ── Steps following module exactly
+  const baseSteps = [
+    // Step 3a — Molar mass of reactant
+    {ph:'p3',pl:`Step 3 — Molar Mass of ${reactant.formula}`,
+     inst:`Step 3: Get the Molar Mass of the Compounds.\n\nMolar Mass of ${reactant.formula}:\n${mmBreakdown(reactant.formula, rMM)}\n\nEnter the molar mass of ${reactant.formula}:`,
+     q:`Molar mass of ${reactant.formula} = ? g/mol`,
+     exp:String(rMM),tol:0.5,unit:'g/mol',
+     h1:`Look up the atomic mass of each element in ${reactant.formula} from the periodic table. Multiply each by its count, then add all together.`,
+     h2:`Molar mass of ${reactant.formula} = ${rMM} g/mol`,
+     expl:`✓ Molar mass of ${reactant.formula} = ${rMM} g/mol`},
+    // Step 3b — Molar mass of product
+    {ph:'p3',pl:`Step 3 — Molar Mass of ${product.formula}`,
+     inst:`Molar Mass of ${product.formula}:\n${mmBreakdown(product.formula, pMM)}\n\nEnter the molar mass of ${product.formula}:`,
+     q:`Molar mass of ${product.formula} = ? g/mol`,
+     exp:String(pMM),tol:0.5,unit:'g/mol',
+     h1:`Look up the atomic mass of each element in ${product.formula}. Multiply each by its count, then add.`,
+     h2:`Molar mass of ${product.formula} = ${pMM} g/mol`,
+     expl:`✓ Molar mass of ${product.formula} = ${pMM} g/mol`},
+    // Step 4 — Convert grams to moles (only if given in grams)
+    ...(unit==='grams' ? [{ph:'p4',pl:`Step 4 — Convert Grams to Moles of ${reactant.formula}`,
+     inst:`Step 4: Convert Grams to Moles.\n\nGiven: ${amount} g ${reactant.formula}\nFormula: Moles = Mass ÷ Molar Mass\n\nSubstitute:\nMoles of ${reactant.formula} = ${amount} g ÷ ${rMM} g/mol = ?`,
      q:`${amount} ÷ ${rMM} = ? mol ${reactant.formula}`,
      exp:String(rMoles),tol:0.05,unit:`mol ${reactant.formula}`,
-     h1:`Moles = mass ÷ molar mass. Divide ${amount} by ${rMM}.`,
-     h2:`${amount} ÷ ${rMM} = ${rMoles} mol ${reactant.formula}`,
-     expl:`✓ Step 1 Answer: ${rMoles} mol ${reactant.formula}`},
-    {ph:'p2',pl:'Step 2 — Use Mole Ratio (Coefficients)',
-     inst:`Step 2: Use mole ratios (the coefficients) to convert moles of ${reactant.formula} to moles of ${product.formula}.\nFrom equation: ${reactant.coef} mol ${reactant.formula} → ${product.coef} mol ${product.formula}\n${rMoles} mol ${reactant.formula} × (${product.coef} / ${reactant.coef}) = ?`,
-     q:`${rMoles} × (${product.coef} / ${reactant.coef}) = ? mol ${product.formula}`,
+     h1:`Moles = Mass ÷ Molar Mass = ${amount} ÷ ${rMM}`,
+     h2:`Moles of ${reactant.formula} = ${amount} ÷ ${rMM} = ${rMoles} mol`,
+     expl:`✓ Step 4 Answer: ${rMoles} mol ${reactant.formula}`}] : []),
+    // Step 5A — Mole ratio
+    {ph:'p5',pl:`Step 5A — Use Mole Ratio`,
+     inst:`Step 5: Solve and Get the Theoretical Yield.\n\nStep A: Use Mole Ratio\nFrom the balanced equation:\n${reactant.coef} mol ${reactant.formula} = ${product.coef} mol ${product.formula}\n\nMultiply:\n${rMoles} × ${product.coef}${reactant.coef>1?` ÷ ${reactant.coef}`:''} = ?`,
+     q:`${rMoles} × (${product.coef} ÷ ${reactant.coef}) = ? mol ${product.formula}`,
      exp:String(pMoles),tol:0.05,unit:`mol ${product.formula}`,
-     h1:`Multiply moles of reactant by the mole ratio: (${product.coef} mol ${product.formula} / ${reactant.coef} mol ${reactant.formula}).`,
+     h1:`From the balanced equation: ${reactant.coef} mol ${reactant.formula} produces ${product.coef} mol ${product.formula}.\nMultiply: ${rMoles} × (${product.coef}/${reactant.coef})`,
      h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol ${product.formula}`,
-     expl:`✓ Step 2 Answer: ${pMoles} mol ${product.formula}`},
-    {ph:'p3',pl:'Step 3 — Convert Moles of '+product.formula+' to Mass',
-     inst:`Step 3: Convert moles of ${product.formula} to mass.\nMolar mass of ${product.formula} = ${pMM} g/mol\n${pMoles} mol × ${pMM} g/mol = ?`,
+     expl:`✓ Step 5A Answer: ${pMoles} mol ${product.formula}`},
+    // Step 5B — Convert moles of product to grams
+    {ph:'p5',pl:`Step 5B — Convert Moles of ${product.formula} to Grams`,
+     inst:`Step B: Convert Moles of Product to Grams\n\nFormula: Mass = Moles × Molar Mass\n\nSubstitute:\n${pMoles} mol × ${pMM} g/mol = ?`,
      q:`${pMoles} × ${pMM} = ? g ${product.formula}`,
      exp:String(pMass),tol:0.5,unit:`g ${product.formula}`,
-     h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,
-     h2:`${pMoles} × ${pMM} = ${pMass} g`,
-     expl:`✓ FINAL ANSWER — Theoretical Yield = ${pMass} g of ${product.formula}`},
+     h1:`Mass = Moles × Molar Mass = ${pMoles} × ${pMM}`,
+     h2:`${pMoles} × ${pMM} = ${pMass} g ${product.formula}`,
+     expl:`✓ Theoretical Yield Answer: ${pMass} g ${product.formula}`},
   ];
 
-  const stepsMoles = [
-    {ph:'p2',pl:'Step 2 — Use Mole Ratio (Coefficients)',
-     inst:`Step 2: Use mole ratios (the coefficients) to convert moles of ${reactant.formula} to moles of ${product.formula}.\nFrom equation: ${reactant.coef} mol ${reactant.formula} → ${product.coef} mol ${product.formula}\n${rMoles} mol ${reactant.formula} × (${product.coef} / ${reactant.coef}) = ?`,
-     q:`${rMoles} × (${product.coef} / ${reactant.coef}) = ? mol ${product.formula}`,
-     exp:String(pMoles),tol:0.05,unit:`mol ${product.formula}`,
-     h1:`Multiply given moles by the mole ratio: (${product.coef}/${reactant.coef}).`,
-     h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol ${product.formula}`,
-     expl:`✓ Step 2 Answer: ${pMoles} mol ${product.formula}`},
-    {ph:'p3',pl:'Step 3 — Convert Moles of '+product.formula+' to Mass',
-     inst:`Step 3: Convert moles of ${product.formula} to mass.\nMolar mass of ${product.formula} = ${pMM} g/mol\n${pMoles} mol × ${pMM} g/mol = ?`,
-     q:`${pMoles} × ${pMM} = ? g ${product.formula}`,
-     exp:String(pMass),tol:0.5,unit:`g ${product.formula}`,
-     h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,
-     h2:`${pMoles} × ${pMM} = ${pMass} g`,
-     expl:`✓ FINAL ANSWER — Theoretical Yield = ${pMass} g of ${product.formula}`},
-  ];
+  // Step 6 — Percent Yield (only if actual yield provided)
+  const pySteps = hasActual ? [
+    {ph:'p6',pl:`Step 6 — Percent Yield Formula`,
+     inst:`Step 6: Solve for Percent Yield.\n\nFormula:\nPercent Yield = (Actual Yield ÷ Theoretical Yield) × 100\n\nGiven:\n• Actual Yield = ${actualYield} g ${product.formula}\n• Theoretical Yield = ${pMass} g ${product.formula}\n\nSubstitute:\nPercent Yield = (${actualYield} ÷ ${pMass}) × 100 = ?`,
+     q:`(${actualYield} ÷ ${pMass}) × 100 = ? %`,
+     exp:String(pct),tol:0.5,unit:'%',
+     h1:`Percent Yield = (Actual ÷ Theoretical) × 100 = (${actualYield} ÷ ${pMass}) × 100`,
+     h2:`(${actualYield} ÷ ${pMass}) × 100 = ${pct}%`,
+     expl:`✓ Percent Yield = ${pct}%\n\nFINAL ANSWERS:\n• Theoretical Yield = ${pMass} g ${product.formula}\n• Percent Yield = ${pct}%`},
+  ] : [];
+
+  const finalAnswer = hasActual
+    ? `Theoretical Yield = ${pMass} g ${product.formula} | Percent Yield = ${pct}%`
+    : `Theoretical Yield = ${pMass} g ${product.formula}`;
 
   return{
-    title:'Theoretical Yield',
-    stmt:`${eq}. Given ${amount} ${unit} of ${reactant.formula}, find the theoretical yield of ${product.formula}.`,
-    given:[`Balanced equation: ${eq}`,`Given: ${amount} ${unit} of ${reactant.formula}`,`Find: theoretical yield (grams) of ${product.formula}`],
-    balancedEq:eq,
-    final:`Theoretical Yield = ${pMass} g of ${product.formula}`,
-    concept:`Module (Lesson 2) — 3-Step Process:\nStep 1: Convert the mass of the initial value to moles\nStep 2: Use mole ratios (coefficients) to convert moles of reactant → moles of product\nStep 3: Convert moles of product to mass of final substance`,
-    phases:[
-      {k:'p1',l:'Step 1 — Convert Mass to Moles',d:`${amount} ${unit} ${reactant.formula} ÷ MM → moles ${reactant.formula}`},
-      {k:'p2',l:'Step 2 — Use Mole Ratios (Coefficients)',d:`moles ${reactant.formula} × (${product.coef}/${reactant.coef}) → moles ${product.formula}`},
-      {k:'p3',l:'Step 3 — Convert Moles to Mass',d:`moles ${product.formula} × MM → grams ${product.formula}`},
+    title:'Theoretical Yield' + (hasActual ? ' & Percent Yield' : ''),
+    stmt:`${eq}. Given: ${amount} ${unit} of ${reactant.formula}.${hasActual ? ` Actual yield = ${actualYield} g ${product.formula}.` : ''} Find the theoretical yield${hasActual?' and percent yield':''} of ${product.formula}.`,
+    given:[
+      `Balanced equation: ${eq}`,
+      `Given: ${amount} ${unit} of ${reactant.formula}`,
+      `Find: Theoretical yield of ${product.formula}${hasActual?` | Actual yield given: ${actualYield} g`:''}`,
     ],
-    steps: unit==='grams' ? stepsGrams : stepsMoles
+    balancedEq:eq,
+    final:finalAnswer,
+    concept:`Module 6-Step Process:\nStep 1: Identify reactants, products & reaction type\nStep 2: Balance the equation → get mole ratio\nStep 3: Get molar masses of BOTH compounds\nStep 4: Convert given grams → moles (Moles = Mass ÷ Molar Mass)\nStep 5A: Use mole ratio → get moles of product\nStep 5B: Convert moles of product → grams (Mass = Moles × Molar Mass)\nStep 6: Percent Yield = (Actual ÷ Theoretical) × 100${hasActual?'\n\nMole Ratio from equation: '+reactant.coef+' mol '+reactant.formula+' = '+product.coef+' mol '+product.formula:''}`,
+    phases:[
+      {k:'p3',l:'Step 3 — Molar Masses of Both Compounds',d:`Calculate MM of ${reactant.formula} AND ${product.formula}`},
+      ...(unit==='grams'?[{k:'p4',l:'Step 4 — Convert Grams to Moles',d:`${amount} g ÷ ${rMM} g/mol = mol ${reactant.formula}`}]:[]),
+      {k:'p5',l:'Step 5A & 5B — Theoretical Yield',d:`Mole ratio → moles of product → grams`},
+      ...(hasActual?[{k:'p6',l:'Step 6 — Percent Yield',d:`(Actual ÷ Theoretical) × 100`}]:[]),
+    ],
+    steps:[...baseSteps, ...pySteps]
   };
 }
 

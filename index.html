@@ -675,7 +675,7 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
             <span class="ps-ex-pill" onclick="fillPSExample('mass')">Mass-to-mass</span>
             <span class="ps-ex-pill" onclick="fillPSExample('mass2mol')">Mass-to-mole</span>
             <span class="ps-ex-pill" onclick="fillPSExample('mol2mass')">Mole-to-mass</span>
-            <span class="ps-ex-pill" onclick="fillPSExample('limiting')">Limiting reactant & Excess reactant</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('limiting')">Limiting reactant</span>
             <span class="ps-ex-pill" onclick="fillPSExample('yield')">Percent yield</span>
             <span class="ps-ex-pill" onclick="fillPSExample('empirical')">Empirical formula</span>
           </div>
@@ -1183,7 +1183,7 @@ sections:[
   <div class="key-box"><div class="key-lbl">Important</div><p>Always start from a <strong>balanced equation</strong>. Unbalanced equations give wrong mole ratios and incorrect answers.</p></div>`}
 ],cta:'limiting'},
 
-'limiting':{unit:'Unit 3',title:'Limiting Reactant',
+'limiting':{unit:'Unit 3',title:'Limiting Reactant & Excess Reactant',
 intro:'The limiting reactant is the reactant that runs out first, stopping the reaction and determining the maximum amount of product that can form. The module states: "The reactant that runs out first, stopping the reaction. Determines the maximum amount of product that can form."',
 sections:[
   {h:'Definition (from the Module)',content:`<p>The limiting reactant:</p><ul><li>Is <strong>completely consumed</strong> first during the reaction</li><li><strong>Stops the reaction</strong> when it is used up</li><li><strong>Determines the maximum product</strong> that can form</li></ul>
@@ -1373,7 +1373,7 @@ const CALCS=[
   {id:'pct-comp',name:'% Composition',icon:'%',desc:'Percent by mass per element',diff:'Beginner'},
   {id:'empirical',name:'Empirical Formula',icon:'🔬',desc:'From percent composition',diff:'Intermediate'},
   {id:'molecular',name:'Molecular Formula',icon:'🧪',desc:'From empirical + molar mass',diff:'Intermediate'},
-  {id:'limiting',name:'Limiting Reactant',icon:'⛓',desc:'Identify which runs out',diff:'Advanced'},
+  {id:'limiting',name:'Limiting Reactant & Excess Reactant',icon:'⛓',desc:'Identify which runs out',diff:'Advanced'},
   {id:'theoretical',name:'Theoretical Yield',icon:'📊',desc:'Maximum product possible',diff:'Advanced'},
   {id:'pct-yield',name:'Percent Yield',icon:'✓',desc:'Reaction efficiency',diff:'Advanced'},
   {id:'sc-mol2mol',name:'Mole-to-Mole',icon:'⚛',desc:'Moles A → Moles B via equation',diff:'Intermediate'},
@@ -1932,163 +1932,267 @@ function genMF(){
 
 function genLR(){
   let eq, parsed, r1, r2, r0mol, r1mol;
-  
-  // Check if using custom parsed equation
   if(window.customEqData && window.customEqData.type === 'limiting'){
-    parsed = window.customEqData.parsed;
-    eq = window.customEqData.equation;
-    
-    // Get mole values from dynamically generated inputs
+    parsed = window.customEqData.parsed; eq = window.customEqData.equation;
     r0mol=parseFloat(document.getElementById('f-r0')?.value);
     r1mol=parseFloat(document.getElementById('f-r1')?.value);
-    
     if(isNaN(r0mol)||r0mol<=0){showErr('Enter moles for first reactant.');return null;}
     if(isNaN(r1mol)||r1mol<=0){showErr('Enter moles for second reactant.');return null;}
-    
-    r1=parsed.reactants[0];
-    r2=parsed.reactants[1];
-    
+    r1=parsed.reactants[0]; r2=parsed.reactants[1];
   } else {
     eq=document.getElementById('f-eq')?.value.trim();
     if(!eq){showErr('Enter a balanced equation and click "Parse Equation".');return null;}
-    
-    // Get mole values from dynamically generated inputs
     r0mol=parseFloat(document.getElementById('f-r0')?.value);
     r1mol=parseFloat(document.getElementById('f-r1')?.value);
-    
     if(isNaN(r0mol)||r0mol<=0){showErr('Enter moles for first reactant.');return null;}
     if(isNaN(r1mol)||r1mol<=0){showErr('Enter moles for second reactant.');return null;}
-    
-    // Parse equation
     parsed=parseEquation(eq);
     if(!parsed||parsed.reactants.length<2){showErr('Need at least 2 reactants. Check your equation.');return null;}
-    
-    r1=parsed.reactants[0];
-    r2=parsed.reactants[1];
+    r1=parsed.reactants[0]; r2=parsed.reactants[1];
   }
-  
-  // Calculate which is limiting
-  const ratio1=r0mol/r1.coef;
-  const ratio2=r1mol/r2.coef;
-  const limiting=ratio1<ratio2?r1.formula:r2.formula;
-  const excess=ratio1<ratio2?r2.formula:r1.formula;
-  const limitMol=ratio1<ratio2?r0mol:r1mol;
-  
-  return{title:'Limiting Reactant',stmt:`${eq}. ${r1.formula}: ${r0mol} mol, ${r2.formula}: ${r1mol} mol. Identify the limiting reactant.`,
-    given:[`Equation: ${eq}`,`${r1.formula}: ${r0mol} mol`,`${r2.formula}: ${r1mol} mol`],
-    balancedEq:eq,  // ADD BALANCED EQUATION
-    final:`${limiting} = Limiting Reactant | ${excess} = Excess Reactant`,
-    concept:`Module method: divide moles by coefficient. Smaller ratio = limiting reactant.`,
-    phases:[{k:'p1',l:'Divide by Coefficients',d:'Find which ratio is smaller'}],
+
+  // Module method: convert to moles (already in moles here), then check mole ratio requirement
+  const ratio1=rnd(r0mol/r1.coef,4);
+  const ratio2=rnd(r1mol/r2.coef,4);
+  const isR1limiting = ratio1 <= ratio2;
+  const limiting = isR1limiting ? r1.formula : r2.formula;
+  const excess   = isR1limiting ? r2.formula : r1.formula;
+  const limitingCoef  = isR1limiting ? r1.coef : r2.coef;
+  const excessCoef    = isR1limiting ? r2.coef : r1.coef;
+  const limitingMol   = isR1limiting ? r0mol : r1mol;
+  const excessMol     = isR1limiting ? r1mol : r0mol;
+  // How much of limiting is needed for excess?
+  const neededForExcess = rnd(limitingMol * (excessCoef/limitingCoef), 4);
+  const haveExcess = excessMol;
+
+  // Find first product
+  const prod = parsed.products[0];
+  let prodMass = null, prodMoles = null, prodMM = null;
+  if(prod){
+    const pData = calcMMSafe(prod.formula);
+    if(pData){
+      prodMM = pData.mm;
+      prodMoles = rnd(limitingMol * (prod.coef/limitingCoef), 4);
+      prodMass = rnd(prodMoles * prodMM, 3);
+    }
+  }
+
+  return{
+    title:'Limiting Reactant & Excess Reactant',
+    stmt:`${eq}. ${r1.formula}: ${r0mol} mol, ${r2.formula}: ${r1mol} mol. Identify the limiting reactant, excess reactant, and calculate the product formed.`,
+    given:[`Balanced equation: ${eq}`,`${r1.formula}: ${r0mol} mol`,`${r2.formula}: ${r1mol} mol`],
+    balancedEq:eq,
+    final:`Limiting: ${limiting} | Excess: ${excess}${prod&&prodMass?` | ${prod.formula} produced: ${prodMass} g`:''}`,
+    concept:`Module (Lesson 3) method:\nStep 1: Convert grams to moles (already in moles here)\nStep 2: Use mole ratio from equation\nStep 3: Determine required amount of one reactant for the other\nStep 4: Identify limiting reactant (smaller ratio = limiting)\nStep 5: Calculate product using limiting reactant\nStep 6: Convert moles to grams`,
+    phases:[
+      {k:'p1',l:'Step 1 — Convert Grams to Moles',d:'(Values already in moles — confirm amounts)'},
+      {k:'p2',l:'Step 2 — Use Mole Ratio from the Equation',d:'Extract the ratio between the two reactants.'},
+      {k:'p3',l:'Step 3 — Determine Required Amount',d:'How much of one reactant is needed for the other?'},
+      {k:'p4',l:'Step 4 — Identify Limiting Reactant',d:'Compare required vs. available.'},
+      {k:'p5',l:'Step 5 — Calculate Product (Using Limiting Reactant)',d:'Use the limiting reactant to find product moles.'},
+      {k:'p6',l:'Step 6 — Convert Moles to Grams',d:'Molar mass × moles of product = grams.'},
+    ],
     steps:[
-      {ph:'p1',pl:'First Ratio',inst:'Divide first reactant moles by its coefficient',q:`${r0mol} ÷ ${r1.coef} = ?`,exp:String(rnd(ratio1,2)),tol:0.05,h1:`Divide ${r0mol} mol ${r1.formula} by its coefficient ${r1.coef}`,h2:`${r0mol} ÷ ${r1.coef} = ${rnd(ratio1,2)}`,expl:`Correct!`},
-      {ph:'p1',pl:'Second Ratio',inst:'Divide second reactant moles by its coefficient',q:`${r1mol} ÷ ${r2.coef} = ?`,exp:String(rnd(ratio2,2)),tol:0.05,h1:`Divide ${r1mol} mol ${r2.formula} by its coefficient ${r2.coef}`,h2:`${r1mol} ÷ ${r2.coef} = ${rnd(ratio2,2)}`,expl:`Correct!`},
-      {ph:'p1',pl:'Compare',inst:'Smaller ratio = limiting reactant',q:`Which reactant is limiting? (type formula)`,exp:limiting,tol:0,inputType:'text',h1:`${rnd(ratio1,2)} vs ${rnd(ratio2,2)} - smaller ratio runs out first`,h2:`${limiting} is limiting (smaller ratio)`,expl:`Correct! ${limiting} is limiting reactant`},
-    ]};
+      // Step 1
+      {ph:'p1',pl:'Step 1 — Moles of '+r1.formula,
+       inst:`Step 1: Confirm the moles of each reactant.\nHow many moles of ${r1.formula} are given?`,
+       q:`Moles of ${r1.formula} =`,exp:String(r0mol),tol:0.01,unit:`mol ${r1.formula}`,
+       h1:`Look at the given data. The amount of ${r1.formula} is stated in the problem.`,
+       h2:`${r1.formula}: ${r0mol} mol`,
+       expl:`✓ ${r1.formula}: ${r0mol} mol confirmed`},
+      {ph:'p1',pl:'Step 1 — Moles of '+r2.formula,
+       inst:`How many moles of ${r2.formula} are given?`,
+       q:`Moles of ${r2.formula} =`,exp:String(r1mol),tol:0.01,unit:`mol ${r2.formula}`,
+       h1:`Look at the given data. The amount of ${r2.formula} is stated in the problem.`,
+       h2:`${r2.formula}: ${r1mol} mol`,
+       expl:`✓ ${r2.formula}: ${r1mol} mol confirmed`},
+      // Step 2
+      {ph:'p2',pl:'Step 2 — Mole Ratio from Equation',
+       inst:`Step 2: From the balanced equation ${eq}\nWhat is the mole ratio? (coefficient of ${r1.formula} : coefficient of ${r2.formula})`,
+       q:`Coefficient of ${r1.formula} :`,exp:String(r1.coef),tol:0,unit:'',
+       h1:`Look at the number in front of ${r1.formula} in the balanced equation.`,
+       h2:`Coefficient of ${r1.formula} = ${r1.coef}`,
+       expl:`✓ Coefficient of ${r1.formula} = ${r1.coef}`},
+      {ph:'p2',pl:'Step 2 — Coefficient of '+r2.formula,
+       inst:`Coefficient of ${r2.formula} in the equation:`,
+       q:`Coefficient of ${r2.formula} :`,exp:String(r2.coef),tol:0,unit:'',
+       h1:`Look at the number in front of ${r2.formula} in the balanced equation.`,
+       h2:`Coefficient of ${r2.formula} = ${r2.coef}`,
+       expl:`✓ Mole ratio: ${r1.coef} mol ${r1.formula} : ${r2.coef} mol ${r2.formula}`},
+      // Step 3
+      {ph:'p3',pl:'Step 3 — Required Amount of '+excess,
+       inst:`Step 3: Determine how much ${excess} is needed to react with all of ${limiting} (${limitingMol} mol).\n${limitingMol} mol ${limiting} × (${excessCoef} mol ${excess} / ${limitingCoef} mol ${limiting}) = ?`,
+       q:`${limitingMol} × (${excessCoef} / ${limitingCoef}) = ? mol ${excess} needed`,
+       exp:String(neededForExcess),tol:0.05,unit:`mol ${excess}`,
+       h1:`Multiply moles of ${limiting} by the mole ratio (${excessCoef}/${limitingCoef}).`,
+       h2:`${limitingMol} × (${excessCoef}/${limitingCoef}) = ${neededForExcess} mol ${excess} needed`,
+       expl:`✓ Need ${neededForExcess} mol ${excess}. We have ${haveExcess} mol ${excess}.`},
+      // Step 4
+      {ph:'p4',pl:'Step 4 — Identify Limiting Reactant',
+       inst:`Step 4: Compare required vs. available ${excess}.\nRequired: ${neededForExcess} mol. Available: ${haveExcess} mol.\nWhich reactant is LIMITING? (type its formula)`,
+       q:`Limiting reactant =`,exp:limiting,tol:0,inputType:'text',
+       h1:`If required > available, that reactant is limiting. If required < available, the other one is limiting.`,
+       h2:`Need ${neededForExcess} mol ${excess} but have ${haveExcess} mol → ${haveExcess < neededForExcess ? excess+' is limiting' : excess+' is in excess → '+limiting+' is limiting'}`,
+       expl:`✓ Limiting reactant: ${limiting} | Excess reactant: ${excess}`},
+      // Step 5
+      ...(prod ? [{ph:'p5',pl:'Step 5 — Moles of Product Using Limiting Reactant',
+       inst:`Step 5: Use the limiting reactant (${limiting}) to calculate product (${prod.formula}).\n${limitingMol} mol ${limiting} × (${prod.coef} mol ${prod.formula} / ${limitingCoef} mol ${limiting}) = ?`,
+       q:`${limitingMol} × (${prod.coef} / ${limitingCoef}) = ? mol ${prod.formula}`,
+       exp:String(prodMoles),tol:0.05,unit:`mol ${prod.formula}`,
+       h1:`Use only the limiting reactant. Multiply by the mole ratio for the product.`,
+       h2:`${limitingMol} × (${prod.coef}/${limitingCoef}) = ${prodMoles} mol ${prod.formula}`,
+       expl:`✓ ${prodMoles} mol of ${prod.formula} can be produced`}] : []),
+      // Step 6
+      ...(prod && prodMM ? [{ph:'p6',pl:'Step 6 — Convert Moles to Grams',
+       inst:`Step 6: Convert moles of ${prod.formula} to grams.\nMolar mass of ${prod.formula} = ${prodMM} g/mol\n${prodMoles} mol × ${prodMM} g/mol = ?`,
+       q:`${prodMoles} × ${prodMM} = ? g ${prod.formula}`,
+       exp:String(prodMass),tol:0.5,unit:`g ${prod.formula}`,
+       h1:`Mass = moles × molar mass = ${prodMoles} × ${prodMM}`,
+       h2:`${prodMoles} × ${prodMM} = ${prodMass} g ${prod.formula}`,
+       expl:`✓ FINAL ANSWER: ${prodMass} g of ${prod.formula} produced\nLimiting: ${limiting} | Excess: ${excess}`}] : []),
+    ]
+  };
 }
 
 function genTY(){
   let eq, parsed, reactant, product, amount, unit;
-  
-  // Check if using custom parsed equation
   if(window.customEqData && window.customEqData.type === 'theoretical'){
-    parsed = window.customEqData.parsed;
-    eq = window.customEqData.equation;
+    parsed = window.customEqData.parsed; eq = window.customEqData.equation;
     const selectedReactant = document.getElementById('f-which-reactant')?.value;
     amount = parseFloat(document.getElementById('f-lim')?.value);
     unit = 'moles';
-    
-    if(!amount || isNaN(amount) || amount<=0){
-      showErr('Enter moles of reactant.');
-      return null;
-    }
-    
-    // Find the selected reactant
-    reactant = parsed.reactants.find(r => r.formula === selectedReactant);
-    product = parsed.products[0]; // Use first product
-    
-    if(!reactant || !product){
-      showErr('Invalid reactant or product.');
-      return null;
-    }
-    
-  // Original code for non-custom equations
+    if(!amount||isNaN(amount)||amount<=0){showErr('Enter moles of reactant.');return null;}
+    reactant = parsed.reactants.find(r=>r.formula===selectedReactant);
+    product = parsed.products[0];
+    if(!reactant||!product){showErr('Invalid reactant or product.');return null;}
   } else {
     eq=document.getElementById('f-equation')?.value.trim();
     amount=parseFloat(document.getElementById('f-amount')?.value);
     unit=document.getElementById('f-unit')?.value||'grams';
     const reactantIdx=parseInt(document.getElementById('f-reactant')?.value||'0');
     const productIdx=parseInt(document.getElementById('f-product')?.value||'0');
-    
     if(!eq){showErr('Enter a balanced equation.');return null;}
     if(isNaN(amount)||amount<=0){showErr('Enter amount of reactant.');return null;}
-    
     parsed=parseEquation(eq);
-    if(!parsed){showErr('Could not parse equation. Check format.');return null;}
-    
-    reactant=parsed.reactants[reactantIdx];
-    product=parsed.products[productIdx];
-    
+    if(!parsed){showErr('Could not parse equation.');return null;}
+    reactant=parsed.reactants[reactantIdx]; product=parsed.products[productIdx];
     if(!reactant||!product){showErr('Select valid reactant and product.');return null;}
   }
-  
-  // Calculate theoretical yield
+
   const rMM=getMM(reactant.formula);
   const pMM=getMM(product.formula);
-  
   let rMoles, pMoles, pMass;
   if(unit==='grams'){
     rMoles=rnd(amount/rMM,3);
     pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
     pMass=rnd(pMoles*pMM,2);
-  }else{
+  } else {
     rMoles=amount;
     pMoles=rnd(rMoles*(product.coef/reactant.coef),3);
     pMass=rnd(pMoles*pMM,2);
   }
-  
-  return{title:'Theoretical Yield',stmt:`${eq}. Given ${amount} ${unit} of ${reactant.formula}, find theoretical yield of ${product.formula}.`,
-    given:[`Equation: ${eq}`,`${reactant.formula}: ${amount} ${unit}`],
-    balancedEq:eq,  // ADD BALANCED EQUATION
-    final:`${pMoles} mol (${pMass} g) of ${product.formula}`,
-    concept:`Calculate moles of product from moles of reactant using mole ratio.`,
-    phases:[{k:'p1',l:'Calculate',d:'Use mole ratios'}],
-    steps:unit==='grams'?[
-      {ph:'p1',pl:'Convert to Moles',inst:'Moles = mass ÷ molar mass',q:`${amount} g ${reactant.formula} ÷ ${rMM} g/mol = ? mol`,exp:String(rMoles),tol:0.05,unit:'mol',h1:`Divide ${amount} by molar mass ${rMM}`,h2:`${amount} ÷ ${rMM} = ${rMoles} mol`,expl:`Correct!`},
-      {ph:'p1',pl:'Mole Ratio',inst:'Use ratio from equation',q:`Moles ${product.formula} = ${rMoles} × (${product.coef}/${reactant.coef}) = ?`,exp:String(pMoles),tol:0.05,unit:'mol',h1:`Multiply by ratio ${product.coef}:${reactant.coef}`,h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol`,expl:`Correct!`},
-      {ph:'p1',pl:'Convert to Grams',inst:'Mass = moles × molar mass',q:`${pMoles} mol × ${pMM} g/mol = ? g`,exp:String(pMass),tol:0.5,unit:'g',h1:`Multiply ${pMoles} mol by molar mass ${pMM}`,h2:`${pMoles} × ${pMM} = ${pMass} g`,expl:`Correct! Theoretical yield = ${pMass} g`},
-    ]:[
-      {ph:'p1',pl:'Mole Ratio',inst:'Use ratio from equation',q:`Moles ${product.formula} = ${rMoles} × (${product.coef}/${reactant.coef}) = ?`,exp:String(pMoles),tol:0.05,unit:'mol',h1:`Multiply by ratio ${product.coef}:${reactant.coef}`,h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol`,expl:`Correct!`},
-      {ph:'p1',pl:'Convert to Grams',inst:'Mass = moles × molar mass',q:`${pMoles} mol × ${pMM} g/mol = ? g`,exp:String(pMass),tol:0.5,unit:'g',h1:`Multiply ${pMoles} mol by molar mass ${pMM}`,h2:`${pMoles} × ${pMM} = ${pMass} g`,expl:`Correct! Theoretical yield = ${pMass} g`},
-    ]};
+
+  const stepsGrams = [
+    {ph:'p1',pl:'Step 1 — Convert Mass to Moles of '+reactant.formula,
+     inst:`Step 1: Convert the mass of ${reactant.formula} to moles.\nFormula: moles = mass ÷ molar mass\nMolar mass of ${reactant.formula} = ${rMM} g/mol\n${amount} g ÷ ${rMM} g/mol = ?`,
+     q:`${amount} ÷ ${rMM} = ? mol ${reactant.formula}`,
+     exp:String(rMoles),tol:0.05,unit:`mol ${reactant.formula}`,
+     h1:`Moles = mass ÷ molar mass. Divide ${amount} by ${rMM}.`,
+     h2:`${amount} ÷ ${rMM} = ${rMoles} mol ${reactant.formula}`,
+     expl:`✓ Step 1 Answer: ${rMoles} mol ${reactant.formula}`},
+    {ph:'p2',pl:'Step 2 — Use Mole Ratio (Coefficients)',
+     inst:`Step 2: Use mole ratios (the coefficients) to convert moles of ${reactant.formula} to moles of ${product.formula}.\nFrom equation: ${reactant.coef} mol ${reactant.formula} → ${product.coef} mol ${product.formula}\n${rMoles} mol ${reactant.formula} × (${product.coef} / ${reactant.coef}) = ?`,
+     q:`${rMoles} × (${product.coef} / ${reactant.coef}) = ? mol ${product.formula}`,
+     exp:String(pMoles),tol:0.05,unit:`mol ${product.formula}`,
+     h1:`Multiply moles of reactant by the mole ratio: (${product.coef} mol ${product.formula} / ${reactant.coef} mol ${reactant.formula}).`,
+     h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol ${product.formula}`,
+     expl:`✓ Step 2 Answer: ${pMoles} mol ${product.formula}`},
+    {ph:'p3',pl:'Step 3 — Convert Moles of '+product.formula+' to Mass',
+     inst:`Step 3: Convert moles of ${product.formula} to mass.\nMolar mass of ${product.formula} = ${pMM} g/mol\n${pMoles} mol × ${pMM} g/mol = ?`,
+     q:`${pMoles} × ${pMM} = ? g ${product.formula}`,
+     exp:String(pMass),tol:0.5,unit:`g ${product.formula}`,
+     h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,
+     h2:`${pMoles} × ${pMM} = ${pMass} g`,
+     expl:`✓ FINAL ANSWER — Theoretical Yield = ${pMass} g of ${product.formula}`},
+  ];
+
+  const stepsMoles = [
+    {ph:'p2',pl:'Step 2 — Use Mole Ratio (Coefficients)',
+     inst:`Step 2: Use mole ratios (the coefficients) to convert moles of ${reactant.formula} to moles of ${product.formula}.\nFrom equation: ${reactant.coef} mol ${reactant.formula} → ${product.coef} mol ${product.formula}\n${rMoles} mol ${reactant.formula} × (${product.coef} / ${reactant.coef}) = ?`,
+     q:`${rMoles} × (${product.coef} / ${reactant.coef}) = ? mol ${product.formula}`,
+     exp:String(pMoles),tol:0.05,unit:`mol ${product.formula}`,
+     h1:`Multiply given moles by the mole ratio: (${product.coef}/${reactant.coef}).`,
+     h2:`${rMoles} × (${product.coef}/${reactant.coef}) = ${pMoles} mol ${product.formula}`,
+     expl:`✓ Step 2 Answer: ${pMoles} mol ${product.formula}`},
+    {ph:'p3',pl:'Step 3 — Convert Moles of '+product.formula+' to Mass',
+     inst:`Step 3: Convert moles of ${product.formula} to mass.\nMolar mass of ${product.formula} = ${pMM} g/mol\n${pMoles} mol × ${pMM} g/mol = ?`,
+     q:`${pMoles} × ${pMM} = ? g ${product.formula}`,
+     exp:String(pMass),tol:0.5,unit:`g ${product.formula}`,
+     h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,
+     h2:`${pMoles} × ${pMM} = ${pMass} g`,
+     expl:`✓ FINAL ANSWER — Theoretical Yield = ${pMass} g of ${product.formula}`},
+  ];
+
+  return{
+    title:'Theoretical Yield',
+    stmt:`${eq}. Given ${amount} ${unit} of ${reactant.formula}, find the theoretical yield of ${product.formula}.`,
+    given:[`Balanced equation: ${eq}`,`Given: ${amount} ${unit} of ${reactant.formula}`,`Find: theoretical yield (grams) of ${product.formula}`],
+    balancedEq:eq,
+    final:`Theoretical Yield = ${pMass} g of ${product.formula}`,
+    concept:`Module (Lesson 2) — 3-Step Process:\nStep 1: Convert the mass of the initial value to moles\nStep 2: Use mole ratios (coefficients) to convert moles of reactant → moles of product\nStep 3: Convert moles of product to mass of final substance`,
+    phases:[
+      {k:'p1',l:'Step 1 — Convert Mass to Moles',d:`${amount} ${unit} ${reactant.formula} ÷ MM → moles ${reactant.formula}`},
+      {k:'p2',l:'Step 2 — Use Mole Ratios (Coefficients)',d:`moles ${reactant.formula} × (${product.coef}/${reactant.coef}) → moles ${product.formula}`},
+      {k:'p3',l:'Step 3 — Convert Moles to Mass',d:`moles ${product.formula} × MM → grams ${product.formula}`},
+    ],
+    steps: unit==='grams' ? stepsGrams : stepsMoles
+  };
 }
 
 function genPY(){
   if(pyMode==='simple'){
-    // Simple mode - just calculate %
     const actual=parseFloat(document.getElementById('f-actual')?.value);
     const theor=parseFloat(document.getElementById('f-theoretical')?.value);
     const unit=document.getElementById('f-unit')?.value||'g';
     if(isNaN(actual)||actual<=0){showErr('Enter a valid actual yield.');return null;}
     if(isNaN(theor)||theor<=0){showErr('Enter a valid theoretical yield.');return null;}
     if(actual>theor*1.05){showErr('Actual yield cannot exceed theoretical yield. Check your values.');return null;}
-    const dec=rnd(actual/theor,4);
-    const pct=rnd(dec*100,1);
+    const pct=rnd((actual/theor)*100,1);
     const eff=pct>=70;
-    return{title:'Percent Yield',stmt:`Theoretical yield = ${theor} ${unit}, Actual yield = ${actual} ${unit}. Calculate percent yield.`,
-      given:[`Actual yield: ${actual} ${unit}`,`Theoretical yield: ${theor} ${unit}`],
-      final:`${pct}% (${eff?'Efficient reaction':'Significant losses occurred'})`,
-      concept:`Module formula: % Yield = (Actual ÷ Theoretical) × 100. Examples: 30/36×100=83.3%, 18/25×100=72%.`,
-      phases:[{k:'phv',l:'Phase 1 — Identify Given',d:'Know actual and theoretical yield.'},{k:'phg',l:'Phase 2 — Write Formula',d:'% Yield = (Actual ÷ Theoretical) × 100.'},{k:'pht',l:'Phase 3 — Divide',d:'Actual ÷ Theoretical.'},{k:'phy',l:'Phase 4 — Multiply by 100',d:'Get the percentage.'},{k:'pho',l:'Phase 5 — Interpret',d:'Is the yield efficient?'}],
+    return{
+      title:'Percent Yield',
+      stmt:`Theoretical yield = ${theor} ${unit}, Actual yield = ${actual} ${unit}. Calculate the percent yield of the reaction.`,
+      given:[`Actual yield: ${actual} ${unit}`,`Theoretical yield: ${theor} ${unit}`,`Find: Percent yield (%)`],
+      final:`Percent Yield = ${pct}%`,
+      concept:`Module (Lesson 2) — Percent Yield Formula:\nPercent Yield = (Actual Yield ÷ Theoretical Yield) × 100%\n\nModule Examples:\n• 30 g actual, 36 g theoretical → (30 ÷ 36) × 100 = 83.3%\n• 18 g actual, 25 g theoretical → (18 ÷ 25) × 100 = 72%\n• 20 g actual, 25 g theoretical → (20 ÷ 25) × 100 = 80%`,
+      phases:[
+        {k:'p1',l:'Step 1 — Use the Formula',d:'Write: Percent Yield = (Actual ÷ Theoretical) × 100%'},
+        {k:'p2',l:'Step 2 — Substitute Values',d:`Substitute: (${actual} ÷ ${theor}) × 100`},
+        {k:'p3',l:'Step 3 — Solve',d:'Calculate the final percentage.'},
+      ],
       steps:[
-        {ph:'phv',pl:'Identify Given',inst:'State the actual yield from the problem',q:`What is the actual yield in this problem?`,exp:String(actual),tol:0.01,unit,h1:'"Actual yield" is the real experimental result — the amount collected in the lab.',h2:`Actual yield = ${actual} ${unit}. This is always ≤ theoretical yield.`,expl:`Correct! Actual yield = ${actual} ${unit}.`},
-        {ph:'phg',pl:'Write Formula',inst:'State the module formula for percent yield',q:`% Yield = (Actual Yield ÷ __________ Yield) × 100. What fills the blank?`,exp:'theoretical',tol:0,inputType:'text',h1:'Percent yield compares actual results to the maximum possible amount.',h2:'% Yield = (Actual ÷ THEORETICAL) × 100. Type "theoretical".',expl:'Correct! % Yield = (Actual ÷ Theoretical) × 100 — directly from the module.'},
-        {ph:'pht',pl:'Divide',inst:'Calculate actual ÷ theoretical',q:`${actual} ÷ ${theor} = ?`,exp:String(dec),tol:0.002,h1:`Divide ${actual} by ${theor}. This gives a decimal between 0 and 1.`,h2:`${actual} ÷ ${theor} = ${dec}.`,expl:`Correct! ${actual} ÷ ${theor} = ${dec}.`},
-        {ph:'phy',pl:'Multiply by 100',inst:'Convert decimal to percentage',q:`${dec} × 100 = ?`,exp:String(pct),tol:0.5,unit:'%',h1:`Multiply ${dec} × 100 to convert the decimal fraction to a percentage.`,h2:`${dec} × 100 = ${pct}%. (Module examples: 30÷36×100=83.3%, 18÷25×100=72%)`,expl:`Correct! Percent yield = ${pct}%.`},
-        {ph:'pho',pl:'Interpret',inst:'What does this percent yield tell us?',q:`A percent yield of ${pct}% means the reaction is ______. (type: efficient or inefficient)`,exp:eff?'efficient':'inefficient',tol:0,inputType:'text',h1:`Values near 100% = efficient. Values far below 100% = significant losses.`,h2:`${pct}% is ${eff?'relatively high — efficient':'relatively low — losses occurred'}. Type "${eff?'efficient':'inefficient'}".`,expl:eff?`Correct! ${pct}% is a good yield. Perfect = 100% (never truly achieved).`:`Correct! ${pct}% indicates product was lost to incomplete reaction, side reactions, or handling.`},
-      ]};
-  }else{
-    // Full mode - calculate theoretical first, then %
+        {ph:'p1',pl:'Step 1 — Write the Formula',
+         inst:`Step 1: Use the formula from the module.\nPercent Yield = (Actual Yield ÷ Theoretical Yield) × 100%\n\nWhat is the actual yield in this problem?`,
+         q:`Actual yield = ? ${unit}`,exp:String(actual),tol:0.01,unit,
+         h1:`The actual yield is the amount ACTUALLY collected after the experiment. Read it from the given data.`,
+         h2:`Actual yield = ${actual} ${unit}`,
+         expl:`✓ Actual yield = ${actual} ${unit}. Formula: % Yield = (Actual ÷ Theoretical) × 100%`},
+        {ph:'p2',pl:'Step 2 — Substitute Values',
+         inst:`Step 2: Substitute the values into the formula.\nPercent Yield = (${actual} ÷ ${theor}) × 100%\n\nFirst, divide: ${actual} ÷ ${theor} = ?`,
+         q:`${actual} ÷ ${theor} = ?`,exp:String(rnd(actual/theor,4)),tol:0.002,unit:'',
+         h1:`Divide actual yield by theoretical yield: ${actual} ÷ ${theor}`,
+         h2:`${actual} ÷ ${theor} = ${rnd(actual/theor,4)}`,
+         expl:`✓ ${actual} ÷ ${theor} = ${rnd(actual/theor,4)}`},
+        {ph:'p3',pl:'Step 3 — Solve (Multiply × 100)',
+         inst:`Step 3: Multiply by 100 to get the percentage.\n${rnd(actual/theor,4)} × 100 = ?`,
+         q:`${rnd(actual/theor,4)} × 100 = ? %`,exp:String(pct),tol:0.5,unit:'%',
+         h1:`Multiply the decimal by 100 to convert to a percentage.`,
+         h2:`${rnd(actual/theor,4)} × 100 = ${pct}%`,
+         expl:`✓ FINAL ANSWER — Percent Yield = ${pct}%\n${eff?'This is an efficient reaction (≥70%).':'Product was lost to incomplete reaction, side reactions, or handling.'}`},
+      ]
+    };
+  } else {
+    // Full mode — calculate theoretical first, then percent yield
     const eq=document.getElementById('f-equation')?.value.trim();
     const rMass=parseFloat(document.getElementById('f-reactant-mass')?.value);
     const rForm=document.getElementById('f-reactant-formula')?.value.trim();
@@ -2098,39 +2202,67 @@ function genPY(){
     if(isNaN(rMass)||rMass<=0){showErr('Enter valid reactant mass');return null;}
     if(!rForm||!pForm){showErr('Enter reactant and product formulas');return null;}
     if(isNaN(actual)||actual<=0){showErr('Enter valid actual yield');return null;}
-    
-    // Calculate theoretical yield
-    const rMM=getMM(rForm);
-    const pMM=getMM(pForm);
+    const rMM=getMM(rForm), pMM=getMM(pForm);
     if(!rMM||!pMM){showErr('Could not calculate molar masses');return null;}
-    
-    // Extract coefficients from equation (simplified - assumes proper format)
     const parts=eq.split('→');
     const reactants=parts[0].split('+').map(r=>r.trim());
     const products=parts[1].split('+').map(p=>p.trim());
-    
-    // Find coefficients
     let rCoef=1,pCoef=1;
     reactants.forEach(r=>{const m=r.match(/^(\d+)/);if(m&&r.includes(rForm))rCoef=parseInt(m[1]);});
     products.forEach(p=>{const m=p.match(/^(\d+)/);if(m&&p.includes(pForm))pCoef=parseInt(m[1]);});
-    
     const rMoles=rnd(rMass/rMM,3);
     const pMoles=rnd(rMoles*(pCoef/rCoef),3);
     const theor=rnd(pMoles*pMM,2);
     const pct=rnd((actual/theor)*100,1);
-    
-    return{title:'Percent Yield (Full Calculation)',stmt:`${eq}. If ${rMass} g ${rForm} produces ${actual} g ${pForm}, what is the percent yield?`,
-      given:[`Equation: ${eq}`,`Reactant: ${rMass} g ${rForm}`,`Actual: ${actual} g ${pForm}`],
-      final:`${pct}%`,
-      concept:`Calculate theoretical yield first, then find percent yield.`,
-      phases:[{k:'p1',l:'Calculate Theoretical',d:'Find max possible product'}],
+    return{
+      title:'Percent Yield (Full Calculation)',
+      stmt:`${eq}. If ${rMass} g ${rForm} reacts, what is the percent yield if ${actual} g ${pForm} is actually obtained?`,
+      given:[`Balanced equation: ${eq}`,`Reactant: ${rMass} g ${rForm}`,`Actual yield: ${actual} g ${pForm}`,`Find: Percent yield`],
+      balancedEq:eq,
+      final:`Theoretical Yield = ${theor} g | Percent Yield = ${pct}%`,
+      concept:`Module (Lesson 2) — Full Calculation:\nFirst: Calculate Theoretical Yield (3 steps)\nStep 1: Convert mass → moles\nStep 2: Use mole ratio\nStep 3: Convert moles → grams (= theoretical yield)\nThen: Percent Yield = (Actual ÷ Theoretical) × 100%`,
+      phases:[
+        {k:'p1',l:'Step 1 — Convert Mass to Moles',d:`${rMass} g ${rForm} ÷ ${rMM} = ? mol`},
+        {k:'p2',l:'Step 2 — Use Mole Ratio',d:`mol ${rForm} → mol ${pForm}`},
+        {k:'p3',l:'Step 3 — Convert to Grams (Theoretical Yield)',d:`mol ${pForm} × ${pMM} = ? g`},
+        {k:'p4',l:'Step 1 (% Yield) — Use the Formula',d:'Write Percent Yield formula.'},
+        {k:'p5',l:'Step 2 (% Yield) — Substitute',d:`(${actual} ÷ ${theor}) × 100`},
+        {k:'p6',l:'Step 3 (% Yield) — Solve',d:'Calculate the final percentage.'},
+      ],
       steps:[
-        {ph:'p1',pl:'Molar Mass',inst:'Calculate molar masses',q:`Molar mass of ${rForm} (g/mol)?`,exp:String(rMM),tol:0.5,h1:`Look up atomic masses and add them up.`,h2:`${rForm} = ${rMM} g/mol`,expl:`Correct!`},
-        {ph:'p1',pl:'Convert to Moles',inst:'Convert reactant to moles',q:`${rMass} g ${rForm} = ? moles`,exp:String(rMoles),tol:0.02,unit:'mol',h1:`Moles = mass ÷ molar mass = ${rMass} ÷ ${rMM}`,h2:`${rMass} ÷ ${rMM} = ${rMoles} mol`,expl:`Correct! ${rMoles} mol ${rForm}`},
-        {ph:'p1',pl:'Mole Ratio',inst:'Use mole ratio from equation',q:`Moles of ${pForm} produced? (ratio ${rCoef}:${pCoef})`,exp:String(pMoles),tol:0.02,unit:'mol',h1:`${rMoles} mol ${rForm} × (${pCoef} mol ${pForm} / ${rCoef} mol ${rForm})`,h2:`= ${pMoles} mol ${pForm}`,expl:`Correct! ${pMoles} mol ${pForm}`},
-        {ph:'p1',pl:'Theoretical Mass',inst:'Convert to grams',q:`${pMoles} mol ${pForm} = ? grams (MM=${pMM})`,exp:String(theor),tol:0.5,unit:'g',h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,h2:`= ${theor} g (theoretical yield)`,expl:`Correct! Theoretical = ${theor} g`},
-        {ph:'p1',pl:'Percent Yield',inst:'Calculate % yield',q:`% Yield = (${actual} ÷ ${theor}) × 100 = ?`,exp:String(pct),tol:1,unit:'%',h1:`Actual ÷ Theoretical × 100`,h2:`(${actual} ÷ ${theor}) × 100 = ${pct}%`,expl:`Correct! Percent yield = ${pct}%`},
-      ]};
+        {ph:'p1',pl:'Step 1 — Molar Mass & Convert to Moles',
+         inst:`Step 1: Molar mass of ${rForm} = ${rMM} g/mol\nConvert: ${rMass} g ÷ ${rMM} g/mol = ?`,
+         q:`${rMass} ÷ ${rMM} = ? mol ${rForm}`,exp:String(rMoles),tol:0.05,unit:`mol ${rForm}`,
+         h1:`Moles = mass ÷ molar mass = ${rMass} ÷ ${rMM}`,
+         h2:`${rMoles} mol ${rForm}`,expl:`✓ ${rMoles} mol ${rForm}`},
+        {ph:'p2',pl:'Step 2 — Use Mole Ratio',
+         inst:`Step 2: From ${eq}, ratio is ${rCoef} mol ${rForm} : ${pCoef} mol ${pForm}\n${rMoles} × (${pCoef} / ${rCoef}) = ?`,
+         q:`${rMoles} × (${pCoef} / ${rCoef}) = ? mol ${pForm}`,exp:String(pMoles),tol:0.05,unit:`mol ${pForm}`,
+         h1:`Multiply moles by mole ratio: ${rMoles} × (${pCoef}/${rCoef})`,
+         h2:`= ${pMoles} mol ${pForm}`,expl:`✓ ${pMoles} mol ${pForm}`},
+        {ph:'p3',pl:'Step 3 — Convert Moles to Grams (Theoretical Yield)',
+         inst:`Step 3: Molar mass of ${pForm} = ${pMM} g/mol\n${pMoles} mol × ${pMM} = ?`,
+         q:`${pMoles} × ${pMM} = ? g (Theoretical Yield)`,exp:String(theor),tol:0.5,unit:'g',
+         h1:`Mass = moles × molar mass = ${pMoles} × ${pMM}`,
+         h2:`Theoretical yield = ${theor} g ${pForm}`,expl:`✓ Theoretical Yield = ${theor} g`},
+        {ph:'p4',pl:'Step 1 (% Yield) — Write the Formula',
+         inst:`Now calculate percent yield.\nStep 1: Percent Yield = (Actual Yield ÷ Theoretical Yield) × 100%\nWhat is the actual yield?`,
+         q:`Actual yield = ? g`,exp:String(actual),tol:0.01,unit:'g',
+         h1:`The actual yield is the amount collected in the lab.`,
+         h2:`Actual yield = ${actual} g`,expl:`✓ Actual yield = ${actual} g. Formula: % Yield = (Actual ÷ Theoretical) × 100%`},
+        {ph:'p5',pl:'Step 2 (% Yield) — Substitute Values',
+         inst:`Step 2: Substitute: (${actual} ÷ ${theor}) × 100\nFirst divide: ${actual} ÷ ${theor} = ?`,
+         q:`${actual} ÷ ${theor} = ?`,exp:String(rnd(actual/theor,4)),tol:0.003,
+         h1:`Divide actual by theoretical: ${actual} ÷ ${theor}`,
+         h2:`= ${rnd(actual/theor,4)}`,expl:`✓ ${actual} ÷ ${theor} = ${rnd(actual/theor,4)}`},
+        {ph:'p6',pl:'Step 3 (% Yield) — Solve',
+         inst:`Step 3: Multiply by 100\n${rnd(actual/theor,4)} × 100 = ?`,
+         q:`${rnd(actual/theor,4)} × 100 = ? %`,exp:String(pct),tol:0.5,unit:'%',
+         h1:`Multiply the decimal by 100 to get the percentage.`,
+         h2:`${rnd(actual/theor,4)} × 100 = ${pct}%`,
+         expl:`✓ FINAL ANSWER — Percent Yield = ${pct}%`},
+      ]
+    };
   }
 }
 
@@ -2720,7 +2852,7 @@ function classifyProblem(text){
 
   // 2. Limiting Reactant
   if(/limiting\s+reactant|which\s+(?:is\s+)?(?:the\s+)?limiting|identify\s+(?:the\s+)?limiting/i.test(lower)){
-    result.type='limiting'; result.typeLabel='Limiting Reactant'; result.calcId='limiting';
+    result.type='limiting'; result.typeLabel='Limiting Reactant & Excess Reactant'; result.calcId='limiting';
     result.find='Limiting reactant identification';
     result.explanation='This is a Limiting Reactant problem. You need to find which reactant runs out first.\nMethod: Divide available moles by the coefficient in the balanced equation. The smallest ratio = limiting reactant.';
     result.hints=['Convert all amounts to moles first.','Divide each reactant\'s moles by its coefficient from the balanced equation.','The reactant with the smallest result is the limiting reactant.'];
@@ -3438,46 +3570,73 @@ function calcMMSafe(formula){
   return{mm:rnd(mmOf(els)),els};
 }
 
-// ══ Mole-to-Mole Generator ══
+// ══ MOLE-TO-MOLE — Module Lesson 1 exact steps ══
 function genSCMol2Mol(){
   const inp=parseSCInputs();if(!inp)return null;
   const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
   const molFind=rnd(givenVal*(fCoef/gCoef),4);
-  const ratio=`${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}`;
   return{
     title:`Mole-to-Mole: ${givenSub} → ${findSub}`,
     stmt:`${eq}. Given ${givenVal} mol of ${givenSub}, how many moles of ${findSub} are produced?`,
     balancedEq:eq,
-    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} mol ${givenSub}`,`Find: moles of ${findSub}`],
+    given:[`Given: ${givenVal} mol ${givenSub}`,`Find: moles of ${findSub}`],
     final:`${molFind} mol ${findSub}`,
-    concept:`Mol-to-Mol uses only the mole ratio from the balanced equation. No molar mass needed.\nFormula: mol ${findSub} = ${givenVal} × (${fCoef}/${gCoef}) = ${molFind} mol`,
+    concept:`Mole-to-Mole uses only the mole ratio from the balanced equation. No molar mass conversion needed.\nFormula: mol ${findSub} = ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}) = ${molFind} mol`,
     phases:[
-      {k:'p1',l:'Phase 1 — Identify Given & Balanced Equation',d:'What do we know from the problem?'},
-      {k:'p2',l:'Phase 2 — Extract the Mole Ratio',d:'Use coefficients from the balanced equation.'},
-      {k:'p3',l:'Phase 3 — Calculate Moles of Product',d:'Apply the mole ratio to find the answer.'},
+      {k:'p1',l:'Step 1 — Write the Balanced Chemical Equation',d:'The equation gives us the mole ratio.'},
+      {k:'p2',l:'Step 2 — Mole Ratio',d:`Use coefficients: (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`},
+      {k:'p3',l:'Step 3 — Formula & Calculation',d:`Given mol × mole ratio`},
+      {k:'p4',l:'Step 4 — Cancel the Unit',d:`Cancel mol ${givenSub}; remaining unit is mol ${findSub}`},
+      {k:'p5',l:'Step 5 — Answer',d:'State the final answer.'},
     ],
     steps:[
-      {ph:'p1',pl:'Given',inst:'Identify the given substance and amount',q:`What is the given amount of ${givenSub}? (just the number)`,exp:String(givenVal),tol:0,unit:`mol ${givenSub}`,
-       h1:`Look at the problem. The given substance is ${givenSub} and we know its moles.`,
-       h2:`The given amount is ${givenVal} mol ${givenSub}.`,
-       expl:`Correct! We are given ${givenVal} mol of ${givenSub}.`},
-      {ph:'p2',pl:'Coefficient of Given',inst:`What is the coefficient of ${givenSub} in the balanced equation?`,q:`In the equation, what is the coefficient of ${givenSub}?`,exp:String(gCoef),tol:0,unit:'',
-       h1:`Look at the number in front of ${givenSub} in the balanced equation. If no number is written, the coefficient is 1.`,
+      {ph:'p1',pl:'Step 1 — Balanced Equation',
+       inst:`Write the balanced chemical equation for this reaction.`,
+       q:`How many total substances (reactants + products) are in the equation: ${eq}?`,
+       exp:String(inp.parsed.reactants.length+inp.parsed.products.length),tol:0,unit:'substances',
+       h1:`The balanced equation is: ${eq}. Count all substances on both sides of →.`,
+       h2:`Reactants: ${inp.parsed.reactants.length}, Products: ${inp.parsed.products.length}. Total = ${inp.parsed.reactants.length+inp.parsed.products.length}.`,
+       expl:`✓ Balanced equation confirmed: ${eq}`},
+      {ph:'p2',pl:'Step 2 — Mole Ratio (Coefficient of ${givenSub})',
+       inst:`From the balanced equation, what is the coefficient of ${givenSub}?`,
+       q:`Coefficient of ${givenSub} in the equation:`,
+       exp:String(gCoef),tol:0,unit:'',
+       h1:`Look at the number written directly in front of ${givenSub} in the equation. If no number is shown, the coefficient is 1.`,
        h2:`The coefficient of ${givenSub} is ${gCoef}.`,
-       expl:`Correct! Coefficient of ${givenSub} = ${gCoef}.`},
-      {ph:'p2',pl:'Coefficient of Unknown',inst:`What is the coefficient of ${findSub} in the balanced equation?`,q:`In the equation, what is the coefficient of ${findSub}?`,exp:String(fCoef),tol:0,unit:'',
-       h1:`Look at the number in front of ${findSub} in the balanced equation.`,
+       expl:`✓ Coefficient of ${givenSub} = ${gCoef}`},
+      {ph:'p2',pl:'Step 2 — Mole Ratio (Coefficient of ${findSub})',
+       inst:`From the balanced equation, what is the coefficient of ${findSub}?`,
+       q:`Coefficient of ${findSub} in the equation:`,
+       exp:String(fCoef),tol:0,unit:'',
+       h1:`Look at the number written directly in front of ${findSub} in the equation.`,
        h2:`The coefficient of ${findSub} is ${fCoef}.`,
-       expl:`Correct! Coefficient of ${findSub} = ${fCoef}.`},
-      {ph:'p3',pl:'Apply Mole Ratio',inst:`Calculate: ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`,q:`${givenVal} × (${fCoef} ÷ ${gCoef}) = ?`,exp:String(molFind),tol:0.05,unit:`mol ${findSub}`,
-       h1:`Multiply the given moles by the mole ratio: ${givenVal} × (${fCoef} / ${gCoef}).`,
-       h2:`${givenVal} × ${fCoef} ÷ ${gCoef} = ${molFind} mol ${findSub}.`,
-       expl:`Excellent! ${givenVal} mol ${givenSub} × (${ratio}) = ${molFind} mol ${findSub}.`},
+       expl:`✓ Coefficient of ${findSub} = ${fCoef}. Mole ratio = (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`},
+      {ph:'p3',pl:'Step 3 — Apply the Formula',
+       inst:`Formula: given mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`,
+       q:`${givenVal} mol ${givenSub} × (${fCoef} / ${gCoef}) = ?`,
+       exp:String(molFind),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Multiply: ${givenVal} × (${fCoef} / ${gCoef})`,
+       h2:`${givenVal} × ${fCoef} ÷ ${gCoef} = ${molFind}`,
+       expl:`✓ ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}) = ${molFind} mol ${findSub}`},
+      {ph:'p4',pl:'Step 4 — Cancel the Unit',
+       inst:`Which unit cancels when you apply the mole ratio?`,
+       q:`Type the unit that cancels out (e.g. mol H₂):`,
+       exp:`mol ${givenSub}`,tol:0,unit:'',
+       h1:`In the calculation: ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}) — the "mol ${givenSub}" on top and bottom cancel.`,
+       h2:`"mol ${givenSub}" cancels. The remaining unit is "mol ${findSub}".`,
+       expl:`✓ mol ${givenSub} cancels. Remaining unit = mol ${findSub}`},
+      {ph:'p5',pl:'Step 5 — Final Answer',
+       inst:`State the final answer with correct units.`,
+       q:`Final answer = ? mol ${findSub}`,
+       exp:String(molFind),tol:0.05,unit:`mol ${findSub}`,
+       h1:`The answer is the result from Step 3, with unit mol ${findSub}.`,
+       h2:`Final answer = ${molFind} mol ${findSub}`,
+       expl:`✓ FINAL ANSWER = ${molFind} mol ${findSub}`},
     ]
   };
 }
 
-// ══ Mass-to-Mass Generator ══
+// ══ MASS-TO-MASS — Module Lesson 1 exact steps ══
 function genSCMass2Mass(){
   const inp=parseSCInputs();if(!inp)return null;
   const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
@@ -3493,41 +3652,70 @@ function genSCMass2Mass(){
     title:`Mass-to-Mass: ${givenSub} → ${findSub}`,
     stmt:`${eq}. If ${givenVal} g of ${givenSub} reacts, how many grams of ${findSub} are produced?`,
     balancedEq:eq,
-    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} g ${givenSub}`,`Find: grams of ${findSub}`],
+    given:[`Given: ${givenVal} g ${givenSub}`,`Find: grams of ${findSub}`],
     final:`${fMass} g ${findSub}`,
-    concept:`Mass-to-Mass uses 3 bridges: g A → mol A (÷MM) → mol B (×ratio) → g B (×MM).\nFull chain: ${givenVal} g ${givenSub} ÷ ${gMM} × (${fCoef}/${gCoef}) × ${fMM} = ${fMass} g ${findSub}`,
+    concept:`Mass-to-Mass formula:\ngrams of ${givenSub} → moles of ${givenSub} → moles of ${findSub} → grams of ${findSub}\ngiven mass × (1 mol ${givenSub}/${gMM} g) × (${fCoef} mol ${findSub}/${gCoef} mol ${givenSub}) × (${fMM} g ${findSub}/1 mol ${findSub}) = ${fMass} g ${findSub}`,
     phases:[
-      {k:'p1',l:'Phase 1 — Molar Mass of Given',d:`Find the molar mass of ${givenSub} (Bridge 1 setup).`},
-      {k:'p2',l:'Phase 2 — Convert to Moles (Bridge 1)',d:'Grams of given → Moles of given.'},
-      {k:'p3',l:'Phase 3 — Apply Mole Ratio (Bridge 2)',d:'Moles of given → Moles of unknown.'},
-      {k:'p4',l:'Phase 4 — Convert to Grams (Bridge 3)',d:'Moles of unknown → Grams of unknown.'},
+      {k:'p1',l:'Step 1 — Write the Balanced Chemical Equation',d:'The equation gives us the mole ratio.'},
+      {k:'p2',l:'Step 2 — Formula',d:`grams ${givenSub} → moles ${givenSub} → moles ${findSub} → grams ${findSub}`},
+      {k:'p3',l:'Step 3 — Cancel Units',d:`Cancel: grams ${givenSub}, mol ${givenSub}, mol ${findSub}`},
+      {k:'p4',l:'Step 4 — Answer',d:'Calculate and state the final answer.'},
     ],
     steps:[
-      {ph:'p1',pl:'Molar Mass of Given',inst:`Calculate the molar mass of ${givenSub}`,q:`What is the molar mass of ${givenSub}? (g/mol)`,exp:String(gMM),tol:0.5,unit:'g/mol',
-       h1:`Look up atomic masses of each element in ${givenSub} and multiply by their count, then add.`,
-       h2:`Molar mass of ${givenSub} = ${gMM} g/mol.`,
-       expl:`Correct! MM of ${givenSub} = ${gMM} g/mol.`},
-      {ph:'p1',pl:'Molar Mass of Product',inst:`Calculate the molar mass of ${findSub}`,q:`What is the molar mass of ${findSub}? (g/mol)`,exp:String(fMM),tol:0.5,unit:'g/mol',
-       h1:`Look up atomic masses of each element in ${findSub}.`,
-       h2:`Molar mass of ${findSub} = ${fMM} g/mol.`,
-       expl:`Correct! MM of ${findSub} = ${fMM} g/mol.`},
-      {ph:'p2',pl:'Bridge 1: g → mol of Given',inst:`Convert ${givenVal} g ${givenSub} to moles using: mol = g ÷ MM`,q:`${givenVal} ÷ ${gMM} = ? mol ${givenSub}`,exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
-       h1:`Moles = grams ÷ molar mass = ${givenVal} ÷ ${gMM}.`,
-       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol ${givenSub}.`,
-       expl:`Correct! ${givenVal} g ${givenSub} = ${gMoles} mol ${givenSub}.`},
-      {ph:'p3',pl:'Bridge 2: Mole Ratio',inst:`Apply mole ratio: ${gCoef} mol ${givenSub} : ${fCoef} mol ${findSub}`,q:`${gMoles} mol ${givenSub} × (${fCoef}/${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
-       h1:`Use coefficients from the balanced equation: multiply by ${fCoef} and divide by ${gCoef}.`,
-       h2:`${gMoles} × (${fCoef} ÷ ${gCoef}) = ${fMoles} mol ${findSub}.`,
-       expl:`Correct! Mole ratio gives ${fMoles} mol ${findSub}.`},
-      {ph:'p4',pl:'Bridge 3: mol → g of Product',inst:`Convert ${fMoles} mol ${findSub} to grams: g = mol × MM`,q:`${fMoles} × ${fMM} = ? g ${findSub}`,exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
-       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}.`,
-       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}.`,
-       expl:`Excellent! Final answer = ${fMass} g ${findSub}.`},
+      {ph:'p1',pl:'Step 1 — Balanced Equation',
+       inst:`Write the balanced chemical equation. This gives us the mole ratio.`,
+       q:`How many substances are in the equation: ${eq}?`,
+       exp:String(inp.parsed.reactants.length+inp.parsed.products.length),tol:0,unit:'substances',
+       h1:`The balanced equation is: ${eq}`,
+       h2:`Count all substances on both sides of →: ${inp.parsed.reactants.length+inp.parsed.products.length} total.`,
+       expl:`✓ Balanced equation confirmed: ${eq}`},
+      {ph:'p2',pl:'Step 2a — Molar Mass of Given (${givenSub})',
+       inst:`Find the molar mass of ${givenSub} to set up: grams ${givenSub} → moles ${givenSub}`,
+       q:`Molar mass of ${givenSub} = ? g/mol`,
+       exp:String(gMM),tol:0.5,unit:'g/mol',
+       h1:`Add (count × atomic mass) for each element in ${givenSub}.`,
+       h2:`Molar mass of ${givenSub} = ${gMM} g/mol`,
+       expl:`✓ MM of ${givenSub} = ${gMM} g/mol`},
+      {ph:'p2',pl:'Step 2b — Molar Mass of Product (${findSub})',
+       inst:`Find the molar mass of ${findSub} to set up: moles ${findSub} → grams ${findSub}`,
+       q:`Molar mass of ${findSub} = ? g/mol`,
+       exp:String(fMM),tol:0.5,unit:'g/mol',
+       h1:`Add (count × atomic mass) for each element in ${findSub}.`,
+       h2:`Molar mass of ${findSub} = ${fMM} g/mol`,
+       expl:`✓ MM of ${findSub} = ${fMM} g/mol`},
+      {ph:'p2',pl:'Step 2c — Full Dimensional Analysis Setup',
+       inst:`Set up the full chain:\n${givenVal} g ${givenSub} × (1 mol ${givenSub} / ${gMM} g ${givenSub}) × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}) × (${fMM} g ${findSub} / 1 mol ${findSub})\nFirst, convert grams ${givenSub} → moles ${givenSub}:`,
+       q:`${givenVal} ÷ ${gMM} = ? mol ${givenSub}`,
+       exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
+       h1:`Moles = grams ÷ molar mass = ${givenVal} ÷ ${gMM}`,
+       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol ${givenSub}`,
+       expl:`✓ ${givenVal} g ${givenSub} = ${gMoles} mol ${givenSub}`},
+      {ph:'p3',pl:'Step 3a — Cancel Grams of ${givenSub}, Apply Mole Ratio',
+       inst:`Cancel grams of ${givenSub}. Now apply the mole ratio (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}):`,
+       q:`${gMoles} mol ${givenSub} × (${fCoef} / ${gCoef}) = ? mol ${findSub}`,
+       exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Mole ratio from the equation: ${gCoef} mol ${givenSub} : ${fCoef} mol ${findSub}`,
+       h2:`${gMoles} × (${fCoef} / ${gCoef}) = ${fMoles} mol ${findSub}`,
+       expl:`✓ Cancel mol ${givenSub}. ${gMoles} mol ${givenSub} → ${fMoles} mol ${findSub}`},
+      {ph:'p3',pl:'Step 3b — Cancel Moles of ${findSub}, Convert to Grams',
+       inst:`Cancel moles of ${findSub}. Multiply by molar mass of ${findSub} (${fMM} g/mol):`,
+       q:`${fMoles} mol ${findSub} × ${fMM} g/mol = ? g ${findSub}`,
+       exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}`,
+       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}`,
+       expl:`✓ All units cancelled correctly. ${fMoles} mol ${findSub} = ${fMass} g ${findSub}`},
+      {ph:'p4',pl:'Step 4 — Final Answer',
+       inst:`State the final answer. All three unit cancellations are complete.`,
+       q:`Final answer = ? g ${findSub}`,
+       exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`The chain: ${givenVal} g ${givenSub} → ${gMoles} mol ${givenSub} → ${fMoles} mol ${findSub} → ${fMass} g ${findSub}`,
+       h2:`Answer = ${fMass} g ${findSub}`,
+       expl:`✓ FINAL ANSWER = ${fMass} g ${findSub}`},
     ]
   };
 }
 
-// ══ Mass-to-Mole Generator ══
+// ══ MASS-TO-MOLE — Module Lesson 1 exact steps (Helium example style) ══
 function genSCMass2Mol(){
   const inp=parseSCInputs();if(!inp)return null;
   const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
@@ -3535,36 +3723,56 @@ function genSCMass2Mol(){
   if(!gData){showErr(`Cannot calculate molar mass of "${givenSub}".`);return null;}
   const gMM=gData.mm;
   const gMoles=rnd(givenVal/gMM,4);
+  // Check if it's a simple single-substance conversion (same substance, no reaction needed)
+  const isSimple = givenSub===findSub || gCoef===fCoef&&givenSub===findSub;
   const fMoles=rnd(gMoles*(fCoef/gCoef),4);
   return{
     title:`Mass-to-Mole: ${givenSub} → ${findSub}`,
     stmt:`${eq}. If ${givenVal} g of ${givenSub} reacts, how many moles of ${findSub} are produced?`,
     balancedEq:eq,
-    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} g ${givenSub}`,`Find: moles of ${findSub}`],
+    given:[`Given: ${givenVal} g ${givenSub}`,`Find: moles of ${findSub}`],
     final:`${fMoles} mol ${findSub}`,
-    concept:`Mass-to-Mole uses 2 bridges: g A → mol A (÷ MM of A) → mol B (× mole ratio).\nChain: ${givenVal} ÷ ${gMM} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}`,
+    concept:`Mass-to-Mole formula:\ngrams of ${givenSub} → moles of ${givenSub} → moles of ${findSub}\n\nStep 1: No equation needed for the first conversion\nStep 2: Formula: ${givenVal} g ${givenSub} × (1 mol ${givenSub} / ${gMM} g ${givenSub}) × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})\nStep 3: Cancel grams of ${givenSub}\nStep 4: Answer = ${fMoles} mol ${findSub}`,
     phases:[
-      {k:'p1',l:'Phase 1 — Molar Mass & Bridge 1',d:'Get molar mass, then convert grams to moles.'},
-      {k:'p2',l:'Phase 2 — Bridge 2: Mole Ratio',d:'Convert moles of given to moles of unknown.'},
+      {k:'p1',l:'Step 1 — No Equation Needed for First Conversion',d:'The molar mass is enough for g → mol.'},
+      {k:'p2',l:'Step 2 — Formula: grams → moles',d:`${givenVal} g ${givenSub} × (1 mol / ${gMM} g)`},
+      {k:'p3',l:'Step 3 — Cancel Grams of ${givenSub}',d:'The grams unit cancels, leaving moles.'},
+      {k:'p4',l:'Step 4 — Answer',d:'State the final answer in moles.'},
     ],
     steps:[
-      {ph:'p1',pl:'Molar Mass of Given',inst:`What is the molar mass of ${givenSub}?`,q:`Molar mass of ${givenSub} = ? g/mol`,exp:String(gMM),tol:0.5,unit:'g/mol',
-       h1:`Add up: (count × atomic mass) for each element in ${givenSub}.`,
-       h2:`MM of ${givenSub} = ${gMM} g/mol.`,
-       expl:`Correct! MM of ${givenSub} = ${gMM} g/mol.`},
-      {ph:'p1',pl:'Bridge 1: g → mol of Given',inst:`Convert ${givenVal} g ${givenSub} → moles`,q:`${givenVal} ÷ ${gMM} = ? mol`,exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
-       h1:`Moles = grams ÷ molar mass.`,
-       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol.`,
-       expl:`Correct! ${gMoles} mol of ${givenSub}.`},
-      {ph:'p2',pl:'Bridge 2: Mole Ratio',inst:`Apply mole ratio from balanced equation`,q:`${gMoles} × (${fCoef} ÷ ${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
-       h1:`Mole ratio = ${fCoef} mol ${findSub} per ${gCoef} mol ${givenSub}.`,
-       h2:`${gMoles} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}.`,
-       expl:`Excellent! Answer = ${fMoles} mol ${findSub}.`},
+      {ph:'p1',pl:'Step 1 — Molar Mass of ${givenSub}',
+       inst:`Step 1: (No equation needed for the gram → mole conversion)\nFind the molar mass of ${givenSub} from the periodic table.`,
+       q:`Molar mass of ${givenSub} = ? g/mol`,
+       exp:String(gMM),tol:0.5,unit:'g/mol',
+       h1:`Add (count × atomic mass) for each element in ${givenSub}. Use the periodic table.`,
+       h2:`Molar mass of ${givenSub} = ${gMM} g/mol`,
+       expl:`✓ Molar mass of ${givenSub} = ${gMM} g/mol`},
+      {ph:'p2',pl:'Step 2 — Formula (grams ${givenSub} → moles ${givenSub})',
+       inst:`Set up the formula:\n${givenVal} g ${givenSub} × (1 mol ${givenSub} / ${gMM} g ${givenSub})\nCalculate moles of ${givenSub}:`,
+       q:`${givenVal} ÷ ${gMM} = ? mol ${givenSub}`,
+       exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
+       h1:`Moles = grams ÷ molar mass = ${givenVal} ÷ ${gMM}`,
+       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol ${givenSub}`,
+       expl:`✓ ${givenVal} g ${givenSub} = ${gMoles} mol ${givenSub}`},
+      {ph:'p3',pl:'Step 3 — Cancel Grams of ${givenSub}, Apply Mole Ratio',
+       inst:`Cancel grams of ${givenSub}. Now apply the mole ratio to find moles of ${findSub}:\n${gMoles} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`,
+       q:`${gMoles} × (${fCoef} / ${gCoef}) = ? mol ${findSub}`,
+       exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Cancel grams of ${givenSub}. Then multiply by the mole ratio from the balanced equation.`,
+       h2:`${gMoles} × (${fCoef} / ${gCoef}) = ${fMoles} mol ${findSub}`,
+       expl:`✓ Grams of ${givenSub} cancelled. ${gMoles} mol ${givenSub} → ${fMoles} mol ${findSub}`},
+      {ph:'p4',pl:'Step 4 — Answer',
+       inst:`State the final answer. Units remaining = mol ${findSub}.`,
+       q:`Final answer = ? mol ${findSub}`,
+       exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`The answer from Step 3 is your final answer.`,
+       h2:`Answer = ${fMoles} mol ${findSub}`,
+       expl:`✓ FINAL ANSWER = ${fMoles} mol ${findSub}`},
     ]
   };
 }
 
-// ══ Mole-to-Mass Generator ══
+// ══ MOLE-TO-MASS — Module Lesson 1 exact steps (Zinc example style) ══
 function genSCMol2Mass(){
   const inp=parseSCInputs();if(!inp)return null;
   const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
@@ -3577,26 +3785,44 @@ function genSCMol2Mass(){
     title:`Mole-to-Mass: ${givenSub} → ${findSub}`,
     stmt:`${eq}. Given ${givenVal} mol of ${givenSub}, how many grams of ${findSub} are produced?`,
     balancedEq:eq,
-    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} mol ${givenSub}`,`Find: grams of ${findSub}`],
+    given:[`Given: ${givenVal} mol ${givenSub}`,`Find: grams of ${findSub}`],
     final:`${fMass} g ${findSub}`,
-    concept:`Mole-to-Mass uses 2 bridges: mol A → mol B (× mole ratio) → g B (× MM of B).\nChain: ${givenVal} × (${fCoef}/${gCoef}) × ${fMM} = ${fMass} g ${findSub}`,
+    concept:`Mole-to-Mass formula:\nmoles of ${givenSub} → grams of ${findSub}\n\nStep 1: (No equation needed for mole → gram)\nStep 2: Formula: ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}) × (${fMM} g ${findSub} / 1 mol ${findSub})\nStep 3: Cancel moles of ${givenSub}\nStep 4: Answer = ${fMass} g ${findSub}`,
     phases:[
-      {k:'p1',l:'Phase 1 — Mole Ratio (Bridge 1)',d:'Convert moles of given to moles of unknown.'},
-      {k:'p2',l:'Phase 2 — Molar Mass & Bridge 2',d:'Convert moles of product to grams.'},
+      {k:'p1',l:'Step 1 — No Equation Needed for Mole → Gram',d:'Use the mole ratio and molar mass.'},
+      {k:'p2',l:'Step 2 — Formula: moles → grams',d:`${givenVal} mol ${givenSub} × mole ratio × (${fMM} g/mol)`},
+      {k:'p3',l:'Step 3 — Cancel Moles of ${givenSub}',d:'The moles unit cancels, leaving grams.'},
+      {k:'p4',l:'Step 4 — Answer',d:'State the final answer in grams.'},
     ],
     steps:[
-      {ph:'p1',pl:'Bridge 1: Mole Ratio',inst:`Apply ratio: ${gCoef} mol ${givenSub} : ${fCoef} mol ${findSub}`,q:`${givenVal} × (${fCoef} ÷ ${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+      {ph:'p1',pl:'Step 1 — Molar Mass of ${findSub}',
+       inst:`Step 1: (No equation needed for the mole → gram conversion)\nFind the molar mass of ${findSub} from the periodic table.`,
+       q:`Molar mass of ${findSub} = ? g/mol`,
+       exp:String(fMM),tol:0.5,unit:'g/mol',
+       h1:`Add (count × atomic mass) for each element in ${findSub}.`,
+       h2:`Molar mass of ${findSub} = ${fMM} g/mol`,
+       expl:`✓ Molar mass of ${findSub} = ${fMM} g/mol`},
+      {ph:'p2',pl:'Step 2 — Apply Mole Ratio First',
+       inst:`Formula:\n${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})\nCalculate moles of ${findSub}:`,
+       q:`${givenVal} × (${fCoef} / ${gCoef}) = ? mol ${findSub}`,
+       exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
        h1:`Multiply given moles by the mole ratio from the balanced equation.`,
-       h2:`${givenVal} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}.`,
-       expl:`Correct! ${fMoles} mol of ${findSub}.`},
-      {ph:'p2',pl:'Molar Mass of Product',inst:`What is the molar mass of ${findSub}?`,q:`Molar mass of ${findSub} = ? g/mol`,exp:String(fMM),tol:0.5,unit:'g/mol',
-       h1:`Look up atomic masses of each element in ${findSub} and sum them up.`,
-       h2:`MM of ${findSub} = ${fMM} g/mol.`,
-       expl:`Correct! MM of ${findSub} = ${fMM} g/mol.`},
-      {ph:'p2',pl:'Bridge 2: mol → g of Product',inst:`Convert ${fMoles} mol ${findSub} to grams`,q:`${fMoles} × ${fMM} = ? g ${findSub}`,exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
-       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}.`,
-       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}.`,
-       expl:`Excellent! Final answer = ${fMass} g ${findSub}.`},
+       h2:`${givenVal} × (${fCoef} / ${gCoef}) = ${fMoles} mol ${findSub}`,
+       expl:`✓ ${givenVal} mol ${givenSub} → ${fMoles} mol ${findSub}`},
+      {ph:'p3',pl:'Step 3 — Cancel Moles of ${givenSub}, Convert to Grams',
+       inst:`Cancel moles of ${givenSub}. Now convert moles of ${findSub} → grams:\n${fMoles} mol ${findSub} × (${fMM} g ${findSub} / 1 mol ${findSub})`,
+       q:`${fMoles} × ${fMM} = ? g ${findSub}`,
+       exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}`,
+       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}`,
+       expl:`✓ Moles of ${givenSub} cancelled. ${fMoles} mol ${findSub} = ${fMass} g ${findSub}`},
+      {ph:'p4',pl:'Step 4 — Answer',
+       inst:`State the final answer. Units remaining = g ${findSub}.`,
+       q:`Final answer = ? g ${findSub}`,
+       exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`The answer from Step 3 is your final answer.`,
+       h2:`Answer = ${fMass} g ${findSub}`,
+       expl:`✓ FINAL ANSWER = ${fMass} g ${findSub}`},
     ]
   };
 }

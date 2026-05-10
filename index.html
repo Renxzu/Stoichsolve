@@ -523,6 +523,67 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
 .calc-group-arrow.open{transform:rotate(180deg)}
 .calc-group-body{display:none;flex-direction:column;gap:3px;padding:6px;background:var(--g50)}
 .calc-group-body.open{display:flex}
+/* ══ GUIDED PLATFORM STYLES ════════════════════════════════ */
+.solve-mode-bar{display:flex;gap:4px;margin-bottom:12px;background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:4px}
+.smode-btn{flex:1;padding:7px 4px;border:none;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;background:none;color:var(--muted);transition:all .15s;text-align:center;line-height:1.3}
+.smode-btn.active{background:var(--g800);color:#fff;box-shadow:0 2px 6px rgba(39,80,10,.25)}
+.smode-btn:hover:not(.active){background:var(--g100);color:var(--g800)}
+.analysis-panel{background:var(--white);border:.5px solid var(--border);border-radius:14px;overflow:hidden;margin:14px}
+.ap-header{background:linear-gradient(135deg,var(--g800),var(--g600));padding:16px 18px;color:#fff}
+.ap-header h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.ap-header p{font-size:11px;opacity:.8;line-height:1.5}
+.ap-body{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.ap-row{display:flex;gap:10px;align-items:flex-start}
+.ap-row-icon{font-size:17px;flex-shrink:0;margin-top:1px}
+.ap-row-content{flex:1}
+.ap-row-label{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px}
+.ap-row-value{font-size:12px;font-weight:600;color:var(--dark);line-height:1.5}
+.ap-row-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:2px}
+.ap-divider{height:.5px;background:var(--border)}
+.ap-why-box{background:var(--y50);border:.5px solid var(--y100);border-radius:8px;padding:10px 12px;font-size:11px;color:#92400E;line-height:1.65}
+.workflow-list{display:flex;flex-direction:column;gap:4px}
+.wf-step{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:7px;background:var(--g50);border:.5px solid var(--g100);font-size:11px;font-weight:500;color:var(--text)}
+.wf-num{width:22px;height:22px;border-radius:50%;background:var(--g800);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ap-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 18px 16px}
+.ap-btn{padding:10px 8px;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;line-height:1.4;transition:all .15s}
+.ap-btn-guided{background:var(--g800);color:#fff;grid-column:1/-1}
+.ap-btn-guided:hover{background:var(--g700)}
+.ap-btn-quick{background:var(--y200);color:var(--dark)}
+.ap-btn-quick:hover{background:var(--y300)}
+.ap-btn-practice{background:var(--g50);color:var(--g800);border:.5px solid var(--g200)}
+.ap-btn-practice:hover{background:var(--g100)}
+.why-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;border:.5px solid #93C5FD;background:#EFF6FF;color:#1E40AF;font-size:10px;font-weight:600;cursor:pointer;margin-top:5px;transition:all .15s}
+.why-btn:hover{background:#DBEAFE}
+.why-box{display:none;margin-top:6px;padding:9px 12px;background:#EFF6FF;border:.5px solid #93C5FD;border-radius:8px;font-size:11px;color:#1E40AF;line-height:1.7;animation:fadeSlide .2s ease}
+.why-box.open{display:block}
+.sticky-prog{position:sticky;top:0;z-index:10;background:var(--white);border-bottom:.5px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:10px}
+.sticky-prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.sticky-prog-fill{height:100%;background:var(--g600);border-radius:3px;transition:width .4s ease}
+.sticky-prog-txt{font-size:11px;font-weight:600;color:var(--g700);white-space:nowrap}
+.sticky-step-badge{background:var(--g800);color:#fff;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;white-space:nowrap}
+.qs-step{background:var(--white);border:.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;animation:fadeSlide .3s ease}
+.qs-step-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qs-step-num{width:28px;height:28px;border-radius:50%;background:var(--g800);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qs-step-title{font-size:13px;font-weight:700;color:var(--dark)}
+.qs-formula-box{background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:8px 12px;font-size:12px;font-family:'DM Mono',monospace;color:var(--g800);margin:5px 0;line-height:1.7}
+.qs-result{font-size:14px;font-weight:700;color:var(--g800);text-align:right;padding:4px 0;border-top:.5px solid var(--border);margin-top:5px}
+.qs-final{background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g200);border-radius:10px;padding:14px 16px;text-align:center;margin:8px}
+.qs-final-label{font-size:10px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.qs-final-value{font-size:20px;font-weight:700;color:var(--g900);font-family:'DM Mono',monospace}
+.pm-step{background:var(--white);border:.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.pm-step.pm-correct{border-color:#86EFAC;background:#F0FDF4}
+.pm-step.pm-wrong{border-color:#FCA5A5;background:#FEF2F2}
+.pm-step.pm-revealed{border-color:var(--y100);background:var(--y50)}
+.pm-input-row{display:flex;gap:7px;margin-top:8px;align-items:center}
+.pm-inp{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border .15s;background:inherit}
+.pm-inp:focus{border-color:var(--g600)}
+.pm-check-btn{padding:8px 12px;background:var(--g800);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.pm-feedback{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;display:none}
+.pm-feedback.show{display:block}
+.pm-feedback.ok{background:#F0FDF4;color:#166534}
+.pm-feedback.err{background:#FEF2F2;color:#991B1B}
+.pm-score-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;background:var(--g50);color:var(--g800);border:.5px solid var(--g200);margin-bottom:10px}
+/* ═══════════════════════════════════════════════════════════ */
 .chem-keyboard{position:fixed;right:20px;top:80px;width:280px;background:#fff;border:.5px solid var(--border);border-radius:var(--radxl);padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:100;display:none}
 .chem-keyboard.active{display:block}
 .ck-header{font-size:11px;font-weight:700;color:var(--g800);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
@@ -885,7 +946,13 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
 </div><!-- end root -->
 <script>
 // ═══════════════════════ ATOMIC MASSES ═══════════════════════
-const AM={H:1.008,He:4.003,Li:6.941,Be:9.012,B:10.81,C:12.01,N:14.01,O:16.00,F:19.00,Ne:20.18,Na:22.99,Mg:24.31,Al:26.98,Si:28.09,P:30.97,S:32.07,Cl:35.45,Ar:39.95,K:39.10,Ca:40.08,Sc:44.96,Ti:47.87,V:50.94,Cr:52.00,Mn:54.94,Fe:55.85,Co:58.93,Ni:58.69,Cu:63.55,Zn:65.38,Br:79.90,Sr:87.62,Ag:107.87,Cd:112.41,Sn:118.71,I:126.90,Ba:137.33,Pb:207.2,Au:196.97,Hg:200.59};
+const AM={
+  H:1,   He:4,  Li:7,   Be:9,   B:11,  C:12,  N:14,  O:16,  F:19,  Ne:20,
+  Na:23, Mg:24, Al:27,  Si:28,  P:31,  S:32,  Cl:35.5,Ar:40, K:39,  Ca:40,
+  Sc:45, Ti:48, V:51,   Cr:52,  Mn:55, Fe:56, Co:59,  Ni:59, Cu:64, Zn:65,
+  Br:80, Sr:88, Ag:108, Cd:112, Sn:119,I:127, Ba:137, Pb:207,Au:197,Hg:201,
+  Al:27, Mg:24, Ca:40, Fe:56, Cu:64, Zn:65, Cl:35.5, S:32, P:31, Si:28
+};
 
 // ── Custom Equation Parsing for Limiting Reactant & Theoretical Yield
 function parseCustomEquation(type){
@@ -1391,6 +1458,22 @@ const CALCS=[
 ];
 
 let activeCalc=null,steps=[],sts=[],activeStep=0,solverData=null;
+let solveMode='guided'; // 'guided' | 'quicksolve' | 'practice'
+let analysisShown=false; // tracks if the analysis panel was shown
+
+function setSolveMode(m){
+  solveMode=m;
+  ['guided','quicksolve','practice'].forEach(k=>{
+    const b=document.getElementById('smode-'+k);
+    if(b) b.classList.toggle('active', k===m);
+  });
+  // If steps already built, re-render in new mode
+  if(solverData && steps.length) {
+    if(m==='quicksolve') renderQuickSolve();
+    else if(m==='practice') renderPracticeMode();
+    else { sts=steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0})); activeStep=0; renderSolver(); }
+  }
+}
 
 // ═══════════════════════ SIDEBAR BUILD ═══════════════════════
 function buildSidebar(){
@@ -1643,7 +1726,12 @@ function renderCalcForm(id){
 
   h+=`</div><div class="err-msg" id="err-msg"></div>
   <div class="tip">📖 <a href="#" onclick="goLearnTopic('${id}')" style="color:var(--g700);font-weight:600">Review the module lesson</a> before starting.</div>
-  <button class="btn btn-g btn-full" onclick="startSolving()">Start Solving →</button>`;
+  <div class="solve-mode-bar">
+    <button class="smode-btn active" id="smode-guided" onclick="setSolveMode('guided')" title="Step-by-step guided solving with hints">🎓 Guided</button>
+    <button class="smode-btn" id="smode-quicksolve" onclick="setSolveMode('quicksolve')" title="See complete solution instantly">⚡ Quick Solve</button>
+    <button class="smode-btn" id="smode-practice" onclick="setSolveMode('practice')" title="Enter answers yourself — get feedback">✏️ Practice</button>
+  </div>
+  <button class="btn btn-g btn-full" onclick="analyzeAndSolve()">🔍 Analyze & Solve →</button>`;
   form.innerHTML=h;
 
   if(id==='grams-moles') setGMMode('g2m');
@@ -1683,19 +1771,21 @@ function parseCustomEquation(calc){
     window.customEqData = {type: 'limiting', equation: eqInput, parsed: parsed};
     
   } else if(calc === 'theoretical'){
-    // For theoretical yield, ask which reactant amount is given
-    let html = '<div style="background:var(--g50);border:.5px solid var(--g200);padding:10px;border-radius:7px;margin-bottom:10px;font-size:11px;color:var(--g700)">📝 Equation parsed! Select which reactant you know.</div>';
-    html += '<label class="lbl">Which Reactant (Given)</label><select class="inp" id="f-which-reactant">';
-    parsed.reactants.forEach(r => {
-      html += `<option value="${r.formula}">${r.formula}</option>`;
-    });
+    // Ask: which reactant, GRAMS of it, which product, and actual yield
+    let html = '<div style="background:var(--g50);border:.5px solid var(--g200);padding:10px;border-radius:7px;margin-bottom:10px;font-size:11px;color:var(--g700)">📝 Equation parsed! Fill in the details below.</div>';
+
+    html += '<label class="lbl">Given Reactant</label><select class="inp" id="f-which-reactant">';
+    parsed.reactants.forEach(r => { html += `<option value="${r.formula}">${r.formula}</option>`; });
     html += '</select>';
-    html += '<label class="lbl" style="margin-top:10px">Moles of Selected Reactant</label>';
-    html += '<input class="inp" id="f-lim" type="number" placeholder="e.g. 6" oninput="errHide()"/>';
-    html += '<div style="font-size:11px;color:var(--muted);margin-top:3px">Other reactants assumed in excess</div>';
+
+    html += '<label class="lbl" style="margin-top:10px">Mass of Given Reactant (grams)</label>';
+    html += '<input class="inp" id="f-lim-grams" type="number" placeholder="e.g. 30" oninput="errHide()"/>';
+
+    html += '<label class="lbl" style="margin-top:10px">Target Product</label><select class="inp" id="f-which-product">';
+    parsed.products.forEach(p => { html += `<option value="${p.formula}">${p.formula}</option>`; });
+    html += '</select>';
+
     document.getElementById('ty-fields').innerHTML = html;
-    
-    // Store parsed equation
     window.customEqData = {type: 'theoretical', equation: eqInput, parsed: parsed};
   }
   
@@ -1800,15 +1890,309 @@ function goLearnTopic(id){
 }
 
 // ═══════════════════════ STEP GENERATORS ═══════════════════════
-function startSolving(){
-  const data=buildSteps(activeCalc);
-  if(!data)return;
-  solverData=data;steps=data.steps;
-  sts=steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0}));
-  activeStep=0;renderSolver();
+// Unified entry point — shows analysis panel FIRST, then starts chosen mode
+function analyzeAndSolve(){
+  const data = buildSteps(activeCalc);
+  if(!data) return;
+  solverData = data; steps = data.steps;
+  sts = steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0}));
+  activeStep = 0;
+  analysisShown = false;
+  showAnalysisPanel(data);
 }
-function resetSolver(){solverData=null;steps=[];sts=[];activeStep=0;
-  document.getElementById('calc-right').innerHTML=`<div class="waiting"><div class="wicon">⚗</div><h3>Ready to Solve?</h3><p>Fill in the form and click "Start Solving" to begin the guided step-by-step session.</p></div>`;}
+
+// Keep startSolving as alias for backward compat
+function startSolving(){ analyzeAndSolve(); }
+
+// ── Build the calculator info for the analysis panel
+function getCalcInfo(id){
+  const map = {
+    'molar-mass':   {type:'Molar Mass Calculation',   conv:'Formula → g/mol',       why:'Molar mass is needed as a conversion factor between grams and moles in all stoichiometry calculations.'},
+    'grams-moles':  {type:'Grams ↔ Moles Conversion', conv:gmMode==='g2m'?'Grams → Moles':'Moles → Grams', why:'Converting between grams and moles lets us use the mole ratios from balanced equations.'},
+    'pct-comp':     {type:'Percent Composition',       conv:'Formula → % by mass',   why:'Percent composition tells us the mass fraction of each element in a compound.'},
+    'empirical':    {type:'Empirical Formula',         conv:'% composition → Formula',why:'The empirical formula gives the simplest whole-number atom ratio in a compound.'},
+    'molecular':    {type:'Molecular Formula',         conv:'Empirical + MM → Formula',why:'The molecular formula shows the actual number of atoms; it is a multiple of the empirical formula.'},
+    'limiting':     {type:'Limiting & Excess Reactant',conv:'mol + mol → Limiting',  why:'The limiting reactant determines the maximum product possible; excess reactant remains unreacted.'},
+    'theoretical':  {type:'Theoretical Yield & % Yield',conv:'g Reactant → g Product', why:'Theoretical yield is the maximum product from stoichiometry; percent yield compares actual to theoretical.'},
+    'pct-yield':    {type:'Percent Yield',             conv:'Actual ÷ Theoretical × 100',why:'Percent yield measures how efficient a reaction is compared to its theoretical maximum.'},
+    'sc-mol2mol':   {type:'Mole-to-Mole Conversion',  conv:'mol A → mol B',         why:'Use mole ratios from the balanced equation to convert between moles of different substances.'},
+    'sc-mass2mass': {type:'Mass-to-Mass Conversion',  conv:'g A → mol A → mol B → g B',why:'Three bridges: grams→moles, mole ratio, moles→grams. All stoichiometry is based on moles.'},
+    'sc-mass2mol':  {type:'Mass-to-Mole Conversion',  conv:'g A → mol A → mol B',   why:'Convert given grams to moles, then use the mole ratio to find moles of the unknown substance.'},
+    'sc-mol2mass':  {type:'Mole-to-Mass Conversion',  conv:'mol A → mol B → g B',   why:'Apply the mole ratio first, then convert moles of product to grams using its molar mass.'},
+  };
+  return map[id] || {type:'Stoichiometry Calculation',conv:'—',why:'Use the balanced equation and mole ratios to solve.'};
+}
+
+function showAnalysisPanel(data){
+  const r = document.getElementById('calc-right');
+  const calc = CALCS.find(c=>c.id===activeCalc)||{};
+  const info = getCalcInfo(activeCalc);
+  analysisShown = true;
+
+  // Build workflow sequence from phases + steps
+  const workflow = buildWorkflowSteps(data);
+
+  r.innerHTML = `<div style="overflow-y:auto;height:100%">
+    <div class="analysis-panel">
+      <div class="ap-header">
+        <div style="font-size:26px;margin-bottom:6px">🔬</div>
+        <h3>Problem Analysis</h3>
+        <p>The system has analyzed your input. Review the plan below before solving.</p>
+      </div>
+      <div class="ap-body">
+        <div class="ap-row">
+          <span class="ap-row-icon">🎯</span>
+          <div class="ap-row-content">
+            <div class="ap-row-label">Detected Problem Type</div>
+            <div class="ap-row-value">${info.type}</div>
+          </div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="ap-row">
+          <span class="ap-row-icon">🔄</span>
+          <div class="ap-row-content">
+            <div class="ap-row-label">Conversion Pathway</div>
+            <div class="ap-row-value">${info.conv}</div>
+          </div>
+        </div>
+        <div class="ap-divider"></div>
+        <div class="ap-row">
+          <span class="ap-row-icon">🧮</span>
+          <div class="ap-row-content">
+            <div class="ap-row-label">Recommended Calculator</div>
+            <div class="ap-row-value">${calc.icon||''} ${calc.name||''}</div>
+          </div>
+        </div>
+        <div class="ap-divider"></div>
+        ${data.balancedEq ? `<div class="ap-row">
+          <span class="ap-row-icon">⚗️</span>
+          <div class="ap-row-content">
+            <div class="ap-row-label">Balanced Chemical Equation</div>
+            <div class="ap-row-value" style="font-family:'DM Mono',monospace;letter-spacing:.3px">${data.balancedEq}</div>
+          </div>
+        </div><div class="ap-divider"></div>` : ''}
+        <div class="ap-row">
+          <span class="ap-row-icon">📌</span>
+          <div class="ap-row-content">
+            <div class="ap-row-label">Given Information</div>
+            <div class="ap-row-value">${data.given.join('<br>')}</div>
+          </div>
+        </div>
+        <div class="ap-divider"></div>
+        <div>
+          <div class="ap-row-label" style="margin-bottom:7px">💡 Why This Calculator?</div>
+          <div class="ap-why-box">${info.why}</div>
+        </div>
+        <div class="ap-divider"></div>
+        <div>
+          <div class="ap-row-label" style="margin-bottom:7px">📋 Solving Workflow (${workflow.length} Steps)</div>
+          <div class="workflow-list">
+            ${workflow.map((w,i)=>`<div class="wf-step">
+              <div class="wf-num">${i+1}</div>
+              <span>${w}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div style="padding:0 18px 8px;font-size:10px;color:var(--muted);text-align:center">Choose how you want to solve this problem:</div>
+      <div class="ap-actions">
+        <button class="ap-btn ap-btn-guided" onclick="launchMode('guided')">🎓 Guided Mode<br><span style="font-size:9px;opacity:.75;font-weight:500">Step-by-step with hints</span></button>
+        <button class="ap-btn ap-btn-quick" onclick="launchMode('quicksolve')">⚡ Quick Solve<br><span style="font-size:9px;opacity:.75;font-weight:500">See full solution now</span></button>
+        <button class="ap-btn ap-btn-practice" onclick="launchMode('practice')">✏️ Practice Mode<br><span style="font-size:9px;opacity:.75;font-weight:500">Enter answers yourself</span></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildWorkflowSteps(data){
+  // Build human-readable workflow from phases and steps
+  const seen = new Set();
+  const wf = [];
+  if(data.phases && data.phases.length){
+    data.phases.forEach(p => { if(!seen.has(p.k)){ seen.add(p.k); wf.push(p.l); } });
+  } else {
+    // Fallback: derive from step labels
+    data.steps.forEach(s => { if(!seen.has(s.pl)){ seen.add(s.pl); wf.push(s.pl); } });
+  }
+  return wf.length ? wf : ['Load given values','Apply formula','Calculate result'];
+}
+
+function launchMode(mode){
+  solveMode = mode;
+  if(mode==='quicksolve') renderQuickSolve();
+  else if(mode==='practice') renderPracticeMode();
+  else { sts=steps.map((_,i)=>({status:i===0?'sa':'locked',val:'',attempts:0})); activeStep=0; renderSolver(); }
+}
+
+// ── QUICK SOLVE MODE — full solution shown immediately
+function renderQuickSolve(){
+  const r = document.getElementById('calc-right');
+  if(!solverData||!steps.length){ r.innerHTML='<div class="waiting"><div class="wicon">⚗</div><h3>No data</h3></div>'; return; }
+
+  let h = `<div style="overflow-y:auto;height:100%;padding:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--dark)">⚡ Quick Solve — Complete Solution</div>
+      <button class="ap-btn ap-btn-guided" style="padding:5px 10px;font-size:10px" onclick="launchMode('guided')">Switch to Guided Mode</button>
+    </div>
+    ${solverData.balancedEq?`<div class="balanced-eq-box" style="margin-bottom:10px"><div class="beq-lbl">⚗️ Balanced Equation</div><div class="beq-formula">${solverData.balancedEq}</div></div>`:''}
+    <div class="qs-step" style="background:var(--g50);border-color:var(--g200)">
+      <div style="font-size:11px;font-weight:700;color:var(--g700);margin-bottom:4px">GIVEN INFORMATION</div>
+      ${solverData.given.map(g=>`<div style="font-size:12px;color:var(--text);padding:2px 0">• ${g}</div>`).join('')}
+    </div>`;
+
+  steps.forEach((s, i) => {
+    const why = getStepWhy(s, i);
+    h += `<div class="qs-step">
+      <div class="qs-step-hdr">
+        <div class="qs-step-num">${i+1}</div>
+        <div class="qs-step-title">${s.pl}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.6">${s.inst.replace(/\n/g,'<br>')}</div>
+      <div class="qs-formula-box">${s.q}<br><strong>= ${s.exp} ${s.unit||''}</strong></div>
+      ${why?`<button class="why-btn" onclick="this.nextElementSibling.classList.toggle('open')">❓ Why this step?</button><div class="why-box">${why}</div>`:''}
+      <div class="qs-result">✓ ${s.exp} ${s.unit||''}</div>
+    </div>`;
+  });
+
+  h += `<div class="qs-final">
+    <div class="qs-final-label">🏆 Final Answer</div>
+    <div class="qs-final-value">${solverData.final}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;white-space:pre-line">${solverData.concept||''}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+      <button class="ap-btn ap-btn-practice" style="padding:7px 14px;font-size:11px" onclick="launchMode('practice')">✏️ Now Practice It</button>
+      <button class="ap-btn ap-btn-guided" style="padding:7px 14px;font-size:11px" onclick="newS()">⚗ New Problem</button>
+    </div>
+  </div></div>`;
+  r.innerHTML = h;
+}
+
+// ── PRACTICE MODE — student enters every answer, gets feedback
+let pmAnswers = [];
+function renderPracticeMode(){
+  const r = document.getElementById('calc-right');
+  if(!solverData||!steps.length){ r.innerHTML='<div class="waiting"><div class="wicon">⚗</div><h3>No data</h3></div>'; return; }
+  if(!pmAnswers.length) pmAnswers = steps.map(()=>({val:'',status:'unanswered',attempts:0})); // fresh session
+
+  const answered = pmAnswers.filter(a=>a.status==='correct'||a.status==='revealed').length;
+  const correct  = pmAnswers.filter(a=>a.status==='correct').length;
+  const score    = steps.length ? Math.round(correct/steps.length*100) : 0;
+
+  let h = `<div style="overflow-y:auto;height:100%;padding:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--dark)">✏️ Practice Mode</div>
+      <div class="pm-score-badge">Score: ${correct}/${steps.length} (${score}%)</div>
+    </div>
+    <div class="sticky-prog" style="position:static;margin-bottom:10px;border-radius:8px;border:.5px solid var(--border)">
+      <div class="sticky-prog-bar"><div class="sticky-prog-fill" style="width:${Math.round(answered/steps.length*100)}%"></div></div>
+      <div class="sticky-prog-txt">${answered}/${steps.length} answered</div>
+    </div>
+    ${solverData.balancedEq?`<div class="balanced-eq-box" style="margin-bottom:10px"><div class="beq-lbl">⚗️ Balanced Equation</div><div class="beq-formula">${solverData.balancedEq}</div></div>`:''}`;
+
+  steps.forEach((s, i) => {
+    const pa = pmAnswers[i];
+    const isLocked = i > 0 && (pmAnswers[i-1].status==='unanswered');
+    const statusClass = pa.status==='correct'?'pm-correct':pa.status==='wrong'?'pm-wrong':pa.status==='revealed'?'pm-revealed':'';
+    const why = getStepWhy(s, i);
+    h += `<div class="pm-step ${statusClass}" id="pm-step-${i}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div class="qs-step-num" style="${pa.status==='correct'?'background:#16A34A':pa.status==='revealed'?'background:#F59E0B':''}">${pa.status==='correct'?'✓':pa.status==='revealed'?'!':i+1}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--dark)">${s.pl}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:6px">${s.inst.replace(/\n/g,'<br>')}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px">${s.q}</div>`;
+
+    if(pa.status==='correct'){
+      h+=`<div class="pm-feedback ok show">✅ Correct! ${s.expl}</div>`;
+    } else if(pa.status==='revealed'){
+      h+=`<div class="pm-feedback show" style="background:var(--y50);color:#92400E;display:block">⚠️ Answer: ${s.exp} ${s.unit||''} — ${s.expl}</div>`;
+    } else if(!isLocked){
+      h+=`<div class="pm-input-row">
+        <input class="pm-inp" id="pm-inp-${i}" placeholder="Enter your answer…" value="${pa.val}" onkeydown="if(event.key==='Enter')pmCheck(${i})"/>
+        ${s.unit?`<span style="font-size:12px;color:var(--muted);white-space:nowrap">${s.unit}</span>`:''}
+        <button class="pm-check-btn" onclick="pmCheck(${i})">Check ✓</button>
+      </div>
+      <div class="pm-feedback" id="pm-fb-${i}"></div>
+      ${pa.attempts>0&&pa.attempts<3?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${3-pa.attempts} attempt(s) remaining</div>`:''}
+      ${pa.attempts>0?`<div class="why-btn" onclick="document.getElementById('pm-hint-${i}').classList.toggle('open')">💡 Hint</div><div class="why-box" id="pm-hint-${i}">${pa.attempts>=2?s.h2:s.h1}</div>`:''}
+      <button style="margin-top:6px;font-size:10px;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="pmReveal(${i})">Reveal Answer</button>`;
+    } else {
+      h+=`<div style="font-size:11px;color:var(--muted);font-style:italic">🔒 Complete step ${i} first</div>`;
+    }
+    if(why) h+=`<button class="why-btn" onclick="document.getElementById('pm-why-${i}').classList.toggle('open')" style="margin-top:5px">❓ Why this step?</button><div class="why-box" id="pm-why-${i}">${why}</div>`;
+    h+=`</div>`;
+  });
+
+  if(answered===steps.length){
+    h+=`<div class="qs-final">
+      <div class="qs-final-label">Practice Complete! ${score===100?'🏆':score>=70?'🎯':'📚'}</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">${correct}/${steps.length} correct (${score}%)</div>
+      <div class="qs-final-value" style="font-size:16px">${solverData.final}</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+        <button class="ap-btn ap-btn-guided" style="padding:7px 14px;font-size:11px" onclick="pmRetry()">↺ Retry Practice</button>
+        <button class="ap-btn ap-btn-guided" style="padding:7px 14px;font-size:11px" onclick="launchMode('guided')">🎓 Guided Mode</button>
+        <button class="ap-btn ap-btn-quick" style="padding:7px 14px;font-size:11px" onclick="newS()">⚗ New Problem</button>
+      </div>
+    </div>`;
+  }
+  h+=`</div>`;
+  r.innerHTML = h;
+}
+
+function pmCheck(i){
+  const s = steps[i];
+  const pa = pmAnswers[i];
+  const inp = document.getElementById('pm-inp-'+i);
+  if(!inp) return;
+  const val = inp.value.trim();
+  if(!val) return;
+  pa.val = val;
+  pa.attempts++;
+  const ok = chk(val, s.exp, s.tol||0.05);
+  if(ok){
+    pa.status = 'correct';
+  } else {
+    if(pa.attempts >= 3){ pa.status = 'revealed'; }
+    else { pa.status = 'wrong'; }
+  }
+  renderPracticeMode();
+  // Scroll to next unanswered step
+  setTimeout(()=>{
+    const next = document.getElementById('pm-step-'+(i+1));
+    if(next) next.scrollIntoView({behavior:'smooth',block:'start'});
+  }, 300);
+}
+
+function pmReveal(i){
+  pmAnswers[i].status = 'revealed';
+  renderPracticeMode();
+}
+
+function pmRetry(){
+  pmAnswers = steps.map(()=>({val:'',status:'unanswered',attempts:0}));
+  renderPracticeMode();
+}
+
+// ── WHY explanations per step (educational tutor context)
+function getStepWhy(s, i){
+  // Try to find in step data first
+  if(s.why) return s.why;
+  // Generate contextual WHY from step label
+  const pl = (s.pl||'').toLowerCase();
+  if(pl.includes('molar mass')) return 'We calculate molar mass first because it is the conversion factor between grams and moles. Without it, we cannot convert between mass and moles.';
+  if(pl.includes('grams to moles')||pl.includes('convert mass')||pl.includes('step 4')) return 'We convert grams to moles because balanced equations use mole ratios, not gram ratios. Moles are the "language" of stoichiometry.';
+  if(pl.includes('mole ratio')||pl.includes('step 5a')) return 'The mole ratio comes directly from the coefficients in the balanced equation. It tells us how many moles of product form from each mole of reactant.';
+  if(pl.includes('moles to grams')||pl.includes('step 5b')||pl.includes('convert moles')) return 'We convert moles of product back to grams because the question asks for mass in grams, not moles.';
+  if(pl.includes('percent yield')||pl.includes('step 6')) return 'Percent yield measures the efficiency of the reaction by comparing what we actually obtained (actual yield) to what stoichiometry predicted (theoretical yield). Formula: (Actual ÷ Theoretical) × 100%';
+  if(pl.includes('limiting')) return 'The limiting reactant is the one that runs out first, stopping the reaction. It determines the maximum amount of product that can form.';
+  if(pl.includes('excess')) return 'The excess reactant is still present after the limiting reactant is completely used up. It does not determine the product amount.';
+  if(pl.includes('empirical')) return 'The empirical formula gives the simplest whole-number ratio of atoms. It is the foundation for finding the molecular formula.';
+  if(pl.includes('cancel')||pl.includes('unit')) return 'Unit cancellation (dimensional analysis) ensures we are multiplying by the correct conversion factors. Units that appear in both numerator and denominator cancel out.';
+  return '';
+}
+
+function resetSolver(){solverData=null;steps=[];sts=[];activeStep=0;pmAnswers=[];analysisShown=false;
+  document.getElementById('calc-right').innerHTML=`<div class="waiting"><div class="wicon">⚗</div><h3>Ready to Solve?</h3><p>Fill in the form on the left, then click <strong>Analyze &amp; Solve</strong> to begin.</p></div>`;}
+
 
 function buildSteps(id){
   if(id==='molar-mass')return genMM();
@@ -2110,31 +2494,24 @@ function genLR(){
 
 // Fill Theoretical Yield form with a full example (module style)
 function fillTYFull(eq, rMass, rForm, pForm, actual){
-  // Parse and fill the equation
   const eqEl = document.getElementById('f-eq');
   if(eqEl){ eqEl.value = eq; }
   parseCustomEquation('theoretical');
   setTimeout(()=>{
-    const amtEl = document.getElementById('f-amount');
-    if(amtEl) amtEl.value = rMass;
-    const rEl = document.getElementById('f-reactant');
-    if(rEl){
-      for(let i=0;i<rEl.options.length;i++){
-        if(rEl.options[i].text.includes(rForm)){ rEl.selectedIndex=i; break; }
-      }
-    }
-    const pEl = document.getElementById('f-product');
-    if(pEl){
-      for(let i=0;i<pEl.options.length;i++){
-        if(pEl.options[i].text.includes(pForm)){ pEl.selectedIndex=i; break; }
-      }
-    }
-    const unitEl = document.getElementById('f-unit');
-    if(unitEl) unitEl.value = 'grams';
+    // Set grams field
+    const gEl = document.getElementById('f-lim-grams');
+    if(gEl) gEl.value = rMass;
+    // Set reactant dropdown
+    const rEl = document.getElementById('f-which-reactant');
+    if(rEl){ for(let i=0;i<rEl.options.length;i++){ if(rEl.options[i].value===rForm||rEl.options[i].text.includes(rForm)){ rEl.selectedIndex=i; break; } } }
+    // Set product dropdown
+    const pEl = document.getElementById('f-which-product');
+    if(pEl){ for(let i=0;i<pEl.options.length;i++){ if(pEl.options[i].value===pForm||pEl.options[i].text.includes(pForm)){ pEl.selectedIndex=i; break; } } }
+    // Set actual yield
     const actEl = document.getElementById('f-ty-actual');
     if(actEl) actEl.value = actual;
     errHide();
-  }, 200);
+  }, 250);
 }
 
 function genTY(){
@@ -2142,11 +2519,13 @@ function genTY(){
   if(window.customEqData && window.customEqData.type === 'theoretical'){
     parsed = window.customEqData.parsed; eq = window.customEqData.equation;
     const selectedReactant = document.getElementById('f-which-reactant')?.value;
-    amount = parseFloat(document.getElementById('f-lim')?.value);
-    unit = 'moles';
-    if(!amount||isNaN(amount)||amount<=0){showErr('Enter moles of reactant.');return null;}
-    reactant = parsed.reactants.find(r=>r.formula===selectedReactant);
-    product = parsed.products[0];
+    const selectedProduct  = document.getElementById('f-which-product')?.value;
+    // ALWAYS read grams from f-lim-grams (the fixed field name)
+    amount = parseFloat(document.getElementById('f-lim-grams')?.value);
+    unit = 'grams';
+    if(!amount||isNaN(amount)||amount<=0){showErr('Enter the mass in grams of the reactant.');return null;}
+    reactant = parsed.reactants.find(r=>r.formula===selectedReactant) || parsed.reactants[0];
+    product  = parsed.products.find(p=>p.formula===selectedProduct)   || parsed.products[0];
     if(!reactant||!product){showErr('Invalid reactant or product.');return null;}
   } else {
     eq=document.getElementById('f-eq')?.value.trim()||document.getElementById('f-equation')?.value.trim();
@@ -2414,14 +2793,24 @@ function renderSolver(){
       </div>
       <div class="cbtns">
         <button class="btn btn-o" onclick="retryS()">↺ Try Again</button>
+        <button class="ap-btn ap-btn-practice" style="padding:8px 14px;font-size:11px" onclick="pmAnswers=[];launchMode('practice')">✏️ Practice Mode</button>
         <button class="btn btn-g" onclick="newS()">⚗ New Problem</button>
         <button class="btn" style="background:var(--y50);color:var(--y600);border:.5px solid var(--y100)" onclick="goLearnTopic('${activeCalc}')">📖 Review Module</button>
       </div>
     </div>`;
     return;
   }
-  let h=`<div class="prob-hdr">
-    <div class="ph-lbl">${CALCS.find(c=>c.id===activeCalc)?.icon||''} ${CALCS.find(c=>c.id===activeCalc)?.name||''}</div>
+
+  const activeStepData = steps[activeStep];
+  const h_sticky = `<div class="sticky-prog">
+    <span class="sticky-step-badge">Step ${activeStep+1}/${steps.length}</span>
+    <div class="sticky-prog-bar"><div class="sticky-prog-fill" style="width:${pct}%"></div></div>
+    <div class="sticky-prog-txt">${pct}%</div>
+    <button style="background:none;border:none;font-size:10px;color:var(--muted);cursor:pointer;white-space:nowrap" onclick="launchMode('quicksolve')">⚡ Quick Solve</button>
+  </div>`;
+
+  let h=`${h_sticky}<div style="padding:12px 14px">
+    <div class="ph-lbl">${CALCS.find(c=>c.id===activeCalc)?.icon||''} ${CALCS.find(c=>c.id===activeCalc)?.name||''} — 🎓 Guided Mode</div>
     <div class="ph-title">${solverData.title}</div>
     <div class="ph-stmt">${solverData.stmt}</div>
     ${solverData.balancedEq?`<div class="balanced-eq-box">
@@ -2433,28 +2822,26 @@ function renderSolver(){
       <div class="given-lbl">Given Information</div>
       <div class="given-pills">${solverData.given.map(g=>`<div class="gpill">${g}</div>`).join('')}</div>
     </div>
-    <div class="prog-row">
-      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
-      <div class="prog-txt">${done}/${steps.length} steps</div>
-    </div>
   </div>
-  <div class="notice">ℹ️ 3 attempts per step. Wrong answers reveal progressive hints based on the module. <a href="#" onclick="goLearnTopic('${activeCalc}')" style="color:var(--g700);font-weight:600">Review lesson</a> if stuck. Need atomic masses? <a href="https://ptable.com" target="_blank" style="color:var(--g700);font-weight:600">Periodic Table 🧪</a></div>`;
+  <div style="padding:0 14px"><div class="notice">ℹ️ 3 attempts per step. Use the 💡 hints and ❓ Why buttons if stuck. <a href="#" onclick="goLearnTopic('${activeCalc}')" style="color:var(--g700);font-weight:600">Review lesson</a> · <a href="https://ptable.com" target="_blank" style="color:var(--g700);font-weight:600">Periodic Table 🧪</a></div></div>`;
 
   const phases=solverData.phases||[];
   phases.forEach(ph=>{
     const phSteps=steps.map((s,i)=>({s,i})).filter(({s})=>s.ph===ph.k);
     if(!phSteps.length)return;
-    h+=`<div class="phase-banner ${ph.k}"><div class="ph-ttl">${ph.l}</div><div class="ph-dsc">${ph.d}</div></div>`;
+    h+=`<div style="padding:0 14px"><div class="phase-banner ${ph.k}"><div class="ph-ttl">${ph.l}</div><div class="ph-dsc">${ph.d}</div></div></div>`;
     phSteps.forEach(({s,i})=>{
       const st=sts[i];
       const nc=st.status==='sc'?'snc':st.status==='srev'?'snr':st.status==='sa'?'sna':st.status.startsWith('sh')?'snh':'sn0';
-      h+=`<div class="scard ${st.status}" id="sc-${i}">
+      const why = getStepWhy(s, i);
+      h+=`<div style="padding:0 14px"><div class="scard ${st.status}" id="sc-${i}">
         <div class="shead">
           <div class="snum ${nc}">${st.status==='sc'?'✓':i+1}</div>
           <div style="flex:1">
             <span class="stag ${s.ph}" style="font-size:10px;padding:2px 7px;border-radius:10px">${s.pl}</span>
-            <div class="sinst">${s.inst}</div>
+            <div class="sinst">${s.inst.replace(/\n/g,'<br>')}</div>
             <div class="sq">${s.q}</div>
+            ${why?`<button class="why-btn" onclick="document.getElementById('why-${i}').classList.toggle('open')">❓ Why this step?</button><div class="why-box" id="why-${i}">${why}</div>`:''}
           </div>
         </div>`;
       if(st.status==='sa'){
@@ -2468,12 +2855,12 @@ function renderSolver(){
       }else if(st.status==='sc'){
         h+=`<div class="fbbox fbok"><span>✅</span><div><div class="fbtitle" style="color:#166534">Correct!</div><div class="fbtext">${s.expl}</div></div></div>`;
       }else if(st.status==='srev'){
-        h+=`<div class="fbbox fbrev"><span>⚠️</span><div><div class="fbtitle" style="color:#991B1B">Answer: ${s.exp}${s.unit?' '+s.unit:''}</div><div class="fbtext">${s.expl}</div><div style="font-size:11px;color:#EF4444;margin-top:3px;font-style:italic">Review the module lesson and try again.</div></div></div>`;
+        h+=`<div class="fbbox fbrev"><span>⚠️</span><div><div class="fbtitle" style="color:#991B1B">Answer: ${s.exp}${s.unit?' '+s.unit:''}</div><div class="fbtext">${s.expl}</div></div></div>`;
       }
-      h+=`</div>`;
+      h+=`</div></div>`;
     });
   });
-  r.innerHTML=h;
+  r.innerHTML=`<div style="overflow-y:auto;height:100%">${h}</div>`;
   const ai=document.getElementById('si-'+activeStep);
   if(ai)setTimeout(()=>ai.focus(),60);
 }
@@ -2967,8 +3354,21 @@ function classifyProblem(text){
   const allFormulas = [...new Set(fmatch)];
 
   // --- CLASSIFICATION LOGIC (priority order) ---
-  // 1. Percent Yield (must check before theoretical)
+  // 1. Percent Yield — but ONLY if no grams of reactant are given (pure % yield)
+  // If grams of a reactant are given alongside "percent yield", it's a THEORETICAL + % yield problem
+  const hasGramReactant = /(\d+\.?\d*)\s*(grams?|g\b)/i.test(text) && 
+    /reacts?|burns?|produces?|forms?|reacting/i.test(lower);
+
   if(/percent\s+yield|%\s+yield/i.test(lower)){
+    // If we have grams of a reactant → needs theoretical calc first → use Theoretical Yield calc
+    if(hasGramReactant || /theoretical\s+yield/i.test(lower)){
+      result.type='theoretical'; result.typeLabel='Theoretical Yield & Percent Yield'; result.calcId='theoretical';
+      result.find='Theoretical yield (g) and Percent yield (%)';
+      result.explanation='This problem requires BOTH Theoretical Yield AND Percent Yield.\n\nWorkflow (Module 6-Step):\n1. Balance the equation\n2. Get molar masses of both compounds\n3. Convert given grams → moles\n4. Apply mole ratio → moles of product\n5. Convert moles → grams = Theoretical Yield\n6. Percent Yield = (Actual ÷ Theoretical) × 100%';
+      result.hints=['Step 1: Identify reactants and products, balance the equation.','Step 2: Get molar masses of the reactant and product.','Step 3: Convert given grams to moles (Moles = Mass ÷ Molar Mass).','Step 4: Apply the mole ratio from the balanced equation.','Step 5: Convert moles of product to grams = Theoretical Yield.','Step 6: Percent Yield = (Actual Yield ÷ Theoretical Yield) × 100%.'];
+      return result;
+    }
+    // Pure percent yield (only actual and theoretical given, no reactant grams)
     result.type='yield'; result.typeLabel='Percent Yield'; result.calcId='pct-yield';
     result.find='Percent yield (%)';
     result.explanation='This is a Percent Yield problem. You are comparing actual yield to theoretical yield.\nFormula: % Yield = (Actual ÷ Theoretical) × 100%';
@@ -3979,22 +4379,20 @@ function parseEquation(eq){
 }
 
 function getMolarMass(formula){
-  // Simple molar mass calculator for common elements
+  // Module-standard atomic masses (rounded integers used in BSED module)
   const masses = {
-    'H':1.008,'C':12.01,'N':14.01,'O':16.00,'S':32.07,'Cl':35.45,'Na':22.99,
-    'K':39.10,'Ca':40.08,'Mg':24.31,'Al':26.98,'Fe':55.85,'P':30.97,'Br':79.90,
-    'I':126.90,'F':19.00,'Ag':107.87,'Cu':63.55,'Zn':65.38,'Pb':207.2,'Au':196.97
+    'H':1,'He':4,'Li':7,'Be':9,'B':11,'C':12,'N':14,'O':16,'F':19,'Ne':20,
+    'Na':23,'Mg':24,'Al':27,'Si':28,'P':31,'S':32,'Cl':35.5,'Ar':40,'K':39,'Ca':40,
+    'Sc':45,'Ti':48,'V':51,'Cr':52,'Mn':55,'Fe':56,'Co':59,'Ni':59,'Cu':64,'Zn':65,
+    'Br':80,'Sr':88,'Ag':108,'Cd':112,'Sn':119,'I':127,'Ba':137,'Pb':207,'Au':197,'Hg':201
   };
-  
+
   let total = 0;
-  // Parse formula like H₂O, CO₂, Ca(OH)₂
   const regex = /([A-Z][a-z]?)([\d₀₁₂₃₄₅₆₇₈₉]*)/g;
   let match;
   while((match = regex.exec(formula)) !== null){
     const element = match[1];
-    let count = match[2];
-    if(!count) count = '1';
-    // Convert subscript to regular numbers
+    let count = match[2] || '1';
     count = count.replace(/₀/g,'0').replace(/₁/g,'1').replace(/₂/g,'2').replace(/₃/g,'3').replace(/₄/g,'4')
                  .replace(/₅/g,'5').replace(/₆/g,'6').replace(/₇/g,'7').replace(/₈/g,'8').replace(/₉/g,'9');
     count = parseInt(count) || 1;
@@ -4003,7 +4401,7 @@ function getMolarMass(formula){
   return total;
 }
 
-// Wrapper for compatibility
+// getMM uses the same module-standard masses
 const getMM = getMolarMass;
 
 // ═══════════════════════ CHEMISTRY KEYBOARD ═══════════════════════

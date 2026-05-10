@@ -15,16 +15,217 @@
   --rbg:#FEF2F2;--rb:#FCA5A5;--obg:#FFF7ED;--ob:#FB923C;
   --abg:#FFFBEB;--ab:#FCD34D;--gbg:#F0FDF4;--gbd:#86EFAC;
   --rad:10px;--radl:14px;--radxl:18px;
+  --fs:15px;
 }
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;overflow:hidden;height:100vh}
-button,input,select,textarea{font-family:inherit}
+/* DARK MODE */
+body.dark-mode{
+  --bg:#111A0A;--white:#1A2611;--dark:#E8F5D0;--text:#C8DFA8;--muted:#7A9B5E;
+  --border:#2A3D1A;--g50:#172510;--g100:#1F3015;--g200:#2A4220;
+  --y50:#2A1F05;--y100:#3D2E08;
+}
+body.dark-mode nav{background:#0D1508}
+body.dark-mode .card,body.dark-mode .step-card{background:#1A2611;border-color:#2A3D1A}
+body.dark-mode .inp,body.dark-mode textarea,body.dark-mode select{background:#1A2611;color:var(--dark);border-color:#2A3D1A}
+body.dark-mode .page{background:var(--bg)}
+body.dark-mode .calc-left,body.dark-mode .calc-right,body.dark-mode .sb-unit,body.dark-mode .learn-right{background:var(--white);border-color:var(--border)}
+html{font-size:15px}/* changed by setFontScale */
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:1rem;line-height:1.6;overflow:hidden;height:100vh}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#root{display:flex;flex-direction:column;height:100vh}
-.page{display:none;flex:1;overflow-y:auto;flex-direction:column}
+#root{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.page{display:none;flex:1;overflow-y:auto;flex-direction:column;min-height:0}
 .page.active{display:flex}
 
-/* NAV */
-nav{background:var(--g800);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;flex-shrink:0}
+/* ══ NAV ══════════════════════════════════════════════════ */
+nav{background:var(--g800);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;flex-shrink:0;gap:8px}
+.brand{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0}
+.brand-logo{width:30px;height:30px;background:var(--y200);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.brand-name{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.3px}
+.nav-links{display:flex;gap:2px;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav-links::-webkit-scrollbar{display:none}
+.nb{padding:6px 10px;border-radius:6px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;border:none;background:none;font-weight:500;transition:all .15s;white-space:nowrap}
+.nb:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nb.active{color:var(--dark);background:var(--y200)}
+.ncta{padding:7px 14px;background:var(--y200);color:var(--dark);border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+
+/* ══ ACCESSIBILITY SIDE PANEL ══════════════════════════ */
+.a11y-fab{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:200;
+  background:var(--g800);color:#fff;border:none;border-radius:0 10px 10px 0;
+  width:28px;height:64px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;box-shadow:2px 0 12px rgba(0,0,0,.18);transition:width .2s,background .15s}
+.a11y-fab:hover{background:var(--g600);width:32px}
+.a11y-panel{position:fixed;left:-260px;top:50%;transform:translateY(-50%);z-index:201;
+  background:var(--g900);border-radius:0 16px 16px 0;padding:18px 16px;
+  box-shadow:4px 0 24px rgba(0,0,0,.28);transition:left .25s cubic-bezier(.4,0,.2,1);
+  min-width:220px;max-height:80vh;overflow-y:auto}
+.a11y-panel.open{left:28px}
+.a11y-panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.a11y-panel-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.8px}
+.a11y-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:5px}
+.a11y-close:hover{color:#fff;background:rgba(255,255,255,.1)}
+.a11y-group{margin-bottom:14px}
+.a11y-group-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.a11y-row{display:flex;gap:5px;flex-wrap:wrap}
+.a11y-btn{padding:6px 10px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);transition:all .15s;flex:1;min-width:60px;text-align:center}
+.a11y-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.a11y-btn.active{background:var(--y200);color:var(--dark)}
+.a11y-divider{height:.5px;background:rgba(255,255,255,.1);margin:12px 0}
+/* Overlay to close panel on outside click */
+.a11y-overlay{display:none;position:fixed;inset:0;z-index:200}
+.a11y-overlay.open{display:block}
+
+/* ══ MOBILE RESPONSIVE ══════════════════════════════════ */
+@media(max-width:768px){
+  body{overflow:auto;height:auto;font-size:var(--fs)}
+  #root{height:auto;min-height:100vh;overflow:visible}
+  .page{overflow:visible;min-height:auto}
+  .page.active{display:block}
+
+  /* Nav — hamburger style on mobile */
+  nav{padding:0 12px;height:50px}
+  .brand-name{font-size:15px}
+  .nav-links{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0}
+  .nb{padding:5px 8px;font-size:11px}
+  .ncta{display:none}
+
+  /* Hero */
+  .hero{padding:28px 16px}
+  .hero h1{font-size:22px}
+  .hero p{font-size:13px}
+  .hbtns{flex-direction:column;align-items:center}
+  .hbtns .btn{width:100%;max-width:280px;justify-content:center}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .stat{padding:10px 6px}
+  .stat-n{font-size:16px}
+  .stat-l{font-size:9px}
+
+  /* Home calcs grid */
+  .g4{grid-template-columns:repeat(2,1fr) !important;gap:9px}
+  .g3{grid-template-columns:1fr !important}
+  .g2{grid-template-columns:1fr !important}
+  .sec{padding:16px}
+
+  /* Learn page — stack sidebar + content */
+  .learn-layout{flex-direction:column !important;height:auto !important}
+  .learn-sidebar{width:100% !important;height:auto !important;border-right:none !important;border-bottom:.5px solid var(--border);max-height:220px;overflow-y:auto}
+  .learn-right{flex:none !important;height:auto !important;overflow:visible !important}
+  .sb-unit{margin:6px 8px}
+  .sb-topic{padding:7px 12px;font-size:12px}
+
+  /* Practice page */
+  .prac-wrap{flex-direction:column !important;height:auto !important}
+  .calc-left{width:100% !important;border-right:none !important;border-bottom:.5px solid var(--border);max-height:none;overflow:visible}
+  .calc-right{flex:none !important;min-height:400px;height:auto !important;overflow:visible !important}
+  .prac-mode-toggle{margin-bottom:10px}
+
+  /* Assessment grid */
+  .ag{grid-template-columns:1fr !important;padding:12px}
+
+  /* Quiz wrap */
+  .qwrap{padding:10px}
+  .qdots{gap:3px}
+  .qdot{width:20px;height:20px;font-size:9px}
+  .qnav{gap:6px}
+  .qnbtn,.qsub{padding:7px 11px;font-size:11px}
+
+  /* Problem solver */
+  .ps-mode-content,.ps-left{flex-direction:column}
+  #ps-mode-content{flex-direction:column !important}
+
+  /* Calc grid on practice */
+  .calc-grid{grid-template-columns:repeat(2,1fr) !important}
+
+  /* Solver steps */
+  .sinrow{flex-wrap:wrap}
+  .sinp{min-width:0;width:100%}
+
+  /* Diff filter */
+  .diff-filter{gap:4px}
+  .diff-btn{padding:4px 8px;font-size:10px}
+
+  /* Assessment hub */
+  .assess-hero{padding:20px 14px}
+  .assess-hero h1{font-size:18px}
+
+  /* Manual */
+  .manual-feature-grid{grid-template-columns:1fr}
+  .manual-body{padding:14px}
+
+  /* Chem keyboard */
+  .chem-keyboard{right:10px;width:260px}
+  .ck-toggle-btn{right:12px;bottom:16px;width:48px;height:48px;font-size:20px}
+
+  /* A11y fab position */
+  .a11y-fab{top:auto;bottom:80px;transform:none}
+  .a11y-panel{top:auto;bottom:0;transform:none;border-radius:16px 16px 0 0;left:0;right:0;min-width:0;max-height:60vh;left:-100vw;width:100%}
+  .a11y-panel.open{left:0}
+
+  /* Cards */
+  .card{padding:14px}
+  .hist-box{flex-direction:column;gap:10px}
+  .ex-step{gap:8px}
+
+  /* Table overflow */
+  .data-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* About */
+  .about-body{padding:16px 12px}
+}
+
+@media(max-width:480px){
+  .nav-links .nb[id="nb-manual"]{display:none}
+  .hero h1{font-size:19px}
+  .g4{grid-template-columns:1fr !important}
+  .stats-row{grid-template-columns:1fr !important}
+  .stat{border-right:none;border-bottom:.5px solid var(--border)}
+  .stat:last-child{border:0}
+  .hbadge{font-size:11px;padding:4px 11px}
+  .a11y-btn{font-size:11px;padding:5px 8px}
+}
+/* ONBOARDING MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--white);border-radius:var(--radxl);width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-header{background:var(--g800);border-radius:var(--radxl) var(--radxl) 0 0;padding:20px 22px;color:#fff}
+.modal-header h2{font-size:17px;font-weight:700;margin-bottom:3px}
+.modal-header p{font-size:12px;opacity:.75}
+.modal-body{padding:18px 22px}
+.onboard-step{display:flex;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)}
+.onboard-step:last-child{border:0}
+.onboard-icon{width:38px;height:38px;border-radius:9px;background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.onboard-text h4{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:2px}
+.onboard-text p{font-size:11px;color:var(--muted);line-height:1.6}
+.modal-footer{padding:14px 22px;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+/* PROGRESS TRACKER */
+.progress-bar-wrap{background:var(--border);border-radius:20px;height:6px;overflow:hidden;margin-top:5px}
+.progress-bar-fill{height:100%;background:var(--g600);border-radius:20px;transition:width .4s ease}
+/* TIMER */
+.quiz-timer{background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:7px 13px;font-size:13px;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.quiz-timer.warn{background:#FEF2F2;border-color:#FCA5A5;color:#991B1B}
+/* DIFF FILTER */
+.diff-filter{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.diff-btn{padding:4px 12px;border-radius:20px;border:.5px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;background:var(--white);color:var(--muted);transition:all .15s}
+.diff-btn.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+/* USER MANUAL PAGE */
+.manual-body{overflow-y:auto;flex:1;padding:20px}
+.manual-hero{background:linear-gradient(135deg,var(--g800),var(--g600));border-radius:14px;padding:22px;color:#fff;margin-bottom:18px;text-align:center}
+.manual-hero h2{font-size:20px;font-weight:700;margin-bottom:5px}
+.manual-hero p{font-size:12px;opacity:.8}
+.manual-section{background:var(--white);border:.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.manual-section h3{font-size:14px;font-weight:700;color:var(--g800);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.manual-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.manual-step:last-child{margin-bottom:0}
+.manual-step-num{width:24px;height:24px;border-radius:50%;background:var(--g800);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.manual-step-text{font-size:12px;color:var(--text);line-height:1.65;flex:1}
+.manual-tip{background:var(--y50);border:.5px solid var(--y100);border-radius:8px;padding:9px 12px;font-size:11px;color:#92400E;line-height:1.6;margin-top:8px}
+.manual-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.manual-feature{background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px}
+.manual-feature-icon{font-size:20px;margin-bottom:5px}
+.manual-feature h4{font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px}
+.manual-feature p{font-size:10px;color:var(--muted);line-height:1.55}
+.manual-shortcut{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:.5px solid var(--border);font-size:12px}
+.manual-shortcut:last-child{border:0}
+.manual-shortcut kbd{background:var(--g50);border:.5px solid var(--g200);border-radius:4px;padding:2px 7px;font-size:10px;font-family:'DM Mono',monospace;font-weight:600;color:var(--g800)}
 .brand{display:flex;align-items:center;gap:8px;cursor:pointer}
 .brand-logo{width:30px;height:30px;background:var(--y200);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px}
 .brand-name{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.3px}
@@ -78,6 +279,34 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
 .sidebar{width:255px;background:var(--white);border-right:.5px solid var(--border);overflow-y:auto;flex-shrink:0}
 .sb-unit-hd{padding:10px 16px;font-size:12px;font-weight:600;color:var(--white)}
 .sb-unit-hd.u1{background:var(--g800)}.sb-unit-hd.u2{background:var(--g700)}.sb-unit-hd.u3{background:var(--g600)}
+.sb-unit-hd.u4{background:linear-gradient(135deg,var(--g800),var(--y400))}
+/* SC CALCULATOR INFO TIP (no paste area — use Problem Solver tab) */
+/* ANALYZER IMPROVEMENTS */
+.beq-reveal{background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%);border:1.5px solid #93C5FD;border-radius:12px;padding:14px 16px;margin:12px 0;animation:fadeSlide .4s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.beq-reveal-lbl{font-size:10px;font-weight:700;color:#1E40AF;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.beq-reveal-formula{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:#1E3A8A;text-align:center;padding:11px;background:rgba(255,255,255,.8);border-radius:8px;margin-bottom:6px;letter-spacing:.5px}
+.beq-reveal-note{font-size:11px;color:#1E40AF;line-height:1.5;opacity:.85}
+.ps-type-badge{background:linear-gradient(135deg,var(--g800),var(--g600));color:#fff;padding:12px 16px;border-radius:10px;font-size:15px;font-weight:700;text-align:center;margin-bottom:10px;animation:fadeSlide .35s ease}
+.ps-section{background:#fff;border:.5px solid var(--border);border-radius:var(--radl);padding:14px 16px;margin-bottom:10px;animation:fadeSlide .4s ease}
+.ps-section-lbl{font-size:10px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ps-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:.5px solid var(--border)}
+.ps-row:last-child{border:0}
+.ps-row-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.ps-row-text{font-size:12px;color:var(--dark);line-height:1.55;flex:1}
+.ps-row-label{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:1px}
+.hint-accordion{margin-top:8px}
+.hint-toggle{width:100%;padding:8px 12px;background:var(--y50);border:.5px solid var(--y100);border-radius:7px;font-size:12px;font-weight:600;color:var(--y600);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.hint-toggle:hover{background:var(--y100)}
+.hint-content{display:none;padding:9px 12px;background:var(--y50);border:.5px solid var(--y100);border-radius:0 0 7px 7px;font-size:12px;color:#92400E;line-height:1.6;margin-top:-3px}
+.hint-content.open{display:block;animation:fadeSlide .3s ease}
+.ps-step-block{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.ps-step-num{width:26px;height:26px;border-radius:50%;background:var(--g800);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ps-step-content{flex:1;font-size:12px;color:var(--text);line-height:1.65}
+.ps-step-content strong{color:var(--g800)}
+.ps-final-ans{background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g100);border-radius:10px;padding:14px 16px;margin-top:4px}
+.ps-final-label{font-size:10px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.ps-final-value{font-size:22px;font-weight:700;color:var(--g900);font-family:'DM Mono',monospace}
 .sb-topic{padding:9px 18px;font-size:12px;color:var(--muted);cursor:pointer;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:7px;transition:all .12s}
 .sb-topic:hover{background:var(--g50);color:var(--g800)}
 .sb-topic.active{background:var(--g50);color:var(--g800);font-weight:500;border-left:3px solid var(--g600)}
@@ -304,6 +533,28 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
 </style>
 </head><body>
 <div id="root">
+<!-- ONBOARDING MODAL -->
+<div class="modal-overlay" id="onboard-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div style="font-size:28px;margin-bottom:8px">⚗️</div>
+      <h2>Welcome to StoichSolve!</h2>
+      <p>Your interactive stoichiometry learning companion — here's how to get started in 5 steps.</p>
+    </div>
+    <div class="modal-body">
+      <div class="onboard-step"><div class="onboard-icon">📚</div><div class="onboard-text"><h4>1. Start with Learn</h4><p>Go to the <strong>Learn</strong> tab to study each topic. Read the definitions, examples, and formulas from the official BSED module before practicing.</p></div></div>
+      <div class="onboard-step"><div class="onboard-icon">🧮</div><div class="onboard-text"><h4>2. Use the Calculators</h4><p>In the <strong>Practice</strong> tab, pick any of the 12 calculators. Enter your values and click <strong>Start Solving →</strong> for guided step-by-step solutions with hints.</p></div></div>
+      <div class="onboard-step"><div class="onboard-icon">📝</div><div class="onboard-text"><h4>3. Try the Problem Solver</h4><p>Switch to the <strong>Problem Solver</strong> tab and paste any word problem. The system will identify the type, extract values, and open the right calculator pre-filled.</p></div></div>
+      <div class="onboard-step"><div class="onboard-icon">✅</div><div class="onboard-text"><h4>4. Take Assessments</h4><p>Go to the <strong>Assessment</strong> tab to test your knowledge. Choose a unit, select difficulty level, and optionally enable the timer for a challenge.</p></div></div>
+      <div class="onboard-step"><div class="onboard-icon">💡</div><div class="onboard-text"><h4>5. Use Progressive Hints</h4><p>Stuck on a step? Use the hint buttons — 3 hints per step. Each hint gives a little more guidance without revealing the full answer.</p></div></div>
+      <div class="manual-tip" style="margin-top:12px">🛠️ Tip: Use the <strong>Accessibility toolbar</strong> (top bar) to toggle dark mode or adjust text size. Visit the <strong>User Manual</strong> page anytime for detailed instructions.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeOnboard();goPage('manual')">📖 View User Manual</button>
+      <button class="btn btn-g" onclick="closeOnboard()">Let's Start! →</button>
+    </div>
+  </div>
+</div>
 <nav>
   <div class="brand" onclick="goPage('home')"><div class="brand-logo">⚗</div><span class="brand-name">StoichSolve</span></div>
   <div class="nav-links">
@@ -311,13 +562,46 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
     <button class="nb" id="nb-learn" onclick="goPage('learn')">Learn</button>
     <button class="nb" id="nb-practice" onclick="goPage('practice')">Practice</button>
     <button class="nb" id="nb-assess" onclick="goPage('assess')">Assessment</button>
+    <button class="nb" id="nb-manual" onclick="goPage('manual')">📖 User Manual</button>
     <button class="nb" id="nb-about" onclick="goPage('about')">About</button>
-    <a href="https://ptable.com" target="_blank" class="nb" style="text-decoration:none;display:flex;align-items:center;gap:4px" title="Interactive Periodic Table">
-      <span style="font-size:14px">🧪</span> Periodic Table
-    </a>
+    <a href="https://ptable.com" target="_blank" class="nb" style="text-decoration:none;display:flex;align-items:center;gap:4px" title="Interactive Periodic Table">🧪 Periodic Table</a>
   </div>
   <button class="ncta" onclick="goPage('practice')">Start Practicing</button>
 </nav>
+<!-- ACCESSIBILITY SIDE PANEL -->
+<div class="a11y-overlay" id="a11y-overlay" onclick="closeA11yPanel()"></div>
+<button class="a11y-fab" id="a11y-fab" onclick="toggleA11yPanel()" title="Accessibility Options">♿</button>
+<div class="a11y-panel" id="a11y-panel">
+  <div class="a11y-panel-hdr">
+    <span class="a11y-panel-title">⚙ Accessibility</span>
+    <button class="a11y-close" onclick="closeA11yPanel()">✕</button>
+  </div>
+  <div class="a11y-group">
+    <div class="a11y-group-lbl">Appearance</div>
+    <div class="a11y-row">
+      <button class="a11y-btn" id="dark-btn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+    </div>
+  </div>
+  <div class="a11y-divider"></div>
+  <div class="a11y-group">
+    <div class="a11y-group-lbl">Text Size</div>
+    <div class="a11y-row">
+      <button class="a11y-btn" id="fs-sm" onclick="setFontScale(0.85)">A−<br><span style="font-size:9px;opacity:.6">Small</span></button>
+      <button class="a11y-btn active" id="fs-md" onclick="setFontScale(1)">A<br><span style="font-size:9px;opacity:.6">Normal</span></button>
+      <button class="a11y-btn" id="fs-lg" onclick="setFontScale(1.2)">A+<br><span style="font-size:9px;opacity:.6">Large</span></button>
+    </div>
+  </div>
+  <div class="a11y-divider"></div>
+  <div class="a11y-group">
+    <div class="a11y-group-lbl">Help</div>
+    <div class="a11y-row">
+      <button class="a11y-btn" onclick="closeA11yPanel();showOnboard()">❓ Quick Guide</button>
+    </div>
+    <div class="a11y-row" style="margin-top:5px">
+      <button class="a11y-btn" onclick="closeA11yPanel();goPage('manual')">📖 User Manual</button>
+    </div>
+  </div>
+</div>
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
@@ -330,8 +614,8 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
     </div>
   </div>
   <div class="stats-row">
-    <div class="stat"><div class="stat-n">8</div><div class="stat-l">Interactive Calculators</div></div>
-    <div class="stat"><div class="stat-n">15</div><div class="stat-l">Detailed Topic Lessons</div></div>
+    <div class="stat"><div class="stat-n">12</div><div class="stat-l">Interactive Calculators</div></div>
+    <div class="stat"><div class="stat-n">20</div><div class="stat-l">Detailed Topic Lessons</div></div>
     <div class="stat"><div class="stat-n">3-Hint</div><div class="stat-l">Progressive Feedback System</div></div>
   </div>
   <div class="sec" style="overflow-y:auto;flex:1">
@@ -384,12 +668,14 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
           <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:9px">Type or paste any stoichiometry problem. The system will extract the values and guide you through solving it step-by-step.</div>
         </div>
         <div class="ps-input-box">
-          <textarea id="ps-problem-input" rows="7" placeholder="Example: If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced?"></textarea>
-          <div style="font-size:10px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Quick examples:</div>
+          <textarea id="ps-problem-input" rows="7" placeholder="Example: If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced?&#10;&#10;The system will identify the type, extract the equation and values, and open the right calculator pre-filled."></textarea>
+          <div style="font-size:10px;font-weight:600;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;margin-top:6px">Quick examples:</div>
           <div class="ps-examples">
             <span class="ps-ex-pill" onclick="fillPSExample('mole')">Mole-to-mole</span>
             <span class="ps-ex-pill" onclick="fillPSExample('mass')">Mass-to-mass</span>
-            <span class="ps-ex-pill" onclick="fillPSExample('limiting')">Limiting reactant</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('mass2mol')">Mass-to-mole</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('mol2mass')">Mole-to-mass</span>
+            <span class="ps-ex-pill" onclick="fillPSExample('limiting')">Limiting reactant & Excess reactant</span>
             <span class="ps-ex-pill" onclick="fillPSExample('yield')">Percent yield</span>
             <span class="ps-ex-pill" onclick="fillPSExample('empirical')">Empirical formula</span>
           </div>
@@ -419,7 +705,30 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
       <h1>Test Your Understanding</h1>
       <p>Questions based on the official BSED Stoichiometry module. No hints provided during assessment.</p>
     </div>
-    <div style="background:var(--y50);border:.5px solid var(--y100);margin:14px 20px;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400E">
+    <div style="padding:12px 20px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Filter by Difficulty</div>
+          <div class="diff-filter">
+            <button class="diff-btn active" id="diff-all" onclick="filterDiff('all')">All Units</button>
+            <button class="diff-btn" id="diff-beg" onclick="filterDiff('beg')">🟢 Beginner</button>
+            <button class="diff-btn" id="diff-int" onclick="filterDiff('int')">🟡 Intermediate</button>
+            <button class="diff-btn" id="diff-adv" onclick="filterDiff('adv')">🔴 Advanced</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border:.5px solid var(--border);border-radius:9px;padding:9px 14px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--dark)">⏱ Timed Mode</div>
+            <div style="font-size:10px;color:var(--muted)">60 sec per question</div>
+          </div>
+          <div style="position:relative;width:42px;height:24px;cursor:pointer" onclick="toggleTimedMode()" id="timer-toggle">
+            <div style="position:absolute;inset:0;background:var(--border);border-radius:12px;transition:background .2s" id="timer-track"></div>
+            <div style="position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s" id="timer-thumb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--y50);border:.5px solid var(--y100);margin:0 20px 12px;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400E">
       ⚠ <strong>Guidelines:</strong> Study the Learning Module and complete Practice problems first. Full answer explanations shown after submission.
     </div>
     <div class="ag" id="assess-cards"></div>
@@ -451,16 +760,124 @@ nav{background:var(--g800);display:flex;align-items:center;justify-content:space
     <div style="text-align:center;padding:18px;font-size:11px;color:var(--muted)">© 2026 StoichSolve · BSED Science Research · Solve. Learn. Understand Chemistry.</div>
   </div>
 </div>
+<!-- USER MANUAL PAGE -->
+<div class="page" id="page-manual">
+  <div class="manual-body">
+    <div class="manual-hero">
+      <div style="font-size:36px;margin-bottom:10px">📖</div>
+      <h2>StoichSolve — User Manual</h2>
+      <p>Complete guide to using every feature of the platform</p>
+    </div>
+
+    <!-- Feature Overview -->
+    <div class="manual-section">
+      <h3>🗺️ Platform Overview</h3>
+      <div class="manual-feature-grid">
+        <div class="manual-feature"><div class="manual-feature-icon">📚</div><h4>Learn</h4><p>20 topic lessons across 4 units, built from the official BSED Stoichiometry module.</p></div>
+        <div class="manual-feature"><div class="manual-feature-icon">🧮</div><h4>Practice</h4><p>12 interactive calculators with guided step-by-step solving and 3-hint system.</p></div>
+        <div class="manual-feature"><div class="manual-feature-icon">📝</div><h4>Problem Solver</h4><p>Paste any word problem — the system detects the type, extracts values, and opens the right calculator.</p></div>
+        <div class="manual-feature"><div class="manual-feature-icon">✅</div><h4>Assessment</h4><p>Unit quizzes with multiple choice, fill-in, and problem-solving questions. Timed mode available.</p></div>
+      </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="manual-section">
+      <h3>🚀 Getting Started (Recommended Flow)</h3>
+      <div class="manual-step"><div class="manual-step-num">1</div><div class="manual-step-text"><strong>Read the topic lesson first.</strong> Go to <strong>Learn → Unit 1</strong> and tap any topic. Read the definition, worked examples, and key formulas before attempting any practice.</div></div>
+      <div class="manual-step"><div class="manual-step-num">2</div><div class="manual-step-text"><strong>Practice with a calculator.</strong> Go to <strong>Practice → Calculators</strong>. Select the calculator that matches the topic you just studied. Fill in the values and click <strong>Start Solving →</strong>.</div></div>
+      <div class="manual-step"><div class="manual-step-num">3</div><div class="manual-step-text"><strong>Use hints if stuck.</strong> On each step of the solver, you get up to 3 progressive hints. Each hint gives a little more guidance — try to solve it before clicking the next hint.</div></div>
+      <div class="manual-step"><div class="manual-step-num">4</div><div class="manual-step-text"><strong>Test yourself with the Assessment.</strong> Go to <strong>Assessment</strong>, pick a unit, and take the quiz. Try the timed mode for extra challenge. Review explanations on every answer.</div></div>
+      <div class="manual-tip">✅ Tip: Complete all units in order — Unit 1 → Unit 2 → Unit 3 → Unit 4. Later units build on earlier concepts.</div>
+    </div>
+
+    <!-- Learn Page -->
+    <div class="manual-section">
+      <h3>📚 How to Use the Learn Page</h3>
+      <div class="manual-step"><div class="manual-step-num">1</div><div class="manual-step-text">Click the <strong>Learn</strong> tab in the navigation bar.</div></div>
+      <div class="manual-step"><div class="manual-step-num">2</div><div class="manual-step-text">The left sidebar shows <strong>4 units</strong>. Click any unit to expand its topic list.</div></div>
+      <div class="manual-step"><div class="manual-step-num">3</div><div class="manual-step-text">Click any topic name to load the lesson in the right panel.</div></div>
+      <div class="manual-step"><div class="manual-step-num">4</div><div class="manual-step-text">Scroll through the lesson: definition → worked examples → key formulas → practice hints.</div></div>
+      <div class="manual-step"><div class="manual-step-num">5</div><div class="manual-step-text">Use the <strong>"Next Topic →"</strong> button at the bottom to continue to the next lesson in sequence.</div></div>
+      <div class="manual-tip">📌 All 20 lessons are based directly on the official BSED Stoichiometry module content.</div>
+    </div>
+
+    <!-- Practice / Calculators -->
+    <div class="manual-section">
+      <h3>🧮 How to Use the Calculators</h3>
+      <div class="manual-step"><div class="manual-step-num">1</div><div class="manual-step-text">Go to <strong>Practice → Calculators</strong> tab. You will see a grid of 12 calculator cards.</div></div>
+      <div class="manual-step"><div class="manual-step-num">2</div><div class="manual-step-text">Click any calculator card to open it in the right panel.</div></div>
+      <div class="manual-step"><div class="manual-step-num">3</div><div class="manual-step-text">Fill in the required fields (e.g. chemical formula, moles, grams). Use the <strong>Quick Example</strong> pills to auto-fill a sample problem.</div></div>
+      <div class="manual-step"><div class="manual-step-num">4</div><div class="manual-step-text">Click <strong>Start Solving →</strong> to begin the interactive guided session.</div></div>
+      <div class="manual-step"><div class="manual-step-num">5</div><div class="manual-step-text">On each step, type your answer into the input box and press <strong>Check Answer</strong>. ✅ = correct, ❌ = try again with a hint.</div></div>
+      <div class="manual-step"><div class="manual-step-num">6</div><div class="manual-step-text">After 3 incorrect attempts, the correct answer is revealed with a full explanation.</div></div>
+      <div class="manual-tip">💡 The 4 Stoichiometry Calculation calculators (Mole-to-Mole, Mass-to-Mass, Mass-to-Mole, Mole-to-Mass) need a balanced equation, a given substance + amount, and an unknown substance to find.</div>
+    </div>
+
+    <!-- Problem Solver -->
+    <div class="manual-section">
+      <h3>📝 How to Use the Problem Solver</h3>
+      <div class="manual-step"><div class="manual-step-num">1</div><div class="manual-step-text">Go to <strong>Practice → Problem Solver</strong> tab.</div></div>
+      <div class="manual-step"><div class="manual-step-num">2</div><div class="manual-step-text">Type or paste your word problem in the text area. Example: <em>"6.0 moles of H₂ react completely with N₂ to form NH₃. Calculate the amount of NH₃ produced in moles."</em></div></div>
+      <div class="manual-step"><div class="manual-step-num">3</div><div class="manual-step-text">Click <strong>Analyze Problem →</strong>. The system will identify the problem type (Mole-to-Mole, Mass-to-Mass, etc.), display the balanced equation, and extract the given values.</div></div>
+      <div class="manual-step"><div class="manual-step-num">4</div><div class="manual-step-text">Click <strong>Open [Type] Calculator →</strong> — the right calculator opens with all fields pre-filled automatically.</div></div>
+      <div class="manual-step"><div class="manual-step-num">5</div><div class="manual-step-text">Click <strong>Start Solving →</strong> to begin the guided solution.</div></div>
+      <div class="manual-tip">🔍 Supported input formats:<br>• Full word problems: "If 10 g of H₂ reacts with O₂, how many grams of H₂O form?"<br>• Shorthand labels: "Helium (Mass to Mole)" or "Zinc (Mole to Mass)"<br>• Reaction descriptions: "Nitrogen gas reacts with hydrogen gas to produce ammonia."</div>
+    </div>
+
+    <!-- Assessment -->
+    <div class="manual-section">
+      <h3>✅ How to Use the Assessment</h3>
+      <div class="manual-step"><div class="manual-step-num">1</div><div class="manual-step-text">Click the <strong>Assessment</strong> tab in the navigation bar.</div></div>
+      <div class="manual-step"><div class="manual-step-num">2</div><div class="manual-step-text">Choose a <strong>difficulty level</strong> using the filter buttons: All / Beginner / Intermediate / Advanced.</div></div>
+      <div class="manual-step"><div class="manual-step-num">3</div><div class="manual-step-text">Optionally enable the <strong>⏱ Timed Mode</strong> toggle. Each question will have a 60-second countdown.</div></div>
+      <div class="manual-step"><div class="manual-step-num">4</div><div class="manual-step-text">Click <strong>Start Quiz</strong> on any unit card to begin.</div></div>
+      <div class="manual-step"><div class="manual-step-num">5</div><div class="manual-step-text">For multiple-choice: click an option. For fill-in: type your answer and press <strong>Submit</strong>.</div></div>
+      <div class="manual-step"><div class="manual-step-num">6</div><div class="manual-step-text">After each answer, you'll see ✅ / ❌ plus a full explanation from the module. Click <strong>Next Question →</strong> to continue.</div></div>
+      <div class="manual-step"><div class="manual-step-num">7</div><div class="manual-step-text">At the end, your score is shown with a performance badge. Click <strong>Retry</strong> to try again or <strong>Review Lesson</strong> to go back to the Learn page.</div></div>
+    </div>
+
+    <!-- Accessibility -->
+    <div class="manual-section">
+      <h3>♿ Accessibility Features</h3>
+      <div class="manual-step"><div class="manual-step-num">🌙</div><div class="manual-step-text"><strong>Dark Mode</strong> — Click the <strong>🌙 Dark Mode</strong> button in the accessibility toolbar at the top to reduce eye strain in low-light environments.</div></div>
+      <div class="manual-step"><div class="manual-step-num">A</div><div class="manual-step-text"><strong>Text Size</strong> — Use the <strong>A− / A / A+</strong> buttons to decrease, reset, or increase all text on the page.</div></div>
+      <div class="manual-step"><div class="manual-step-num">⚗</div><div class="manual-step-text"><strong>Chemistry Keyboard</strong> — The floating ⚗ button (bottom-right) opens a keyboard with subscript numbers, element symbols, and the → arrow for entering chemical formulas easily.</div></div>
+      <div class="manual-step"><div class="manual-step-num">🔬</div><div class="manual-step-text"><strong>Periodic Table</strong> — Click the <strong>🧪 Periodic Table</strong> link in the nav bar to open an interactive periodic table in a new tab for looking up atomic masses.</div></div>
+    </div>
+
+    <!-- Real-life Applications -->
+    <div class="manual-section">
+      <h3>🌍 Where is Stoichiometry Used in Real Life?</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">🍳</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Cooking & Baking</div><div style="font-size:10px;color:var(--muted);line-height:1.55">Recipes are proportional ratios — just like mole ratios. Scaling a recipe uses the same logic as stoichiometric calculations.</div></div>
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">💊</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Medicine / Pharmaceuticals</div><div style="font-size:10px;color:var(--muted);line-height:1.55">Drug manufacturers use stoichiometry to calculate exact amounts of reactants needed to produce a specific dose of medication.</div></div>
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">🏭</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Industrial Chemistry</div><div style="font-size:10px;color:var(--muted);line-height:1.55">The Haber process (N₂ + 3H₂ → 2NH₃) produces fertilizer for global food production using stoichiometry to maximize ammonia yield.</div></div>
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">🌱</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Environmental Science</div><div style="font-size:10px;color:var(--muted);line-height:1.55">Calculating CO₂ emissions from fuel combustion and predicting pollution levels uses combustion stoichiometry.</div></div>
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">🚗</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Automotive Engineering</div><div style="font-size:10px;color:var(--muted);line-height:1.55">Engine fuel-air ratios are based on stoichiometric combustion — the exact ratio of fuel to oxygen for complete burning.</div></div>
+        <div style="background:var(--g50);border:.5px solid var(--g200);border-radius:9px;padding:11px 12px"><div style="font-size:18px;margin-bottom:4px">🔋</div><div style="font-size:12px;font-weight:700;color:var(--g800);margin-bottom:3px">Battery Technology</div><div style="font-size:10px;color:var(--muted);line-height:1.55">Lithium-ion battery design uses stoichiometry to determine electrode material ratios for maximizing energy storage capacity.</div></div>
+      </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="manual-section">
+      <h3>🔧 Common Questions</h3>
+      <div style="font-size:12px;color:var(--text);line-height:1.75">
+        <div style="margin-bottom:10px"><strong>Q: Why does the Problem Solver say "Not Detected"?</strong><br>A: Make sure your problem includes a number with a unit (e.g. "5 moles" or "10 grams") and a clear question (e.g. "how many moles/grams…?"). Also works with shorthand like "Zinc (Mole to Mass)".</div>
+        <div style="margin-bottom:10px"><strong>Q: How do I enter a chemical formula with subscripts?</strong><br>A: Click the ⚗ button (bottom-right) to open the chemistry keyboard, or type normally and the calculator will accept both H2O and H₂O.</div>
+        <div style="margin-bottom:10px"><strong>Q: The balanced equation field — what format should I use?</strong><br>A: Use the → arrow (from the chemistry keyboard) between reactants and products. Example: <code>N₂ + 3H₂ → 2NH₃</code></div>
+        <div><strong>Q: Can I use the app on my phone?</strong><br>A: Yes — StoichSolve is mobile-responsive. For best experience on small screens, use landscape orientation. The text size buttons in the accessibility bar can help with readability.</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:18px;font-size:11px;color:var(--muted)">
+      StoichSolve User Manual · © 2026 · <a href="#" onclick="goPage('home');return false" style="color:var(--g700)">Back to Home</a>
+    </div>
+  </div>
 </div>
+</div><!-- end root -->
 <script>
 // ═══════════════════════ ATOMIC MASSES ═══════════════════════
 const AM={H:1.008,He:4.003,Li:6.941,Be:9.012,B:10.81,C:12.01,N:14.01,O:16.00,F:19.00,Ne:20.18,Na:22.99,Mg:24.31,Al:26.98,Si:28.09,P:30.97,S:32.07,Cl:35.45,Ar:39.95,K:39.10,Ca:40.08,Sc:44.96,Ti:47.87,V:50.94,Cr:52.00,Mn:54.94,Fe:55.85,Co:58.93,Ni:58.69,Cu:63.55,Zn:65.38,Br:79.90,Sr:87.62,Ag:107.87,Cd:112.41,Sn:118.71,I:126.90,Ba:137.33,Pb:207.2,Au:196.97,Hg:200.59};
-
-function parseFormula(f){
-  if(!f)return null;
-  const clean=f.replace(/\s/g,'').replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>'0123456789'[['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'].indexOf(m)]);
-  return clean;
-}
 
 // ── Custom Equation Parsing for Limiting Reactant & Theoretical Yield
 function parseCustomEquation(type){
@@ -556,6 +973,8 @@ const UNITS=[
    topics:['mole-concept','avogadro','molar-mass','grams-moles','pct-comp']},
   {id:'u3',label:'Unit 3',title:'Stoichiometric Calculations',cls:'u3',
    topics:['mole-ratios','limiting','excess','theoretical','pct-yield']},
+  {id:'u4',label:'Unit 4',title:'Stoichiometry Calculations',cls:'u4',
+   topics:['sc-intro','sc-mol2mol','sc-mass2mass','sc-mass2mol','sc-mol2mass']},
 ];
 
 const TOPICS={
@@ -829,6 +1248,122 @@ sections:[
   <div class="key-box"><div class="key-lbl">Interpreting Percent Yield</div><p>= 100% → Perfect (theoretical, rarely achieved)<br>> 100% → Measurement error or impurities added mass<br>70–99% → Typical for well-run reactions<br>< 70% → Significant losses occurred</p></div>
   <div class="key-box"><div class="key-lbl">Industrial Context (from Module)</div><p>"In industrial processes, controlling the limiting reactant ensures resources are used efficiently. Percent yield measures how efficiently this was achieved."</p></div>`}
 ],cta:null},
+
+// ══════════ UNIT 4 — STOICHIOMETRY CALCULATIONS ══════════
+'sc-intro':{unit:'Unit 4',title:'Stoichiometry Calculations — Overview',
+intro:'Stoichiometry calculations allow us to predict amounts of reactants and products in any chemical reaction. Using balanced equations as the foundation, we can convert between moles and grams of any substance in a reaction. There are four core types of stoichiometric calculations.',
+sections:[
+  {h:'Learning Objectives',content:`<div class="key-box"><div class="key-lbl">After This Unit, You Will Be Able To:</div><p>
+  ✅ Perform mole-to-mole calculations using mole ratios<br>
+  ✅ Perform mass-to-mass calculations using dimensional analysis<br>
+  ✅ Convert mass to moles using a balanced equation<br>
+  ✅ Convert moles to mass using a balanced equation<br>
+  ✅ Identify which type of calculation a problem requires</p></div>`},
+  {h:'The Four Types of Stoichiometry Calculations',content:`<table class="data-table">
+  <tr><th>Type</th><th>Given</th><th>Find</th><th>Key Conversion</th></tr>
+  <tr><td><strong>Mole-to-Mole</strong></td><td>moles of A</td><td>moles of B</td><td>Mole ratio only</td></tr>
+  <tr><td><strong>Mass-to-Mass</strong></td><td>grams of A</td><td>grams of B</td><td>MM of A, mole ratio, MM of B</td></tr>
+  <tr><td><strong>Mass-to-Mole</strong></td><td>grams of A</td><td>moles of B</td><td>MM of A, then mole ratio</td></tr>
+  <tr><td><strong>Mole-to-Mass</strong></td><td>moles of A</td><td>grams of B</td><td>Mole ratio, then MM of B</td></tr>
+  </table>`},
+  {h:'The Roadmap (Dimensional Analysis)',content:`<div class="formula-box"><div class="fb-lbl">General Stoichiometry Pathway</div><div class="fb-val">grams A → moles A → moles B → grams B\n(÷ MM of A)  (× mole ratio)  (× MM of B)</div></div>
+  <div class="key-box"><div class="key-lbl">Golden Rule</div><p>Every stoichiometry calculation must begin with a <strong>balanced chemical equation</strong>. The coefficients are the mole ratios — the bridge between any two substances in the reaction.</p></div>`},
+  {h:'Why Are There Four Types?',content:`<p>The four types exist because experiments give us data in different units:</p>
+  <ul><li>Sometimes we measure <strong>moles</strong> of a gas by volume</li><li>Sometimes we measure <strong>grams</strong> on a balance</li><li>The mole ratio is always the same — but the starting and ending units differ</li></ul>
+  <p>Mastering all four types makes you fluent in the language of stoichiometry.</p>`}
+],cta:'sc-mol2mol'},
+
+'sc-mol2mol':{unit:'Unit 4',title:'Mole-to-Mole Calculations',
+intro:'A mole-to-mole calculation uses the mole ratio from a balanced equation to convert moles of one substance to moles of another. It is the simplest and most fundamental stoichiometry calculation — no molar mass conversion is needed.',
+sections:[
+  {h:'Definition & Formula',content:`<p>When you are given <strong>moles of substance A</strong> and asked to find <strong>moles of substance B</strong>, you use only the mole ratio from the balanced equation.</p>
+  <div class="formula-box"><div class="fb-lbl">Mole-to-Mole Formula</div><div class="fb-val">mol B = mol A × (coeff B ÷ coeff A)\n\n= given mol A × (mol B from equation / mol A from equation)</div></div>
+  <div class="key-box"><div class="key-lbl">What You Need</div><p>1. A balanced chemical equation<br>2. Moles of the given substance<br>3. Coefficients from the balanced equation</p></div>`},
+  {h:'Module Example 1 — Ammonia Synthesis',content:`<p>Problem: <strong>N₂ + 3H₂ → 2NH₃</strong>. If 9.0 moles of H₂ react with excess N₂, how many moles of NH₃ are formed?</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step Solution (BSED Module)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Write the balanced equation:</strong> N₂ + 3H₂ → 2NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Identify the mole ratio:</strong> 3 mol H₂ : 2 mol NH₃ → ratio = (2/3)</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Set up the calculation:</strong> 9.0 mol H₂ × (2 mol NH₃ / 3 mol H₂)</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Cancel units:</strong> mol H₂ cancels mol H₂</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 6.0 mol NH₃</strong></div></div></div>`},
+  {h:'Module Example 2 — Decomposition of KClO₃',content:`<p>Problem: <strong>2KClO₃ → 2KCl + 3O₂</strong>. If 4.0 mol KClO₃ decomposes, how many mol O₂ are produced?</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step Solution (BSED Module)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Balanced equation:</strong> 2KClO₃ → 2KCl + 3O₂</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Mole ratio:</strong> 2 mol KClO₃ : 3 mol O₂ → ratio = (3/2)</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Calculate:</strong> 4.0 mol KClO₃ × (3 mol O₂ / 2 mol KClO₃)</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 6.0 mol O₂</strong></div></div></div>`},
+  {h:'Key Identification Tips',content:`<div class="key-box"><div class="key-lbl">How to Identify a Mole-to-Mole Problem</div><p>
+  ✅ Given: "X <strong>moles</strong> of [substance]"<br>
+  ✅ Asked: "how many <strong>moles</strong> of [product]?"<br>
+  ✅ No grams → no molar mass conversion needed<br>
+  ✅ Uses only the balanced equation coefficients</p></div>
+  <div class="key-box"><div class="key-lbl">Common Mistakes</div><p>
+  ❌ Using an unbalanced equation<br>
+  ❌ Flipping the mole ratio (putting wrong substance on top)<br>
+  ❌ Forgetting to check that units cancel properly</p></div>`}
+],cta:'sc-mass2mass'},
+
+'sc-mass2mass':{unit:'Unit 4',title:'Mass-to-Mass Calculations',
+intro:'A mass-to-mass calculation is the most complete stoichiometry problem type. You are given grams of one substance and asked to find grams of another. It requires three conversion steps using dimensional analysis.',
+sections:[
+  {h:'Definition & Formula',content:`<p>When given <strong>grams of substance A</strong> and asked for <strong>grams of substance B</strong>, you need three conversions in sequence.</p>
+  <div class="formula-box"><div class="fb-lbl">Mass-to-Mass Pathway</div><div class="fb-val">g A × (1 mol A / MM of A) × (coeff B / coeff A) × (MM of B / 1 mol B) = g B</div></div>
+  <div class="key-box"><div class="key-lbl">The Three Bridges</div><p>Bridge 1: grams A → moles A (÷ by molar mass of A)<br>Bridge 2: moles A → moles B (× mole ratio)<br>Bridge 3: moles B → grams B (× molar mass of B)</p></div>`},
+  {h:'Module Example 1 — Water from H₂',content:`<p>Problem: <strong>2H₂ + O₂ → 2H₂O</strong>. If 10.0 g of H₂ reacts with excess O₂, how many grams of H₂O are formed?<br>(H₂ = 2.016 g/mol, H₂O = 18 g/mol)</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step Solution (BSED Module)</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Write balanced equation:</strong> 2H₂ + O₂ → 2H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Convert g H₂ → mol H₂:</strong> 10.0 g × (1 mol / 2.016 g) = 4.96 mol H₂</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Apply mole ratio (2:2 = 1:1):</strong> 4.96 mol H₂ × (2 mol H₂O / 2 mol H₂) = 4.96 mol H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">4</div><div class="ex-text"><strong>Convert mol H₂O → g H₂O:</strong> 4.96 mol × 18 g/mol = 89.3 g H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 89.3 g H₂O</strong></div></div></div>`},
+  {h:'Module Example 2 — Iron(III) Oxide',content:`<p>Problem: <strong>4Fe + 3O₂ → 2Fe₂O₃</strong>. How many grams of Fe₂O₃ form from 111.7 g of Fe?<br>(Fe = 55.85 g/mol, Fe₂O₃ = 159.7 g/mol)</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>g Fe → mol Fe:</strong> 111.7 ÷ 55.85 = 2.00 mol Fe</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Mole ratio (4 Fe : 2 Fe₂O₃):</strong> 2.00 × (2/4) = 1.00 mol Fe₂O₃</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>mol Fe₂O₃ → g Fe₂O₃:</strong> 1.00 × 159.7 = 159.7 g</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 159.7 g Fe₂O₃</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">How to Identify a Mass-to-Mass Problem</div><p>✅ Given: grams of a substance<br>✅ Asked: grams of another substance<br>✅ Requires all three conversion steps</p></div>`}
+],cta:'sc-mass2mol'},
+
+'sc-mass2mol':{unit:'Unit 4',title:'Mass-to-Mole Calculations',
+intro:'A mass-to-mole calculation converts grams of one substance to moles of another using a balanced equation. It is a two-step process: convert grams to moles, then apply the mole ratio.',
+sections:[
+  {h:'Definition & Formula',content:`<p>When given <strong>grams of substance A</strong> and asked for <strong>moles of substance B</strong>, you need two conversions.</p>
+  <div class="formula-box"><div class="fb-lbl">Mass-to-Mole Formula</div><div class="fb-val">g A × (1 mol A / MM of A) × (coeff B / coeff A) = mol B</div></div>
+  <div class="key-box"><div class="key-lbl">Two Bridges Only</div><p>Bridge 1: grams A → moles A (÷ molar mass of A)<br>Bridge 2: moles A → moles B (× mole ratio from equation)</p></div>`},
+  {h:'Module Example — H₂O from H₂',content:`<p>Problem: <strong>2H₂ + O₂ → 2H₂O</strong>. How many moles of H₂O are formed from 36.0 g of H₂?<br>(H₂ = 2.016 g/mol)</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Balanced equation:</strong> 2H₂ + O₂ → 2H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>g H₂ → mol H₂:</strong> 36.0 g ÷ 2.016 g/mol = 17.86 mol H₂</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>Mole ratio (2H₂ : 2H₂O = 1:1):</strong> 17.86 × (2/2) = 17.86 mol H₂O</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 17.86 mol H₂O</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">How to Identify a Mass-to-Mole Problem</div><p>✅ Given: grams of one substance<br>✅ Asked: moles of another substance<br>✅ Stop after applying the mole ratio — no need to convert back to grams</p></div>`},
+  {h:'Simple Case — Mass to Moles (No Equation)',content:`<p>If the problem asks for moles of the SAME substance (no second substance involved), it is simply:</p>
+  <div class="formula-box"><div class="fb-lbl">Simple Case (No Equation Needed)</div><div class="fb-val">moles = grams ÷ molar mass</div></div>
+  <div class="ex-box"><div class="ex-title">Example: Convert 36.0 g H₂O to moles</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Molar mass H₂O = 18.016 g/mol</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">moles = 36.0 ÷ 18.016 = <strong>2.0 mol H₂O</strong></div></div></div>`}
+],cta:'sc-mol2mass'},
+
+'sc-mol2mass':{unit:'Unit 4',title:'Mole-to-Mass Calculations',
+intro:'A mole-to-mass calculation converts moles of one substance to grams of another using a balanced equation. It is the reverse of mass-to-mole: apply the mole ratio first, then convert to grams.',
+sections:[
+  {h:'Definition & Formula',content:`<p>When given <strong>moles of substance A</strong> and asked for <strong>grams of substance B</strong>, you need two conversions.</p>
+  <div class="formula-box"><div class="fb-lbl">Mole-to-Mass Formula</div><div class="fb-val">mol A × (coeff B / coeff A) × (MM of B / 1 mol B) = g B</div></div>
+  <div class="key-box"><div class="key-lbl">Two Bridges</div><p>Bridge 1: moles A → moles B (× mole ratio)<br>Bridge 2: moles B → grams B (× molar mass of B)</p></div>`},
+  {h:'Module Example — NH₃ from H₂',content:`<p>Problem: <strong>N₂ + 3H₂ → 2NH₃</strong>. How many grams of NH₃ are produced from 6.0 mol H₂ with excess N₂?<br>(NH₃ = 17.03 g/mol)</p>
+  <div class="ex-box"><div class="ex-title">Step-by-Step Solution</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text"><strong>Balanced equation:</strong> N₂ + 3H₂ → 2NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">2</div><div class="ex-text"><strong>Mole ratio (3H₂ : 2NH₃):</strong> 6.0 mol H₂ × (2/3) = 4.0 mol NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">3</div><div class="ex-text"><strong>mol NH₃ → g NH₃:</strong> 4.0 mol × 17.03 g/mol = 68.1 g NH₃</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text"><strong>Answer = 68.1 g NH₃</strong></div></div></div>`},
+  {h:'Simple Case — Moles to Mass (No Equation)',content:`<p>If you need grams of the SAME substance (single substance, no reaction), it is simply:</p>
+  <div class="formula-box"><div class="fb-lbl">Simple Case</div><div class="fb-val">grams = moles × molar mass</div></div>
+  <div class="ex-box"><div class="ex-title">Example: Convert 3.0 mol Zn to grams</div>
+  <div class="ex-step"><div class="ex-num">1</div><div class="ex-text">Molar mass Zn = 65.38 g/mol</div></div>
+  <div class="ex-step"><div class="ex-num">✓</div><div class="ex-text">grams = 3.0 × 65.38 = <strong>196.1 g Zn</strong></div></div></div>
+  <div class="key-box"><div class="key-lbl">How to Identify a Mole-to-Mass Problem</div><p>✅ Given: moles of one substance<br>✅ Asked: grams of another substance<br>✅ Needs mole ratio first, then molar mass of product</p></div>`}
+],cta:null},
 };
 
 // ═══════════════════════ CALCULATORS CONFIG ═══════════════════════
@@ -841,6 +1376,10 @@ const CALCS=[
   {id:'limiting',name:'Limiting Reactant',icon:'⛓',desc:'Identify which runs out',diff:'Advanced'},
   {id:'theoretical',name:'Theoretical Yield',icon:'📊',desc:'Maximum product possible',diff:'Advanced'},
   {id:'pct-yield',name:'Percent Yield',icon:'✓',desc:'Reaction efficiency',diff:'Advanced'},
+  {id:'sc-mol2mol',name:'Mole-to-Mole',icon:'⚛',desc:'Moles A → Moles B via equation',diff:'Intermediate'},
+  {id:'sc-mass2mass',name:'Mass-to-Mass',icon:'⚖',desc:'Grams A → Grams B (3-step)',diff:'Intermediate'},
+  {id:'sc-mass2mol',name:'Mass-to-Mole',icon:'🔄',desc:'Grams A → Moles B',diff:'Intermediate'},
+  {id:'sc-mol2mass',name:'Mole-to-Mass',icon:'📐',desc:'Moles A → Grams B',diff:'Intermediate'},
 ];
 
 let activeCalc=null,steps=[],sts=[],activeStep=0,solverData=null;
@@ -974,6 +1513,78 @@ function renderCalcForm(id){
       <button class="tog-btn" id="tog-full" onclick="setPYMode('full')">Calculate Theoretical First</button>
     </div><div id="py-fields" style="margin-top:10px"></div>
     <div class="pills" id="py-pills" style="margin-top:8px"></div>`;
+  }else if(id==='sc-mol2mol'){
+    h+=`<div style="background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g200);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--g800);line-height:1.55">
+      💡 <strong>Have a word problem?</strong> Use the <a href="#" onclick="setPracMode('ps');return false;" style="color:var(--g700);font-weight:700">📝 Problem Solver</a> tab — it will analyze the problem, identify the type, and auto-fill this calculator for you.
+    </div>
+    <label class="lbl">Balanced Chemical Equation</label>
+    <input class="inp mono" id="f-sc-eq" placeholder="e.g. N₂ + 3H₂ → 2NH₃" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Given Substance</label>
+    <input class="inp mono" id="f-sc-given-sub" placeholder="e.g. H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Moles of Given Substance</label>
+    <input class="inp" id="f-sc-given-val" type="number" placeholder="e.g. 9.0" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Unknown Substance (Find moles of)</label>
+    <input class="inp mono" id="f-sc-find-sub" placeholder="e.g. NH₃" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillSC4('N₂ + 3H₂ → 2NH₃','H₂',9.0,'NH₃')">9 mol H₂ → NH₃</span>
+      <span class="pill" onclick="fillSC4('2KClO₃ → 2KCl + 3O₂','KClO₃',4.0,'O₂')">4 mol KClO₃ → O₂</span>
+      <span class="pill" onclick="fillSC4('2H₂ + O₂ → 2H₂O','H₂',6.0,'H₂O')">6 mol H₂ → H₂O</span>
+    </div>`;
+  }else if(id==='sc-mass2mass'){
+    h+=`<div style="background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g200);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--g800);line-height:1.55">
+      💡 <strong>Have a word problem?</strong> Use the <a href="#" onclick="setPracMode('ps');return false;" style="color:var(--g700);font-weight:700">📝 Problem Solver</a> tab — it will analyze the problem, identify the type, and auto-fill this calculator for you.
+    </div>
+    <label class="lbl">Balanced Chemical Equation</label>
+    <input class="inp mono" id="f-sc-eq" placeholder="e.g. 2H₂ + O₂ → 2H₂O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Given Substance</label>
+    <input class="inp mono" id="f-sc-given-sub" placeholder="e.g. H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Mass of Given Substance (grams)</label>
+    <input class="inp" id="f-sc-given-val" type="number" placeholder="e.g. 10.0" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Unknown Substance (Find grams of)</label>
+    <input class="inp mono" id="f-sc-find-sub" placeholder="e.g. H₂O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillSC4('2H₂ + O₂ → 2H₂O','H₂',10.0,'H₂O')">10 g H₂ → g H₂O</span>
+      <span class="pill" onclick="fillSC4('N₂ + 3H₂ → 2NH₃','H₂',6.0,'NH₃')">6 g H₂ → g NH₃</span>
+      <span class="pill" onclick="fillSC4('4Fe + 3O₂ → 2Fe₂O₃','Fe',111.7,'Fe₂O₃')">111.7 g Fe → g Fe₂O₃</span>
+    </div>`;
+  }else if(id==='sc-mass2mol'){
+    h+=`<div style="background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g200);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--g800);line-height:1.55">
+      💡 <strong>Have a word problem?</strong> Use the <a href="#" onclick="setPracMode('ps');return false;" style="color:var(--g700);font-weight:700">📝 Problem Solver</a> tab — it will analyze the problem, identify the type, and auto-fill this calculator for you.
+    </div>
+    <label class="lbl">Balanced Chemical Equation</label>
+    <input class="inp mono" id="f-sc-eq" placeholder="e.g. 2H₂ + O₂ → 2H₂O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Given Substance</label>
+    <input class="inp mono" id="f-sc-given-sub" placeholder="e.g. H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Mass of Given Substance (grams)</label>
+    <input class="inp" id="f-sc-given-val" type="number" placeholder="e.g. 36.0" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Unknown Substance (Find moles of)</label>
+    <input class="inp mono" id="f-sc-find-sub" placeholder="e.g. H₂O" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillSC4('2H₂ + O₂ → 2H₂O','H₂',36.0,'H₂O')">36 g H₂ → mol H₂O</span>
+      <span class="pill" onclick="fillSC4('N₂ + 3H₂ → 2NH₃','N₂',28.0,'NH₃')">28 g N₂ → mol NH₃</span>
+      <span class="pill" onclick="fillSC4('2KClO₃ → 2KCl + 3O₂','KClO₃',245.0,'O₂')">245 g KClO₃ → mol O₂</span>
+    </div>`;
+  }else if(id==='sc-mol2mass'){
+    h+=`<div style="background:linear-gradient(135deg,var(--g50),var(--y50));border:.5px solid var(--g200);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--g800);line-height:1.55">
+      💡 <strong>Have a word problem?</strong> Use the <a href="#" onclick="setPracMode('ps');return false;" style="color:var(--g700);font-weight:700">📝 Problem Solver</a> tab — it will analyze the problem, identify the type, and auto-fill this calculator for you.
+    </div>
+    <label class="lbl">Balanced Chemical Equation</label>
+    <input class="inp mono" id="f-sc-eq" placeholder="e.g. N₂ + 3H₂ → 2NH₃" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Given Substance</label>
+    <input class="inp mono" id="f-sc-given-sub" placeholder="e.g. H₂" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Moles of Given Substance</label>
+    <input class="inp" id="f-sc-given-val" type="number" placeholder="e.g. 6.0" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Unknown Substance (Find grams of)</label>
+    <input class="inp mono" id="f-sc-find-sub" placeholder="e.g. NH₃" oninput="errHide()"/>
+    <label class="lbl" style="margin-top:10px">Quick Examples</label>
+    <div class="pills">
+      <span class="pill" onclick="fillSC4('N₂ + 3H₂ → 2NH₃','H₂',6.0,'NH₃')">6 mol H₂ → g NH₃</span>
+      <span class="pill" onclick="fillSC4('2H₂ + O₂ → 2H₂O','H₂',5.0,'H₂O')">5 mol H₂ → g H₂O</span>
+      <span class="pill" onclick="fillSC4('2KClO₃ → 2KCl + 3O₂','KClO₃',3.0,'O₂')">3 mol KClO₃ → g O₂</span>
+    </div>`;
   }
 
   h+=`</div><div class="err-msg" id="err-msg"></div>
@@ -1154,6 +1765,10 @@ function buildSteps(id){
   if(id==='limiting')return genLR();
   if(id==='theoretical')return genTY();
   if(id==='pct-yield')return genPY();
+  if(id==='sc-mol2mol')return genSCMol2Mol();
+  if(id==='sc-mass2mass')return genSCMass2Mass();
+  if(id==='sc-mass2mol')return genSCMass2Mol();
+  if(id==='sc-mol2mass')return genSCMol2Mass();
   return null;
 }
 
@@ -1683,18 +2298,66 @@ const ASSESS=[
     {type:'fill',topic:'Mole → Mole',q:'2KClO₃ → 2KCl + 3O₂. If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced?',ans:'6.0',tol:0.1,unit:'mol',exp:'Step 1: Balanced equation = 2KClO₃ → 2KCl + 3O₂. Step 2: Mole Ratio = (3 moles O₂ / 2 moles KClO₃). Step 3: Formula = 4.0 mol KClO₃ × (3 mol O₂ / 2 mol KClO₃). Step 4: Cancel mol KClO₃. Step 5: Answer = 6.0 mol O₂. (Example Problem 2 from BSED Module.)'},
     {type:'fill',topic:'Mass → Mass',q:'2H₂ + O₂ → 2H₂O. If 10.0 g of H₂ reacts, how many grams of H₂O are formed? (H₂ = 2.016 g/mol, H₂O = 18 g/mol)',ans:'89.3',tol:1,unit:'g',exp:'Step 1: Balanced equation = 2H₂ + O₂ → 2H₂O. Step 2: Formula = grams H₂ → mol H₂ → mol H₂O → grams H₂O = 10.0 g H₂ × (1 mol H₂ / 2.016 g H₂) × (2 mol H₂O / 2 mol H₂) × (18 g H₂O / 1 mol H₂O). Step 3: Cancel g H₂, mol H₂, mol H₂O. Step 4: Answer = 89.3 g H₂O. (Example Problem 1 from BSED Module.)'},
   ]},
+  {id:'u4',title:'Unit 4 Assessment',sub:'Stoichiometry Calculations (4 Types)',hcls:'h3',
+   qs:[
+    {type:'mc',topic:'Problem Type ID',q:'A problem states: "N₂ + 3H₂ → 2NH₃. How many moles of NH₃ form from 9 moles of H₂?" What type is this?',opts:['Mass-to-Mass','Mole-to-Mole','Mass-to-Mole','Mole-to-Mass'],ans:1,exp:'Given: moles of H₂. Find: moles of NH₃. Both units are moles → Mole-to-Mole. Uses only the mole ratio (no molar mass conversion needed).'},
+    {type:'mc',topic:'Problem Type ID',q:'A problem states: "If 10.0 g of H₂ reacts with excess O₂, how many grams of H₂O are formed?" What type is this?',opts:['Mole-to-Mole','Mole-to-Mass','Mass-to-Mass','Mass-to-Mole'],ans:2,exp:'Given: grams of H₂. Find: grams of H₂O. Both units are grams → Mass-to-Mass. Requires 3 steps: g→mol, mole ratio, mol→g.'},
+    {type:'mc',topic:'Problem Type ID',q:'A problem states: "How many moles of O₂ are needed to react with 64 g of CH₄?" What type is this?',opts:['Mole-to-Mole','Mass-to-Mass','Mass-to-Mole','Mole-to-Mass'],ans:2,exp:'Given: grams of CH₄. Find: moles of O₂. grams → moles → Mass-to-Mole. Two steps: g→mol of given, then mole ratio to mol of unknown.'},
+    {type:'mc',topic:'Problem Type ID',q:'A problem states: "If 4.0 mol of KClO₃ decomposes, how many grams of O₂ are produced?" What type is this?',opts:['Mole-to-Mole','Mass-to-Mass','Mass-to-Mole','Mole-to-Mass'],ans:3,exp:'Given: moles of KClO₃. Find: grams of O₂. moles → grams → Mole-to-Mass. Two steps: mole ratio, then mol→g.'},
+    {type:'fill',topic:'Mole-to-Mole',q:'N₂ + 3H₂ → 2NH₃. Calculate moles of NH₃ from 9.0 mol H₂.',ans:'6.0',tol:0.1,unit:'mol',exp:'Mole ratio: 3 mol H₂ : 2 mol NH₃. Mol NH₃ = 9.0 × (2/3) = 6.0 mol NH₃.'},
+    {type:'fill',topic:'Mole-to-Mole',q:'2KClO₃ → 2KCl + 3O₂. How many moles of O₂ form from 4.0 mol KClO₃?',ans:'6.0',tol:0.1,unit:'mol',exp:'Mole ratio: 2 mol KClO₃ : 3 mol O₂. Mol O₂ = 4.0 × (3/2) = 6.0 mol O₂.'},
+    {type:'fill',topic:'Mass-to-Mass',q:'2H₂ + O₂ → 2H₂O. How many grams of H₂O form from 10.0 g H₂? (H₂=2 g/mol, H₂O=18 g/mol)',ans:'90',tol:1.5,unit:'g',exp:'10 g H₂ ÷ 2 = 5 mol H₂. Ratio 2:2 = 1:1 → 5 mol H₂O. 5 × 18 = 90 g H₂O.'},
+    {type:'fill',topic:'Mass-to-Mole',q:'2H₂ + O₂ → 2H₂O. How many moles of H₂O form from 36.0 g of H₂? (H₂=2.016 g/mol)',ans:'17.86',tol:0.5,unit:'mol',exp:'36.0 ÷ 2.016 = 17.86 mol H₂. Ratio 2H₂:2H₂O = 1:1 → 17.86 mol H₂O.'},
+    {type:'fill',topic:'Mole-to-Mass',q:'N₂ + 3H₂ → 2NH₃. How many grams of NH₃ form from 6.0 mol H₂? (NH₃=17.03 g/mol)',ans:'68.1',tol:1,unit:'g',exp:'6.0 mol H₂ × (2/3) = 4.0 mol NH₃. 4.0 × 17.03 = 68.1 g NH₃.'},
+    {type:'mc',topic:'Mole Ratio',q:'In the equation 4Fe + 3O₂ → 2Fe₂O₃, what is the mole ratio of Fe to Fe₂O₃?',opts:['1:1','2:1','4:2','3:2'],ans:2,exp:'Coefficients: Fe=4, Fe₂O₃=2. Ratio = 4:2 = 2:1 (can be simplified). For every 4 mol Fe, 2 mol Fe₂O₃ forms.'},
+    {type:'mc',topic:'Key Steps',q:'In a mass-to-mass stoichiometry calculation, the CORRECT order of steps is:',opts:['Mole ratio → g to mol → mol to g','g to mol → mole ratio → mol to g','mol to g → g to mol → mole ratio','Mole ratio → mol to g → g to mol'],ans:1,exp:'Always: (1) g given → mol given (divide by MM), (2) mol given → mol unknown (mole ratio), (3) mol unknown → g unknown (multiply by MM).'},
+    {type:'fill',topic:'Mole-to-Mass',q:'2KClO₃ → 2KCl + 3O₂. How many grams of O₂ form from 4.0 mol KClO₃? (O₂=32 g/mol)',ans:'192',tol:2,unit:'g',exp:'4.0 mol KClO₃ × (3/2) = 6.0 mol O₂. 6.0 × 32 = 192 g O₂.'},
+  ]},
 ];
+
+// ── Difficulty tags for each assessment unit
+const ASSESS_DIFF = { u1:'beg', u2:'beg', u3:'int', u4:'adv' };
+let activeDiff = 'all';
+let timedMode = false;
+let quizTimer = null;
+let timerSec = 60;
+
+function filterDiff(d){
+  activeDiff = d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('diff-'+d);
+  if(btn) btn.classList.add('active');
+  buildAssessCards();
+}
+
+function toggleTimedMode(){
+  timedMode = !timedMode;
+  const track=document.getElementById('timer-track');
+  const thumb=document.getElementById('timer-thumb');
+  if(track) track.style.background = timedMode ? 'var(--g600)' : 'var(--border)';
+  if(thumb) thumb.style.transform = timedMode ? 'translateX(18px)' : 'translateX(0)';
+}
 
 function buildAssessCards(){
   const c=document.getElementById('assess-cards');
-  c.innerHTML=ASSESS.map(a=>`<div class="ac" onclick="startQuiz('${a.id}')">
-    <div class="ach ${a.hcls}"><h3>${a.title}</h3><p>${a.sub}</p></div>
+  if(!c) return;
+  const filtered = activeDiff==='all' ? ASSESS : ASSESS.filter(a=>ASSESS_DIFF[a.id]===activeDiff);
+  if(filtered.length===0){
+    c.innerHTML=`<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">No assessments match this filter. Try a different difficulty level.</div>`;
+    return;
+  }
+  c.innerHTML=filtered.map(a=>{
+    const diff = ASSESS_DIFF[a.id];
+    const diffLabel = diff==='beg'?'🟢 Beginner':diff==='int'?'🟡 Intermediate':'🔴 Advanced';
+    return`<div class="ac" onclick="startQuiz('${a.id}')">
+    <div class="ach ${a.hcls}"><h3>${a.title}</h3><p>${a.sub}</p><div style="margin-top:7px"><span style="background:rgba(255,255,255,.2);color:#fff;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">${diffLabel}</span></div></div>
     <div class="acb">
       <div class="acm"><span>${a.qs.length} questions</span><span>${a.qs.filter(q=>q.type==='mc').length} MC · ${a.qs.filter(q=>q.type==='fill').length} Fill-in</span></div>
       <ul class="act">${[...new Set(a.qs.map(q=>q.topic))].slice(0,4).map(t=>`<li><span style="color:var(--g500);font-weight:600">✓</span>${t}</li>`).join('')}</ul>
       <button class="asb">Start Assessment</button>
     </div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
 }
 
 let quizUnit=null,qAns=[],qCur=0,qDone=false;
@@ -1703,8 +2366,25 @@ function startQuiz(id){
   qAns=quizUnit.qs.map(()=>null);qCur=0;qDone=false;
   document.getElementById('assess-hub').style.display='none';
   document.getElementById('quiz-view').style.display='block';
+  if(timedMode) startTimer();
   renderQuiz();
 }
+
+function startTimer(){
+  clearInterval(quizTimer);
+  timerSec = 60;
+  quizTimer = setInterval(()=>{
+    timerSec--;
+    const el=document.getElementById('quiz-timer-el');
+    if(el){
+      el.textContent='⏱ '+timerSec+'s remaining';
+      el.className='quiz-timer'+(timerSec<=10?' warn':'');
+    }
+    if(timerSec<=0){ clearInterval(quizTimer); qNav(1); }
+  },1000);
+}
+
+function stopTimer(){ clearInterval(quizTimer); quizTimer=null; }
 function renderQuiz(){
   const qv=document.getElementById('quiz-view');
   if(qDone){renderResult();return;}
@@ -1713,6 +2393,7 @@ function renderQuiz(){
   const ans=qAns[qCur];
   let h=`<div class="qwrap">
     <div class="qhdr"><h3>${a.title} — ${a.sub}</h3>
+      ${timedMode?`<div class="quiz-timer" id="quiz-timer-el">⏱ ${timerSec}s remaining</div>`:''}
       <div class="qpb"><div class="qpbf" style="width:${pct}%"></div></div>
       <div class="qmeta"><span>Question ${qCur+1} of ${tot}</span><span>${qAns.filter(x=>x!==null&&x!=='').length}/${tot} answered</span></div>
     </div>
@@ -1735,10 +2416,11 @@ function renderQuiz(){
   qv.innerHTML=h;
 }
 function qSel(i){qAns[qCur]=i;renderQuiz();}
-function qFill(v){qAns[qCur]=v;renderQuiz();}
-function qNav(d){qCur=Math.max(0,Math.min(quizUnit.qs.length-1,qCur+d));renderQuiz();}
-function qGoTo(i){qCur=i;renderQuiz();}
+function qFill(v){qAns[qCur]=v;}
+function qNav(d){qCur=Math.max(0,Math.min(quizUnit.qs.length-1,qCur+d));if(timedMode)startTimer();renderQuiz();}
+function qGoTo(i){qCur=i;if(timedMode)startTimer();renderQuiz();}
 function submitQuiz(){
+  stopTimer();
   const un=qAns.filter(x=>x===null||x==='').length;
   if(un>0&&!confirm(`${un} question(s) unanswered. Submit anyway?`))return;
   qDone=true;renderResult();
@@ -1785,7 +2467,7 @@ function renderResult(){
   document.getElementById('quiz-view').innerHTML=h;
 }
 function retryQuiz(){qAns=quizUnit.qs.map(()=>null);qCur=0;qDone=false;renderQuiz();}
-function backToHub(){document.getElementById('assess-hub').style.display='flex';document.getElementById('quiz-view').style.display='none';}
+function backToHub(){ stopTimer(); document.getElementById('assess-hub').style.display='flex';document.getElementById('quiz-view').style.display='none'; }
 
 // ═══════════════════════ PROBLEM SOLVER ═══════════════════════
 function setPracMode(mode){
@@ -1795,184 +2477,693 @@ function setPracMode(mode){
   document.getElementById('calc-mode-content').style.display = isPS ? 'none' : 'flex';
   document.getElementById('ps-mode-content').style.display = isPS ? 'flex' : 'none';
   if(isPS){
-    document.getElementById('calc-right').innerHTML = '<div class="waiting"><div class="wicon">📝</div><h3>Problem Solver</h3><p>Paste a word problem on the left and click "Analyze Problem". The system will extract the values and guide you through solving it step by step.</p></div>';
+    document.getElementById('calc-right').innerHTML = `<div class="waiting">
+      <div class="wicon">📝</div>
+      <h3>Problem Solver</h3>
+      <p>Paste any word problem on the left. The system will:<br>
+      <span style="display:block;margin-top:8px;font-size:11px;text-align:left;line-height:1.8">
+        ✅ Identify the problem type<br>
+        ✅ Extract the equation, given value &amp; unknown<br>
+        ✅ Open the right calculator pre-filled<br>
+        ✅ Guide you step by step with hints
+      </span></p>
+    </div>`;
   }
 }
 
 const PS_EXAMPLES = {
-  mole: 'If 4.0 moles of KClO₃ decompose, how many moles of O₂ are produced? The balanced equation is: 2KClO₃ → 2KCl + 3O₂',
-  mass: 'How many grams of CO₂ are produced when 44 grams of propane (C₃H₈) completely combusts? The equation is: C₃H₈ + 5O₂ → 3CO₂ + 4H₂O',
-  limiting: 'If 10 grams of H₂ reacts with 80 grams of O₂ to produce water (2H₂ + O₂ → 2H₂O), which is the limiting reactant and how many grams of water are produced?',
-  yield: 'In a reaction, the theoretical yield of CaCO₃ is 25 grams but only 19.5 grams were actually produced. What is the percent yield?',
-  empirical: 'A compound contains 40.0% carbon, 6.7% hydrogen, and 53.3% oxygen by mass. Determine the empirical formula.'
+  mole:    '6.0 moles of H2 react completely with N2 to form NH3. Calculate the amount of NH3 produced in moles.',
+  mass:    'Suppose 16 g of H2 react completely with N2 to form NH3. How many grams of NH3 will be formed?',
+  mass2mol:'How many moles of O2 are produced when 245 g of KClO3 decomposes? (2KClO3 → 2KCl + 3O2)',
+  mol2mass:'If 6.0 moles of H2 react with excess N2 to form NH3, how many grams of NH3 are produced?',
+  limiting:'N₂ + 3H₂ → 2NH₃. If 4 mol N₂ reacts with 9 mol H₂, which is the limiting reactant?',
+  yield:   'In a reaction, the theoretical yield is 36 g but only 30 g were actually produced. What is the percent yield?',
+  empirical:'A compound contains 40.0% carbon, 6.7% hydrogen, and 53.3% oxygen by mass. Determine the empirical formula.',
 };
 
 function fillPSExample(type){
   document.getElementById('ps-problem-input').value = PS_EXAMPLES[type];
 }
 
+// ── Known reactions database for auto equation display
+const KNOWN_REACTIONS = [
+  {patterns:[
+    /2?H[₂2]\s*\+\s*O[₂2]|H[₂2]\s+reacts?\s+with\s+o[x²]/i,
+    /hydrogen\s+(?:gas\s+)?reacts?\s+with\s+oxygen/i,
+    /hydrogen.*oxygen.*water|water\s+(?:is\s+)?(?:formed|produced)\s+from\s+hydrogen/i,
+    /hydrogen.*oxygen|oxygen.*hydrogen/i,
+    /water.*H[₂2]|H[₂2].*water/i
+  ], eq:'2H₂ + O₂ → 2H₂O', name:'Hydrogen combustion'},
+  {patterns:[
+    /N[₂2]\s*\+\s*H[₂2]|H[₂2].*NH[₃3]|NH[₃3].*H[₂2]/i,
+    /nitrogen\s+(?:gas\s+)?reacts?\s+with\s+hydrogen/i,
+    /hydrogen\s+(?:gas\s+)?reacts?\s+with\s+nitrogen/i,
+    /nitrogen.*hydrogen.*ammonia|ammonia.*(?:is\s+)?(?:formed|produced)\s+from\s+nitrogen/i,
+    /nitrogen.*hydrogen.*NH3|NH[₃3].*nitrogen|ammonia.*synthesis|ammonia.*N[₂2]/i
+  ], eq:'N₂ + 3H₂ → 2NH₃', name:'Ammonia synthesis'},
+  {patterns:[
+    /KClO[₃3]|potassium\s+chlorate/i,
+    /potassium\s+chlorate\s+decomposes?/i
+  ], eq:'2KClO₃ → 2KCl + 3O₂', name:'KClO₃ decomposition'},
+  {patterns:[
+    /C[₃3]H[₈8]|propane.*combustion|combustion.*propane/i,
+    /propane\s+(?:gas\s+)?(?:reacts?|burns?)\s+(?:with|in)\s+oxygen/i
+  ], eq:'C₃H₈ + 5O₂ → 3CO₂ + 4H₂O', name:'Propane combustion'},
+  {patterns:[
+    /CH[₄4]|methane.*combustion|combustion.*methane/i,
+    /methane\s+(?:gas\s+)?(?:reacts?|burns?)\s+(?:with|in)\s+oxygen/i
+  ], eq:'CH₄ + 2O₂ → CO₂ + 2H₂O', name:'Methane combustion'},
+  {patterns:[/C[₆6]H[₁2][₂6]O[₆]|glucose.*combustion|combustion.*glucose/i], eq:'C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O', name:'Glucose combustion'},
+  {patterns:[
+    /4?Fe\s*\+\s*O[₂2]|Fe[₂2]O[₃3]|iron.*oxide/i,
+    /iron\s+(?:metal\s+)?(?:reacts?|rusts?)\s+with\s+oxygen/i,
+    /iron.*oxygen/i
+  ], eq:'4Fe + 3O₂ → 2Fe₂O₃', name:'Iron oxidation'},
+  {patterns:[
+    /Zn\s*\+\s*HCl|ZnCl[₂2]/i,
+    /zinc\s+reacts?\s+with\s+hydrochloric|zinc.*hydrochloric/i
+  ], eq:'Zn + 2HCl → ZnCl₂ + H₂', name:'Zinc + HCl'},
+  {patterns:[/NaOH\s*\+\s*HCl|sodium\s+hydroxide.*hydrochloric|neutralization.*NaOH/i], eq:'NaOH + HCl → NaCl + H₂O', name:'Neutralization'},
+  {patterns:[
+    /CaCO[₃3].*decomp|decomp.*CaCO[₃3]|calcium\s+carbonate.*heat/i,
+    /calcium\s+carbonate\s+decomposes?/i
+  ], eq:'CaCO₃ → CaO + CO₂', name:'CaCO₃ decomposition'},
+  {patterns:[/H[₂2]O[₂2]|hydrogen\s+peroxide\s+decomp/i], eq:'2H₂O₂ → 2H₂O + O₂', name:'H₂O₂ decomposition'},
+  {patterns:[
+    /Mg\s*\+\s*O[₂2]|magnesium.*combustion/i,
+    /magnesium\s+(?:metal\s+)?(?:reacts?|burns?)\s+with\s+oxygen|magnesium.*oxygen/i
+  ], eq:'2Mg + O₂ → 2MgO', name:'Magnesium combustion'},
+  {patterns:[
+    /Na\s*\+\s*H[₂2]O/i,
+    /sodium\s+(?:metal\s+)?reacts?\s+with\s+water|sodium.*water/i
+  ], eq:'2Na + 2H₂O → 2NaOH + H₂', name:'Sodium + water'},
+  {patterns:[/C[₂2]H[₅5]OH|ethanol.*combustion|combustion.*ethanol/i], eq:'C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O', name:'Ethanol combustion'},
+  {patterns:[/CO[₂2].*lime|CaO.*CO[₂2]|calcium\s+oxide.*carbon\s+dioxide/i], eq:'CaO + CO₂ → CaCO₃', name:'CaO + CO₂'},
+];
+
+function detectKnownReaction(text){
+  for(const rxn of KNOWN_REACTIONS){
+    for(const pat of rxn.patterns){
+      if(pat.test(text)) return rxn;
+    }
+  }
+  // Also check if there's an explicit equation in the text
+  const eqMatch = text.match(/([\w\d₀₁₂₃₄₅₆₇₈₉\s()]+(?:\+[\w\d₀₁₂₃₄₅₆₇₈₉\s()]+)*→[\w\d₀₁₂₃₄₅₆₇₈₉\s()+]+)/);
+  if(eqMatch) return {eq: eqMatch[1].trim(), name:'From problem'};
+  return null;
+}
+
+// ── Intelligent Problem Classifier (NLP-like)
+function classifyProblem(text){
+  const lower = text.toLowerCase().trim();
+  const result = {
+    type: null, typeLabel: '', calcId: null,
+    given: [], find: '', equation: null,
+    hints: [], keywords: [], explanation: ''
+  };
+
+  // ══ SHORTHAND DETECTION ══════════════════════════════════════════════
+  // Handles labels like: "Helium (Mass to Mole)", "Zinc (Mole to Mass)",
+  // "H2O (Mass to Mass)", "Mass to Mole", standalone type labels, etc.
+  const ELEMENT_NAMES = {
+    'helium':'He','hydrogen':'H₂','oxygen':'O₂','nitrogen':'N₂','carbon':'C',
+    'iron':'Fe','zinc':'Zn','copper':'Cu','silver':'Ag','gold':'Au',
+    'sodium':'Na','potassium':'K','calcium':'Ca','magnesium':'Mg',
+    'aluminum':'Al','aluminium':'Al','chlorine':'Cl₂','fluorine':'F₂',
+    'sulfur':'S','sulphur':'S','phosphorus':'P','bromine':'Br₂','iodine':'I₂',
+    'neon':'Ne','argon':'Ar','lithium':'Li','beryllium':'Be','boron':'B',
+    'silicon':'Si','chromium':'Cr','manganese':'Mn','cobalt':'Co','nickel':'Ni',
+    'mercury':'Hg','lead':'Pb','tin':'Sn','barium':'Ba','strontium':'Sr',
+    'water':'H₂O','ammonia':'NH₃','carbon dioxide':'CO₂','carbon monoxide':'CO',
+    'methane':'CH₄','ethanol':'C₂H₅OH','glucose':'C₆H₁₂O₆','propane':'C₃H₈',
+    'salt':'NaCl','sodium chloride':'NaCl','common salt':'NaCl',
+    'sodium hydroxide':'NaOH','hydrochloric acid':'HCl',
+    'sulfuric acid':'H₂SO₄','sulphuric acid':'H₂SO₄','nitric acid':'HNO₃',
+    'calcium carbonate':'CaCO₃','calcium oxide':'CaO','iron oxide':'Fe₂O₃',
+    'magnesium oxide':'MgO','potassium chlorate':'KClO₃',
+    'hydrogen peroxide':'H₂O₂','acetic acid':'CH₃COOH',
+  };
+
+  // Helper: resolve substance name → chemical symbol
+  function resolveSubstance(name){
+    const n = name.trim().toLowerCase();
+    if(ELEMENT_NAMES[n]) return ELEMENT_NAMES[n];
+    // Check multi-word names
+    for(const [k,v] of Object.entries(ELEMENT_NAMES)){
+      if(n===k||n.includes(k)) return v;
+    }
+    // Normalize ASCII digits in formula to Unicode subscripts for display
+    if(/^[A-Z]/.test(name.trim())){
+      return name.trim().replace(/(\d+)/g, d => '₀₁₂₃₄₅₆₇₈₉'.split('').reduce((s,c,i)=>s.replace(new RegExp(i,'g'),c), d));
+    }
+    return null;
+  }
+
+  // Helper: parse type keyword from shorthand
+  function parseTypeShorthand(typeStr){
+    const t = typeStr.toLowerCase().replace(/[\s\-–_]+/g,' ').trim();
+    const hasMass1 = t.startsWith('mass');
+    const hasMol1  = t.startsWith('mol');
+    const hasMass2 = /mass$/.test(t);
+    const hasMol2  = /mol(e)?s?$/.test(t);
+    if(hasMass1 && hasMol2) return 'mass2mol';
+    if(hasMol1  && hasMass2) return 'mol2mass';
+    if(hasMass1 && hasMass2) return 'mass2mass';
+    if(hasMol1  && hasMol2)  return 'mol2mol';
+    return null;
+  }
+
+  // Pattern A: "SubstanceName (Type)" e.g. "Helium (Mass to Mole)"
+  const patA = text.trim().match(/^(.{1,40}?)\s*\(\s*((?:mass|mol(?:es?)?)[\s\-–to]+(?:mass|mol(?:es?)?))\s*\)$/i);
+  // Pattern B: standalone type label with optional substance before/after
+  // e.g. "Mass to Mole", "Mole-to-Mass", "Mass-Mass"
+  const patB = text.trim().match(/^(?:(.{1,40}?)\s+)?(?:for\s+|of\s+)?(mass\s*(?:to|[-–])\s*mol(?:es?)?|mol(?:es?)?\s*(?:to|[-–])\s*mass|mass\s*(?:to|[-–])\s*mass|mol(?:es?)?\s*(?:to|[-–])\s*mol(?:es?)?)\s*(?:\s+(?:for\s+|of\s+)?(.{1,30}))?$/i);
+
+  let shMatch = null, shTypePart = null, shSubPart = null;
+  if(patA){ shSubPart = patA[1]; shTypePart = patA[2]; }
+  else if(patB){ shSubPart = patB[1]||patB[3]||''; shTypePart = patB[2]; }
+
+  if(shTypePart){
+    const typeKey = parseTypeShorthand(shTypePart);
+    const formula = shSubPart ? resolveSubstance(shSubPart) : null;
+    const subLabel = formula ? ` of ${formula}` : '';
+
+    let type, typeLabel, calcId, explanation, hints, find;
+    if(typeKey==='mass2mol'){
+      type='grams-moles'; typeLabel='Mass-to-Mole (Simple)'; calcId='grams-moles';
+      find=`Moles${subLabel}`;
+      explanation=`Convert grams${subLabel} → moles${subLabel}.\nFormula: moles = grams ÷ molar mass\nNo balanced equation needed — only the molar mass of the substance.`;
+      hints=[`Look up the molar mass of ${formula||'the substance'} from the periodic table.`,'Divide the given grams by the molar mass.','The result is in moles.'];
+    } else if(typeKey==='mol2mass'){
+      type='grams-moles'; typeLabel='Mole-to-Mass (Simple)'; calcId='grams-moles';
+      find=`Grams${subLabel}`;
+      explanation=`Convert moles${subLabel} → grams${subLabel}.\nFormula: grams = moles × molar mass\nNo balanced equation needed — only the molar mass of the substance.`;
+      hints=[`Look up the molar mass of ${formula||'the substance'} from the periodic table.`,'Multiply the given moles by the molar mass.','The result is in grams.'];
+    } else if(typeKey==='mass2mass'){
+      type='sc-mass2mass'; typeLabel='Mass-to-Mass Conversion'; calcId='sc-mass2mass';
+      find='Grams of product';
+      explanation='Convert grams of given substance → grams of unknown substance.\nThree bridges: g A → mol A (÷MM) → mol B (×ratio) → g B (×MM)';
+      hints=['Step 1: Convert grams to moles of given (÷ molar mass).','Step 2: Apply mole ratio from balanced equation.','Step 3: Convert moles of product to grams (× molar mass).'];
+    } else if(typeKey==='mol2mol'){
+      type='sc-mol2mol'; typeLabel='Mole-to-Mole Conversion'; calcId='sc-mol2mol';
+      find='Moles of product';
+      explanation='Convert moles of given substance → moles of unknown substance.\nFormula: mol B = mol A × (coeff B ÷ coeff A)\nOnly the mole ratio from the balanced equation is needed.';
+      hints=['Write the balanced chemical equation.','Identify the coefficients of both substances.','Multiply given moles × (coeff of unknown ÷ coeff of given).'];
+    }
+
+    if(type){
+      result.type=type; result.typeLabel=typeLabel; result.calcId=calcId;
+      result.find=find; result.explanation=explanation; result.hints=hints;
+      // Store substance as a display hint (null value = not yet specified by user)
+      if(formula) result.given=[{value:null, unit:typeKey.startsWith('mass')?'g':'mol', substance:formula, isHint:true}];
+      result._shorthand = true;
+      result._formula = formula;
+      result._typeKey = typeKey;
+      return result;
+    }
+  }
+  // ══ END SHORTHAND DETECTION ══════════════════════════════════════════
+
+  // --- Extract numeric values with units ---
+  const numPattern = /(\d+\.?\d*)\s*(grams?|g\b|moles?|mol\b|%|percent)/gi;
+  let m;
+  while((m = numPattern.exec(text)) !== null){
+    const unit = m[2].toLowerCase().startsWith('g')?'g':'mol';
+    // Find substance near this match
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 40);
+    const subMatch = after.match(/^\s*(?:of\s+)?([A-Z][a-zA-Z₀₁₂₃₄₅₆₇₈₉\d()]{0,15})/);
+    result.given.push({value: parseFloat(m[1]), unit, substance: subMatch?subMatch[1].trim():''});
+  }
+
+  // --- Keyword detection ---
+  if(/limiting\s+reactant|which\s+(is\s+)?(the\s+)?limit|runs\s+out\s+first/i.test(lower)) result.keywords.push('limiting reactant');
+  if(/excess\s+reactant|in\s+excess|left\s+over/i.test(lower)) result.keywords.push('excess reactant');
+  if(/percent\s+yield|%\s+yield|actual\s+yield.*theoretical|theoretical.*actual/i.test(lower)) result.keywords.push('percent yield');
+  if(/theoretical\s+yield|max.*product|maximum.*product/i.test(lower)) result.keywords.push('theoretical yield');
+  if(/empirical\s+formula|simplest\s+(whole.number\s+)?ratio/i.test(lower)) result.keywords.push('empirical formula');
+  if(/molar\s+mass|formula\s+weight|molecular\s+weight/i.test(lower)) result.keywords.push('molar mass');
+  if(/percent\s+composition|%\s+composition|mass\s+percent/i.test(lower)) result.keywords.push('percent composition');
+
+  // --- Chemical formulas in text ---
+  const fmatch = text.match(/[A-Z][a-z]?(?:[₀₁₂₃₄₅₆₇₈₉]|\d)+(?:\([A-Za-z]+\)(?:[₀₁₂₃₄₅₆₇₈₉]|\d)*)*/g) || [];
+  const allFormulas = [...new Set(fmatch)];
+
+  // --- CLASSIFICATION LOGIC (priority order) ---
+  // 1. Percent Yield (must check before theoretical)
+  if(/percent\s+yield|%\s+yield/i.test(lower)){
+    result.type='yield'; result.typeLabel='Percent Yield'; result.calcId='pct-yield';
+    result.find='Percent yield (%)';
+    result.explanation='This is a Percent Yield problem. You are comparing actual yield to theoretical yield.\nFormula: % Yield = (Actual ÷ Theoretical) × 100%';
+    result.hints=['Identify: which value is "actual" and which is "theoretical".','Apply: % Yield = (Actual Yield ÷ Theoretical Yield) × 100%','Remember: percent yield is always ≤ 100% in a real experiment.'];
+    return result;
+  }
+
+  // 2. Limiting Reactant
+  if(/limiting\s+reactant|which\s+(?:is\s+)?(?:the\s+)?limiting|identify\s+(?:the\s+)?limiting/i.test(lower)){
+    result.type='limiting'; result.typeLabel='Limiting Reactant'; result.calcId='limiting';
+    result.find='Limiting reactant identification';
+    result.explanation='This is a Limiting Reactant problem. You need to find which reactant runs out first.\nMethod: Divide available moles by the coefficient in the balanced equation. The smallest ratio = limiting reactant.';
+    result.hints=['Convert all amounts to moles first.','Divide each reactant\'s moles by its coefficient from the balanced equation.','The reactant with the smallest result is the limiting reactant.'];
+    return result;
+  }
+
+  // 3. Theoretical Yield
+  if(/theoretical\s+yield|maximum\s+(?:amount\s+of\s+)?product/i.test(lower)){
+    result.type='mole-ratio'; result.typeLabel='Theoretical Yield'; result.calcId='theoretical';
+    result.find='Theoretical yield (maximum product)';
+    result.explanation='This is a Theoretical Yield problem. Calculate the maximum product from the limiting reactant.\nMethod: mol given → mole ratio → mol product → grams product';
+    result.hints=['Identify the limiting reactant first.','Use the mole ratio from the balanced equation.','Convert moles of product to grams using its molar mass.'];
+    return result;
+  }
+
+  // 4. Empirical Formula
+  if(/empirical\s+formula|simplest\s+ratio/i.test(lower)){
+    result.type='empirical'; result.typeLabel='Empirical Formula'; result.calcId='empirical';
+    result.find='Empirical formula';
+    result.explanation='This is an Empirical Formula problem. Find the simplest whole-number ratio of atoms.\nMethod: % → g (assume 100g) → mol (÷ MM) → divide by smallest → whole-number ratio';
+    result.hints=['Assume 100g sample so percentages become grams.','Divide each element\'s mass by its atomic mass to get moles.','Divide all moles by the smallest value to get the ratio.'];
+    return result;
+  }
+
+  // 5. Molar Mass
+  if(/molar\s+mass|formula\s+weight/i.test(lower) && !/how\s+many\s+grams|how\s+many\s+moles/i.test(lower)){
+    result.type='molar-mass'; result.typeLabel='Molar Mass Calculation'; result.calcId='molar-mass';
+    result.find='Molar mass (g/mol)';
+    result.explanation='This is a Molar Mass problem.\nFormula: Molar mass = Σ (count × atomic mass) for each element';
+    result.hints=['Identify all elements and their counts.','Multiply each element\'s count by its atomic mass.','Add all contributions together.'];
+    return result;
+  }
+
+  // 6. Percent Composition
+  if(/percent\s+composition|%\s+composition/i.test(lower)){
+    result.type='pct-comp'; result.typeLabel='Percent Composition'; result.calcId='pct-comp';
+    result.find='Percent by mass of each element';
+    result.explanation='This is a Percent Composition problem.\nFormula: % element = (mass of element in 1 mol ÷ molar mass) × 100%';
+    result.hints=['Calculate the molar mass of the compound first.','For each element: (count × atomic mass) ÷ total molar mass × 100%.','All percentages should sum to ~100%.'];
+    return result;
+  }
+
+  // 7. Mole-to-Mole
+  const hasMoleGiven = /(\d+\.?\d*)\s*(moles?|mol\b)/i.test(text);
+  const asksForMoles = /how\s+many\s+moles|(?:find|calculate|determine)\s+(?:the\s+)?(?:number\s+of\s+)?moles|to\s+moles?|in\s+moles?|convert.*mol|amount.*(?:in\s+)?moles?|produced\s+in\s+moles|formed\s+in\s+moles|moles?\s+(?:of\s+\w+\s+)?(?:produced|formed|will\s+be)|the\s+amount\s+of\s+\w+\s+produced\s+in\s+moles/i.test(lower);
+  const asksForGrams = /how\s+many\s+grams|(?:find|calculate|determine)\s+(?:the\s+)?(?:mass|grams?)|to\s+grams?|in\s+grams?|convert.*gram|amount.*(?:in\s+)?grams?|grams?\s+(?:of\s+\w+\s+)?(?:produced|formed|will\s+be)|will\s+be\s+formed/i.test(lower);
+  const hasGramGiven = /(\d+\.?\d*)\s*(grams?|g\b)/i.test(text);
+  // hasEquation: explicit arrow OR balanced-equation keyword OR a known reaction is detectable from the substances mentioned
+  const hasEquation = /→/.test(text)
+    || /balanced\s+equation|chemical\s+equation/i.test(lower)
+    || !!(detectKnownReaction(text));
+
+  if(hasMoleGiven && asksForMoles && hasEquation){
+    result.type='sc-mol2mol'; result.typeLabel='Mole-to-Mole Conversion'; result.calcId='sc-mol2mol';
+    result.find='Moles of product or reactant';
+    result.explanation='This is a Mole-to-Mole problem. You are given moles of one substance and need moles of another.\nFormula: mol B = mol A × (coeff B ÷ coeff A)';
+    result.hints=['Identify the mole ratio from the balanced equation (coefficients).','No molar mass needed — just use the ratio.','Set up: given moles × (coeff of unknown ÷ coeff of given).'];
+    return result;
+  }
+
+  // 8. Mass-to-Mass
+  if(hasGramGiven && asksForGrams && hasEquation){
+    result.type='sc-mass2mass'; result.typeLabel='Mass-to-Mass Conversion'; result.calcId='sc-mass2mass';
+    result.find='Grams of product or reactant';
+    result.explanation='This is a Mass-to-Mass problem. You are given grams of one substance and need grams of another.\nThree steps: g A → mol A → mol B → g B';
+    result.hints=['Step 1: Convert given grams to moles using molar mass of the given substance.','Step 2: Apply mole ratio from balanced equation.','Step 3: Convert moles of product to grams using its molar mass.'];
+    return result;
+  }
+
+  // 9. Mass-to-Mole
+  if(hasGramGiven && asksForMoles && hasEquation){
+    result.type='sc-mass2mol'; result.typeLabel='Mass-to-Mole Conversion'; result.calcId='sc-mass2mol';
+    result.find='Moles of product or reactant';
+    result.explanation='This is a Mass-to-Mole problem. You are given grams of one substance and need moles of another.\nTwo steps: g A → mol A → mol B';
+    result.hints=['Step 1: Divide given grams by the molar mass of the given substance.','Step 2: Multiply by the mole ratio (coeff of unknown ÷ coeff of given).','No final molar mass conversion needed — stop at moles.'];
+    return result;
+  }
+
+  // 10. Mole-to-Mass
+  if(hasMoleGiven && asksForGrams && hasEquation){
+    result.type='sc-mol2mass'; result.typeLabel='Mole-to-Mass Conversion'; result.calcId='sc-mol2mass';
+    result.find='Grams of product or reactant';
+    result.explanation='This is a Mole-to-Mass problem. You are given moles of one substance and need grams of another.\nTwo steps: mol A → mol B → g B';
+    result.hints=['Step 1: Apply the mole ratio (coeff of unknown ÷ coeff of given).','Step 2: Multiply moles of product by its molar mass.','The molar mass of the unknown is the final conversion factor.'];
+    return result;
+  }
+
+  // 11. Simple Grams → Moles (no equation needed)
+  if(hasGramGiven && asksForMoles && !hasEquation){
+    result.type='grams-moles'; result.typeLabel='Mass-to-Mole (Simple)'; result.calcId='grams-moles';
+    result.find='Moles of the substance';
+    result.explanation='This is a simple Grams → Moles conversion. No balanced equation needed.\nFormula: moles = grams ÷ molar mass';
+    result.hints=['Calculate the molar mass of the substance first.','Divide the given grams by the molar mass.','The result is in moles.'];
+    return result;
+  }
+
+  // 12. Simple Moles → Grams (no equation needed)
+  if(hasMoleGiven && asksForGrams && !hasEquation){
+    result.type='grams-moles'; result.typeLabel='Mole-to-Mass (Simple)'; result.calcId='grams-moles';
+    result.find='Grams of the substance';
+    result.explanation='This is a simple Moles → Grams conversion. No balanced equation needed.\nFormula: grams = moles × molar mass';
+    result.hints=['Find the molar mass of the substance.','Multiply the given moles by the molar mass.','The result is in grams.'];
+    return result;
+  }
+
+  // 13. REACTION DESCRIPTION — no numbers, but a known reaction is described
+  // e.g. "Nitrogen gas reacts with hydrogen gas to produce ammonia."
+  const rxnDesc = detectKnownReaction(text);
+  if(rxnDesc && result.given.length === 0){
+    result.type = 'reaction-desc';
+    result.typeLabel = 'Reaction Identified';
+    result.calcId = null;
+    result._reaction = rxnDesc;
+    result.find = 'Choose calculation type below';
+    result.explanation = `Recognized reaction: ${rxnDesc.name}\nBalanced equation: ${rxnDesc.eq}\n\nChoose what you want to calculate:`;
+    result.hints = [
+      'Mole-to-Mole: given moles of one substance, find moles of another.',
+      'Mass-to-Mass: given grams of one substance, find grams of another.',
+      'Mass-to-Mole: given grams of one substance, find moles of another.',
+      'Mole-to-Mass: given moles of one substance, find grams of another.',
+    ];
+    return result;
+  }
+
+  // Fallback: return null if unclassified
+  return result;
+}
+
+// Global store for last Problem Solver extraction — used to pre-fill the calculator
+let _lastExtraction = null;
+
 function analyzeProblem(){
   const text = document.getElementById('ps-problem-input').value.trim();
   if(!text){ alert('Please enter a word problem first.'); return; }
-  const parsed = parseProblemText(text);
-  if(!parsed.type){
-    document.getElementById('calc-right').innerHTML = '<div style="padding:40px 24px;text-align:center"><div style="font-size:48px;margin-bottom:12px">⚠️</div><h3 style="color:var(--dark);margin-bottom:8px">Could Not Detect Problem Type</h3><p style="color:var(--muted);font-size:13px;line-height:1.65;max-width:380px;margin:0 auto">Make sure your problem includes:<br>• Chemical formulas (e.g., H₂O, CO₂)<br>• Numbers with units (grams, moles, %)<br>• A clear question or goal</p></div>';
+
+  // Step 1: classify the problem type
+  const result = classifyProblem(text);
+
+  // Step 2: extract concrete values using the unified extractor
+  const extraction = extractProblemData(text, result.calcId);
+
+  // Step 3: store for auto-fill when opening calculator
+  _lastExtraction = { extraction, calcId: result.calcId };
+
+  // Step 4: render everything
+  renderAnalysis(result, extraction, text);
+}
+
+function renderAnalysis(result, extraction, originalText){
+  const right = document.getElementById('calc-right');
+  if(!result.type){
+    right.innerHTML = `<div style="padding:40px 24px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">⚠️</div>
+      <h3 style="color:var(--dark);margin-bottom:8px">Problem Type Not Detected</h3>
+      <p style="color:var(--muted);font-size:13px;line-height:1.65;max-width:380px;margin:0 auto">
+        Make sure your problem includes a clear question (how many moles/grams…?),
+        numbers with units, chemical formulas, and keywords like "limiting reactant" or "percent yield".</p>
+      <div style="margin-top:14px;font-size:12px;color:var(--muted)">Try one of the Quick Examples on the left.</div>
+    </div>`;
     return;
   }
-  showAnalysisSteps(parsed, text);
-}
 
-function showAnalysisSteps(parsed, originalText){
-  const html = '<div style="padding:20px;overflow-y:auto;height:100%"><div style="text-align:center;margin-bottom:20px"><div style="width:56px;height:56px;background:var(--g800);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px">✓</div><h3 style="color:var(--dark);margin-bottom:4px">Problem Analysis Complete</h3><p style="font-size:12px;color:var(--muted)">Here\'s how I identified your problem step by step</p></div><div class="step-card"><div class="step-num">STEP 1</div><h4 class="step-title">📖 Read the Problem</h4><div class="step-content"><div style="background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.6;margin-bottom:8px">"' + originalText.substring(0, 200) + (originalText.length > 200 ? '...' : '') + '"</div><div class="step-note">✓ Problem text captured</div></div></div><div class="step-card"><div class="step-num">STEP 2</div><h4 class="step-title">🔍 Identify Keywords & Patterns</h4><div class="step-content">' + getKeywordsHTML(parsed, originalText) + '</div></div><div class="step-card"><div class="step-num">STEP 3</div><h4 class="step-title">📊 Extract Given Values</h4><div class="step-content">' + getExtractedHTML(parsed, originalText) + '</div></div><div class="step-card"><div class="step-num">STEP 4</div><h4 class="step-title">🎯 Determine Problem Type</h4><div class="step-content"><div class="detected-type">' + parsed.typeLabel + '</div><div class="step-note">This is a <strong>' + parsed.typeLabel + '</strong> problem</div></div></div><div class="step-card" style="background:linear-gradient(135deg,var(--g50),var(--y50));border-color:var(--g200)"><div class="step-num">STEP 5</div><h4 class="step-title">👉 What to Do Next</h4><div class="step-content"><p style="font-size:12px;line-height:1.65;color:var(--text);margin-bottom:10px">Now that you understand the problem, <strong>switch to the Calculators tab</strong> and select the <strong>' + parsed.typeLabel + '</strong> calculator.</p><div style="background:#fff;border:.5px solid var(--g200);border-radius:7px;padding:9px 12px;font-size:11px;color:var(--muted);line-height:1.6">💡 <strong>Hint:</strong> Input the values we extracted above into the calculator fields, then click "Start Solving" for step-by-step guidance.</div><button class="btn btn-g" style="width:100%;margin-top:12px;font-size:13px" onclick="goToCalcFor(\'' + parsed.type + '\')">Open ' + parsed.typeLabel + ' Calculator →</button></div></div></div>';
-  psAnalysisHTML = html; // Save the analysis
-  document.getElementById('calc-right').innerHTML = html;
-}
-
-function getKeywordsHTML(parsed, text){
-  const keywords = [];
-  const lower = text.toLowerCase();
-  if(/limiting\s+reactant|which\s+(is\s+)?limiting|excess/i.test(lower)) keywords.push('"limiting reactant"', '"excess"', '"which is limiting"');
-  if(/percent\s+yield|%\s+yield/i.test(lower)) keywords.push('"percent yield"', '"% yield"');
-  if(/empirical\s+formula/i.test(lower)) keywords.push('"empirical formula"');
-  if(/how\s+many\s+moles/i.test(lower)) keywords.push('"how many moles"', '"produced"', '"formed"');
-  if(/how\s+many\s+grams/i.test(lower)) keywords.push('"how many grams"');
-  if(/theoretical|actual/i.test(lower)) keywords.push('"theoretical"', '"actual"');
-  
-  // Fixed: Better chemical formula detection
-  const commonWords = ['if', 'of', 'the', 'how', 'many', 'what', 'when', 'where', 'which', 'who', 'why', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'to', 'in', 'for', 'on', 'at', 'by', 'from', 'as', 'or', 'and', 'but', 'not'];
-  const formulas = text.match(/[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]+/g) || []; // Must have numbers/subscripts
-  const uniqueFormulas = [...new Set(formulas)].filter(f => {
-    const lower = f.toLowerCase();
-    return f.length > 1 && !commonWords.includes(lower) && /[₀₁₂₃₄₅₆₇₈₉\d]/.test(f); // Must contain at least one digit
-  });
-  
-  let html = '<div class="keyword-list">';
-  if(keywords.length > 0){
-    html += '<div style="margin-bottom:6px"><strong>Keywords found:</strong></div>';
-    keywords.forEach(kw => { html += '<span class="keyword-pill">' + kw + '</span>'; });
+  // ── Special UI for reaction-description-only (no numbers, no type hint)
+  if(result.type === 'reaction-desc'){
+    const rxn = result._reaction;
+    right.innerHTML = `<div style="padding:18px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:0">
+      <div class="ps-type-badge" style="background:linear-gradient(135deg,var(--g800),#1E40AF)">⚗️ Reaction Identified: ${rxn.name}</div>
+      <div class="beq-reveal">
+        <div class="beq-reveal-lbl">⚗️ Balanced Chemical Equation</div>
+        <div class="beq-reveal-formula">${rxn.eq}</div>
+        <div class="beq-reveal-note">This is the balanced equation for <strong>${rxn.name}</strong>. The coefficients are the mole ratios you will use in your calculation.</div>
+      </div>
+      <div class="ps-section">
+        <div class="ps-section-lbl">📖 Problem Statement</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.65;background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:10px 12px">"${originalText.substring(0,280)}${originalText.length>280?'…':''}"</div>
+      </div>
+      <div class="ps-section">
+        <div class="ps-section-lbl">❓ What do you want to calculate?</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px">The reaction is identified. Choose the type of stoichiometry calculation:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn btn-g" style="flex-direction:column;gap:3px;padding:12px 8px;text-align:center" onclick="openCalcWithEq('sc-mol2mol','${rxn.eq.replace(/'/g,"\\'")}')">
+            <span style="font-size:16px">⚛</span>
+            <span style="font-size:12px;font-weight:700">Mole-to-Mole</span>
+            <span style="font-size:10px;opacity:.8">mol A → mol B</span>
+          </button>
+          <button class="btn btn-g" style="flex-direction:column;gap:3px;padding:12px 8px;text-align:center" onclick="openCalcWithEq('sc-mass2mass','${rxn.eq.replace(/'/g,"\\'")}')">
+            <span style="font-size:16px">⚖</span>
+            <span style="font-size:12px;font-weight:700">Mass-to-Mass</span>
+            <span style="font-size:10px;opacity:.8">g A → g B</span>
+          </button>
+          <button class="btn btn-g" style="flex-direction:column;gap:3px;padding:12px 8px;text-align:center" onclick="openCalcWithEq('sc-mass2mol','${rxn.eq.replace(/'/g,"\\'")}')">
+            <span style="font-size:16px">🔄</span>
+            <span style="font-size:12px;font-weight:700">Mass-to-Mole</span>
+            <span style="font-size:10px;opacity:.8">g A → mol B</span>
+          </button>
+          <button class="btn btn-g" style="flex-direction:column;gap:3px;padding:12px 8px;text-align:center" onclick="openCalcWithEq('sc-mol2mass','${rxn.eq.replace(/'/g,"\\'")}')">
+            <span style="font-size:16px">📐</span>
+            <span style="font-size:12px;font-weight:700">Mole-to-Mass</span>
+            <span style="font-size:10px;opacity:.8">mol A → g B</span>
+          </button>
+        </div>
+        <div style="margin-top:12px;padding:9px 12px;background:var(--y50);border:.5px solid var(--y100);border-radius:8px;font-size:11px;color:#92400E;line-height:1.6">
+          💡 Click any button above — the calculator will open with the balanced equation pre-filled. Just enter the given amount and unknown substance to start solving.
+        </div>
+      </div>
+    </div>`;
+    return;
   }
-  if(uniqueFormulas.length > 0){
-    html += '<div style="margin-top:8px;margin-bottom:6px"><strong>Chemical formulas found:</strong></div>';
-    uniqueFormulas.slice(0, 5).forEach(f => { html += '<span class="keyword-pill">' + f + '</span>'; });
-  }
-  html += '</div><div class="step-note">✓ Keywords matched to stoichiometry concepts</div>';
-  return html;
-}
 
-function getExtractedHTML(parsed, text){
-  let html = '';
-  if(parsed.extractedValues && parsed.extractedValues.length > 0){
-    html += '<div class="extracted-values">';
-    parsed.extractedValues.forEach(val => {
-      let displayText = '';
-      if(val.status === 'excess'){
-        displayText = `${val.substance} (in excess)`;
-      } else {
-        displayText = `${val.value} ${val.unit} of ${val.substance}`;
-      }
-      html += '<div class="value-row"><span class="value-icon">📌</span><span class="value-text">' + displayText + '</span></div>';
-    });
-    html += '</div><div class="step-note">✓ Extracted ' + parsed.extractedValues.length + ' value(s) with substances</div>';
+  const ex = extraction || {};
+  const isScType = result.calcId && result.calcId.startsWith('sc-');
+
+  // ── Equation panel
+  const eqStr = ex.eq || '';
+  const rxnHTML = eqStr ? `<div class="beq-reveal">
+    <div class="beq-reveal-lbl">⚗️ Balanced Chemical Equation</div>
+    <div class="beq-reveal-formula">${eqStr}</div>
+    <div class="beq-reveal-note">The coefficients are the mole ratios for your calculation.</div>
+  </div>` : '';
+
+  // ── Extracted values panel (smart, with actual numbers)
+  const isShorthand = result._shorthand;
+  const isAllGood = !isShorthand && isScType && ex.allFound && (!ex.warnings||ex.warnings.length===0);
+  const isPartial = !isShorthand && isScType && (ex.givenT || ex.findSub);
+
+  let valuesHTML = '';
+  if(isShorthand){
+    // Shorthand mode: substance known but no amount given yet
+    const formula = result._formula;
+    const unitWord = (result._typeKey||'').startsWith('mass') ? 'grams' : 'moles';
+    valuesHTML = `
+      ${formula ? `<div class="ps-row">
+        <span class="ps-row-icon">🧪</span>
+        <div class="ps-row-text"><div class="ps-row-label">Substance detected</div><strong>${formula}</strong></div>
+      </div>` : ''}
+      <div class="ps-row">
+        <span class="ps-row-icon">🔍</span>
+        <div class="ps-row-text"><div class="ps-row-label">Find</div><strong>${result.find}</strong></div>
+      </div>
+      <div style="margin-top:9px;padding:9px 12px;background:var(--y50);border:.5px solid var(--y100);border-radius:8px;font-size:11px;color:#92400E;line-height:1.65">
+        📝 <strong>Amount not given.</strong> Open the calculator below and enter the specific ${unitWord} value${formula?' of '+formula:''}, then click <strong>Start Solving →</strong>
+      </div>`;
+  } else if(isScType && ex.givenT){
+    const givenUnit = ex.givenT.unit==='g' ? 'grams' : 'moles';
+    const findUnit  = ex.wantFindUnit==='g' ? 'grams' : 'moles';
+    valuesHTML = `
+      <div class="ps-row">
+        <span class="ps-row-icon">📌</span>
+        <div class="ps-row-text">
+          <div class="ps-row-label">Given (extracted)</div>
+          <strong>${ex.givenT.value} ${givenUnit} of ${ex.givenT.sub}</strong>
+        </div>
+      </div>
+      <div class="ps-row">
+        <span class="ps-row-icon">🔍</span>
+        <div class="ps-row-text">
+          <div class="ps-row-label">Find (extracted)</div>
+          <strong>${ex.findSub ? findUnit+' of '+ex.findSub : result.find}</strong>
+        </div>
+      </div>
+      ${ex.warnings&&ex.warnings.length ? `<div style="font-size:11px;color:#92400E;margin-top:5px;padding:5px 8px;background:var(--y50);border-radius:5px">⚠️ ${ex.warnings.join(' · ')}</div>` : ''}`;
   } else {
-    html += '<div class="step-note" style="color:var(--muted)">No values extracted</div>';
+    const rawTriplets = ex.triplets && ex.triplets.length > 0
+      ? ex.triplets.slice(0,3).map(g=>`<div class="ps-row">
+          <span class="ps-row-icon">📌</span>
+          <div class="ps-row-text"><div class="ps-row-label">Value found</div>${g.value} ${g.unit} of ${g.sub}</div>
+        </div>`).join('')
+      : `<div class="ps-row"><span class="ps-row-icon">ℹ️</span><div class="ps-row-text" style="color:var(--muted)">No numeric values extracted — enter them manually in the calculator.</div></div>`;
+    valuesHTML = rawTriplets + `<div class="ps-row" style="margin-top:6px">
+      <span class="ps-row-icon">🔍</span>
+      <div class="ps-row-text"><div class="ps-row-label">Find</div><strong>${result.find}</strong></div>
+    </div>`;
   }
-  if(parsed.equation){
-    html += '<div style="margin-top:10px"><strong>Equation:</strong></div><div style="background:var(--g50);border:.5px solid var(--g200);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--dark);font-family:monospace;margin-top:4px">' + parsed.equation + '</div>';
-  }
-  return html;
+
+  // ── Confidence badge
+  const confBadge = isShorthand
+    ? `<div style="margin-bottom:9px;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:600;background:#EFF6FF;color:#1E40AF;border:.5px solid #93C5FD">
+        🏷️ Shorthand label detected — type and substance identified. Enter the specific amount in the calculator.
+      </div>`
+    : isScType ? `<div style="margin-bottom:9px;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:600;${isAllGood?'background:#F0FDF4;color:#166534;border:.5px solid #86EFAC':isPartial?'background:var(--y50);color:var(--y600);border:.5px solid var(--y100)':'background:#FEF2F2;color:#991B1B;border:.5px solid #FCA5A5'}">
+        ${isAllGood?'✅ All values extracted — calculator will be pre-filled automatically':isPartial?'⚠️ Partially extracted — verify fields in the calculator':'❌ Values not extracted — enter them manually in the calculator'}
+      </div>` : '';
+
+  // ── Steps
+  const steps = buildTextualSolution(result);
+  const solutionHTML = steps.length > 0 ? `<div class="ps-section">
+    <div class="ps-section-lbl">📐 Step-by-Step Approach</div>
+    ${steps.map((s,i)=>`<div class="ps-step-block">
+      <div class="ps-step-num">${i+1}</div>
+      <div class="ps-step-content">${s}</div>
+    </div>`).join('')}
+  </div>` : '';
+
+  // ── Hints
+  const hintsHTML = (result.hints||[]).map((h,i)=>`
+    <div class="hint-accordion">
+      <button class="hint-toggle" onclick="toggleHint(this)">💡 Hint ${i+1} <span>▼</span></button>
+      <div class="hint-content">${h}</div>
+    </div>`).join('');
+
+  const openBtnLabel = isShorthand
+    ? `Open ${result.typeLabel} Calculator →`
+    : isAllGood ? `Open ${result.typeLabel} Calculator (Pre-filled) →` : `Open ${result.typeLabel} Calculator →`;
+  const openBtnNote = isShorthand
+    ? `The <strong>${result.typeLabel}</strong> calculator is ready. Enter the specific amount${result._formula?' of '+result._formula:''} and click <strong>Start Solving →</strong>`
+    : isAllGood
+      ? 'All values will be auto-filled. Just click <strong>Start Solving →</strong>'
+      : `Open the <strong>${result.typeLabel}</strong> calculator and enter the extracted values.`;
+
+  right.innerHTML = `<div style="padding:18px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:0">
+    <div class="ps-type-badge">✓ Detected: ${result.typeLabel}</div>
+    ${rxnHTML}
+    <div class="ps-section">
+      <div class="ps-section-lbl">📖 Problem Statement</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.65;background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:10px 12px">"${originalText.substring(0,280)}${originalText.length>280?'…':''}"</div>
+    </div>
+    <div class="ps-section">
+      <div class="ps-section-lbl">📊 Extracted Values</div>
+      ${confBadge}
+      ${valuesHTML}
+    </div>
+    <div class="ps-section">
+      <div class="ps-section-lbl">🧠 Formula / Approach</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-line;background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:10px 12px">${result.explanation}</div>
+    </div>
+    ${solutionHTML}
+    <div class="ps-section">
+      <div class="ps-section-lbl">💡 Progressive Hints</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Reveal one hint at a time. Try each step first.</div>
+      ${hintsHTML||'<div style="font-size:12px;color:var(--muted)">Follow the step-by-step approach above.</div>'}
+    </div>
+    <div class="ps-section" style="background:linear-gradient(135deg,var(--g50),var(--y50));border-color:var(--g200)">
+      <div class="ps-section-lbl">👉 Solve It Step by Step</div>
+      <p style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:10px">${openBtnNote}</p>
+      <button class="btn btn-g" style="width:100%;font-size:13px" onclick="goToCalcFor('${result.calcId||result.type}')">${openBtnLabel}</button>
+    </div>
+  </div>`;
 }
 
-function goToCalcFor(type){
-  const typeMap = {'limiting':'limiting','yield':'pct-yield','empirical':'empirical','mole-ratio':'theoretical','mass-mass':'theoretical','molar-mass':'molar-mass','pct-comp':'pct-comp'};
+function toggleHint(btn){
+  const content = btn.nextElementSibling;
+  content.classList.toggle('open');
+  const arrow = btn.querySelector('span');
+  if(arrow) arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+function buildTextualSolution(result){
+  const type = result.type;
+  const steps = [];
+  if(type==='sc-mol2mol'){
+    steps.push(`<strong>Write the balanced equation</strong> — extract the coefficients of the given and unknown substances.`);
+    steps.push(`<strong>Identify the mole ratio:</strong> coeff of unknown ÷ coeff of given.`);
+    steps.push(`<strong>Calculate:</strong> mol unknown = mol given × (coeff unknown ÷ coeff given)`);
+  }else if(type==='sc-mass2mass'){
+    steps.push(`<strong>Bridge 1 — g to mol of given:</strong> Divide given grams by the molar mass of the given substance.`);
+    steps.push(`<strong>Bridge 2 — Mole ratio:</strong> Multiply moles of given by (coeff unknown ÷ coeff given).`);
+    steps.push(`<strong>Bridge 3 — mol to g of unknown:</strong> Multiply moles of unknown by its molar mass.`);
+  }else if(type==='sc-mass2mol'){
+    steps.push(`<strong>Bridge 1 — g to mol:</strong> Divide given grams by the molar mass of the given substance.`);
+    steps.push(`<strong>Bridge 2 — Mole ratio:</strong> Multiply by (coeff unknown ÷ coeff given) to get moles of unknown.`);
+    steps.push(`<strong>Report moles</strong> — no further conversion needed.`);
+  }else if(type==='sc-mol2mass'){
+    steps.push(`<strong>Bridge 1 — Mole ratio:</strong> Multiply given moles by (coeff unknown ÷ coeff given).`);
+    steps.push(`<strong>Bridge 2 — mol to g:</strong> Multiply moles of unknown by its molar mass.`);
+    steps.push(`<strong>Report grams</strong> of the unknown substance.`);
+  }else if(type==='yield'){
+    steps.push(`<strong>Identify</strong> which value is "actual yield" and which is "theoretical yield".`);
+    steps.push(`<strong>Apply formula:</strong> % Yield = (Actual ÷ Theoretical) × 100%`);
+    steps.push(`<strong>Interpret:</strong> Should be ≤ 100% in a real experiment.`);
+  }else if(type==='limiting'){
+    steps.push(`<strong>Convert all amounts to moles</strong> (divide grams by molar mass if needed).`);
+    steps.push(`<strong>Divide by coefficient:</strong> For each reactant, divide moles by its coefficient.`);
+    steps.push(`<strong>Compare:</strong> The smallest result is the limiting reactant.`);
+  }else if(type==='mole-ratio'){
+    steps.push(`<strong>Identify the limiting reactant</strong> or the given substance.`);
+    steps.push(`<strong>Apply the mole ratio</strong> from the balanced equation.`);
+    steps.push(`<strong>Convert moles to grams</strong> using the molar mass of the product.`);
+  }else if(type==='empirical'){
+    steps.push(`<strong>Assume 100 g sample</strong> — percentages become grams directly.`);
+    steps.push(`<strong>Convert to moles:</strong> Divide each element's grams by its atomic mass.`);
+    steps.push(`<strong>Divide by smallest</strong> mole value to get the whole-number ratio.`);
+    steps.push(`<strong>Write empirical formula</strong> using the ratios as subscripts.`);
+  }else if(type==='grams-moles'){
+    steps.push(`<strong>Find the molar mass</strong> of the substance from the periodic table.`);
+    steps.push(`<strong>Apply:</strong> moles = grams ÷ molar mass  OR  grams = moles × molar mass`);
+  }else if(type==='molar-mass'){
+    steps.push(`<strong>Identify all elements</strong> and the count of each atom in the formula.`);
+    steps.push(`<strong>Multiply:</strong> count × atomic mass for each element.`);
+    steps.push(`<strong>Sum all contributions</strong> to get the total molar mass in g/mol.`);
+  }
+  return steps;
+}
+
+function goToCalcFor(id){
+  const typeMap = {
+    'limiting':'limiting','yield':'pct-yield','empirical':'empirical',
+    'mole-ratio':'theoretical','molar-mass':'molar-mass','pct-comp':'pct-comp',
+    'grams-moles':'grams-moles','sc-mol2mol':'sc-mol2mol','sc-mass2mass':'sc-mass2mass',
+    'sc-mass2mol':'sc-mass2mol','sc-mol2mass':'sc-mol2mass',
+  };
+  const calcId = typeMap[id] || id;
   setPracMode('calc');
-  setTimeout(function(){ selectCalc(typeMap[type]); }, 100);
+  setTimeout(()=>{
+    selectCalc(calcId);
+    // Auto-fill if we have extracted SC data matching this calculator
+    if(_lastExtraction && _lastExtraction.calcId === calcId && calcId.startsWith('sc-')){
+      const ex = _lastExtraction.extraction;
+      setTimeout(()=>{
+        if(ex.eq){ const el=document.getElementById('f-sc-eq'); if(el) el.value=ex.eq; }
+        if(ex.givenT){
+          const gs=document.getElementById('f-sc-given-sub'); if(gs) gs.value=ex.givenT.sub;
+          const gv=document.getElementById('f-sc-given-val'); if(gv) gv.value=ex.givenT.value;
+        }
+        if(ex.findSub){ const fs=document.getElementById('f-sc-find-sub'); if(fs) fs.value=ex.findSub; }
+        const resEl = document.getElementById('sc-extract-result');
+        if(resEl){
+          resEl.className='sc-extract-result sc-extract-ok';
+          resEl.innerHTML='✅ Values imported from Problem Solver — review fields and click Start Solving →';
+        }
+        errHide();
+      }, 150);
+    }
+  }, 100);
 }
 
-function parseProblemText(text){
-  const result = {type:null, typeLabel:'', given:'', find:'', equation:'', extractedValues:[]};
-  const lower = text.toLowerCase();
-  
-  // Extract equation
-  const eqMatch = text.match(/equation[:\s]+([\w\s+→\d()₀₁₂₃₄₅₆₇₈₉]+)/i) || text.match(/([\w\d₀₁₂₃₄₅₆₇₈₉]+\s*\+\s*[\w\d₀₁₂₃₄₅₆₇₈₉\s+]+→[\w\d₀₁₂₃₄₅₆₇₈₉\s+]+)/);
-  if(eqMatch) result.equation = eqMatch[1].trim();
-  
-  // IMPROVED: Extract value-unit-substance combinations
-  // Handles both formulas (Mg, HCl) and full names (magnesium, hydrochloric acid)
-  const valuePattern = /(\d+\.?\d*)\s*(grams?|g|moles?|mol|%|percent)\s*(?:of\s+)?([A-Z][a-z]*(?:\s+[a-z]+)?|[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]*)/gi;
-  let match;
-  while((match = valuePattern.exec(text)) !== null){
-    result.extractedValues.push({
-      value: parseFloat(match[1]),
-      unit: match[2],
-      substance: match[3].trim()
-    });
-  }
-  
-  // Also capture "X is in excess" or "excess X" - handles both names and formulas
-  const excessPattern = /(?:excess\s+)?([A-Z][a-z]*(?:\s+[a-z]+(?:\s+[a-z]+)?)?|[A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]*)\s+(?:is\s+)?(?:in\s+)?(?:excess|assumed\s+in\s+excess)/gi;
-  while((match = excessPattern.exec(text)) !== null){
-    const substance = match[1].trim();
-    if(substance && !result.extractedValues.find(v => v.substance === substance)){
-      result.extractedValues.push({
-        value: null,
-        unit: null,
-        substance: substance,
-        status: 'excess'
-      });
-    }
-  }
-  
-  // FIXED: Determine problem type based on what the QUESTION asks for, not just keywords present
-  // Priority: Look at the actual question being asked first
-  
-  if(/what\s+is\s+the\s+theoretical\s+yield|find\s+(?:the\s+)?theoretical\s+yield|calculate\s+(?:the\s+)?theoretical\s+yield/i.test(lower)){
-    // Explicitly asks for theoretical yield
-    result.type = 'mole-ratio'; result.typeLabel = 'Theoretical Yield';
-    if(result.extractedValues.length >= 1){ 
-      const v = result.extractedValues.find(e => e.value !== null);
-      if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
-      result.find = 'Theoretical yield'; 
-    }
-  }
-  else if(/which\s+(?:is\s+)?(?:the\s+)?limiting\s+reactant|identify\s+(?:the\s+)?limiting\s+reactant|find\s+(?:the\s+)?limiting\s+reactant/i.test(lower)){
-    // Explicitly asks which is limiting
-    result.type = 'limiting'; result.typeLabel = 'Limiting Reactant';
-    const reactants = result.extractedValues.filter(v => v.value !== null);
-    if(reactants.length >= 2){ 
-      result.given = reactants.map(r => `${r.value} ${r.unit} ${r.substance}`).join(', '); 
-      result.find = 'Limiting reactant & product mass'; 
-    }
-  }
-  else if(/percent\s+yield|%\s+yield|what\s+is\s+the\s+%?\s*yield/i.test(lower)){
-    result.type = 'yield'; result.typeLabel = 'Percent Yield';
-    if(result.extractedValues.length >= 2){ 
-      result.given = result.extractedValues.filter(v => v.value).map(r => `${r.value} ${r.unit}${r.substance?' '+r.substance:''}`).join(', '); 
-      result.find = 'Percent yield'; 
-    }
-  }
-  else if(/empirical\s+formula/i.test(lower)){
-    result.type = 'empirical'; result.typeLabel = 'Empirical Formula';
-    const pcts = text.match(/(\d+\.?\d*)\s*%/g) || [];
-    if(pcts.length >= 2){ result.given = pcts.join(', ') + ' composition'; result.find = 'Empirical formula'; }
-  }
-  else if(/how\s+many\s+moles/i.test(lower) && /produced|formed|consumed|needed/i.test(lower)){
-    result.type = 'mole-ratio'; result.typeLabel = 'Mole-to-Mole Conversion';
-    if(result.extractedValues.length >= 1){ 
-      const v = result.extractedValues.find(e => e.value !== null);
-      if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
-      result.find = 'Moles of product'; 
-    }
-  }
-  else if(/how\s+many\s+grams/i.test(lower) && result.extractedValues.length >= 1){
-    result.type = 'mass-mass'; result.typeLabel = 'Mass-to-Mass Conversion';
-    const v = result.extractedValues.find(e => e.value !== null);
-    if(v) result.given = `${v.value} ${v.unit} ${v.substance}`; 
-    result.find = 'Mass of product (grams)';
-  }
-  else if(/molar\s+mass/i.test(lower)){ result.type = 'molar-mass'; result.typeLabel = 'Molar Mass Calculation'; }
-  else if(/percent\s+composition|%\s+composition/i.test(lower)){ result.type = 'pct-comp'; result.typeLabel = 'Percent Composition'; }
-  
-  return result;
+// Opens a SC calculator and pre-fills the equation field (used by reaction-desc choose buttons)
+function openCalcWithEq(calcId, eq){
+  setPracMode('calc');
+  setTimeout(()=>{
+    selectCalc(calcId);
+    setTimeout(()=>{
+      const el = document.getElementById('f-sc-eq');
+      if(el){ el.value = eq; el.focus(); }
+      // Scroll the form into view and highlight the next field
+      const gs = document.getElementById('f-sc-given-sub');
+      if(gs){
+        gs.style.borderColor = 'var(--g600)';
+        gs.focus();
+        setTimeout(()=>{ gs.style.borderColor=''; }, 2000);
+      }
+      errHide();
+    }, 150);
+  }, 100);
 }
 
 // ═══════════════════════ HOME ═══════════════════════
@@ -1994,9 +3185,69 @@ function goToCalc(id){goPage('practice');selectCalc(id);}
 function goPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
+  const pg=document.getElementById('page-'+p);
+  if(pg) pg.classList.add('active');
   const nb=document.getElementById('nb-'+p);if(nb)nb.classList.add('active');
 }
+
+// ── DARK MODE
+function toggleDarkMode(){
+  document.body.classList.toggle('dark-mode');
+  const on = document.body.classList.contains('dark-mode');
+  const btn = document.getElementById('dark-btn');
+  if(btn){ btn.classList.toggle('active', on); btn.textContent = on ? '☀️ Light Mode' : '🌙 Dark Mode'; }
+  localStorage.setItem('ss-dark', on ? '1' : '0');
+}
+
+// ── FONT SCALE — sets CSS variable on :root so ALL text inherits it
+let currentScale = 1;
+function setFontScale(s){
+  currentScale = s;
+  // Set the custom property on the root element so every CSS rule using var(--fs) updates
+  document.documentElement.style.setProperty('--fs', s + 'rem');
+  // Also directly set html font-size so rem-based sizes scale too
+  document.documentElement.style.fontSize = (s * 15) + 'px';
+  // Update active button state
+  ['sm','md','lg'].forEach(k => {
+    const el = document.getElementById('fs-'+k);
+    if(el) el.classList.remove('active');
+  });
+  const key = s <= 0.86 ? 'sm' : s >= 1.15 ? 'lg' : 'md';
+  const active = document.getElementById('fs-'+key);
+  if(active) active.classList.add('active');
+  localStorage.setItem('ss-font', String(s));
+}
+
+// ── A11Y PANEL TOGGLE
+function toggleA11yPanel(){
+  const panel = document.getElementById('a11y-panel');
+  const overlay = document.getElementById('a11y-overlay');
+  const isOpen = panel.classList.contains('open');
+  if(isOpen){ closeA11yPanel(); } else {
+    panel.classList.add('open');
+    overlay.classList.add('open');
+  }
+}
+function closeA11yPanel(){
+  document.getElementById('a11y-panel').classList.remove('open');
+  document.getElementById('a11y-overlay').classList.remove('open');
+}
+
+// ── ONBOARDING MODAL
+function showOnboard(){ document.getElementById('onboard-modal').style.display='flex'; }
+function closeOnboard(){ document.getElementById('onboard-modal').style.display='none'; localStorage.setItem('ss-onboarded','1'); }
+
+// ── Init persisted settings
+(function initSettings(){
+  if(localStorage.getItem('ss-dark')==='1'){
+    document.body.classList.add('dark-mode');
+    const b=document.getElementById('dark-btn');
+    if(b){ b.classList.add('active'); b.textContent='☀️ Light Mode'; }
+  }
+  const f = parseFloat(localStorage.getItem('ss-font'));
+  if(f && f > 0){ setFontScale(f); }
+  if(!localStorage.getItem('ss-onboarded')){ setTimeout(showOnboard, 800); }
+})();
 
 // ═══════════════════════ INIT ═══════════════════════
 buildHome();
@@ -2004,6 +3255,351 @@ buildSidebar();
 buildCalcSelector();
 buildAssessCards();
 setupChemKeyboard();
+
+// ═══════════════════════ STOICH CALC HELPERS ═══════════════════════
+function fillSC4(eq,givenSub,givenVal,findSub){
+  const e=document.getElementById('f-sc-eq');
+  const g=document.getElementById('f-sc-given-sub');
+  const v=document.getElementById('f-sc-given-val');
+  const f=document.getElementById('f-sc-find-sub');
+  if(e)e.value=eq;if(g)g.value=givenSub;if(v)v.value=givenVal;if(f)f.value=findSub;
+  errHide();
+}
+
+// ── Pure extraction logic (no DOM) — shared by Problem Solver AND 4 SC Calculators
+function extractProblemData(text, calcType){
+  const normSub = s => s.replace(/₀/g,'0').replace(/₁/g,'1').replace(/₂/g,'2').replace(/₃/g,'3')
+    .replace(/₄/g,'4').replace(/₅/g,'5').replace(/₆/g,'6').replace(/₇/g,'7').replace(/₈/g,'8').replace(/₉/g,'9');
+  const norm = normSub(text);
+  const lower = norm.toLowerCase();
+
+  // STEP 1: Extract balanced equation
+  let eq = '';
+  const eqRe = /((?:\d*\s*[A-Z][a-zA-Z0-9()₀₁₂₃₄₅₆₇₈₉]*\s*(?:\+\s*)?)+\s*[→\->]+\s*(?:\d*\s*[A-Z][a-zA-Z0-9()₀₁₂₃₄₅₆₇₈₉]*\s*(?:\+\s*)?)+)/;
+  const eqM = text.match(eqRe);
+  if(eqM) eq = eqM[1].replace(/->/g,'→').replace(/\s+/g,' ').trim();
+  if(!eq){
+    const eqM2 = norm.match(/((?:\d*\s*[A-Z][a-zA-Z0-9()]*\s*(?:\+\s*)?)+\s*→\s*(?:\d*\s*[A-Z][a-zA-Z0-9()]*\s*(?:\+\s*)?)+)/);
+    if(eqM2) eq = eqM2[1].trim();
+  }
+  if(!eq){ const rxn = detectKnownReaction(text)||detectKnownReaction(norm); if(rxn) eq = rxn.eq; }
+
+  // STEP 2: Extract all "number + unit + substance" triplets
+  const tripletRe = /(\d+\.?\d*)\s*(grams?|g\b|moles?|mol\b)\s*(?:of\s+)?([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{0,20})/gi;
+  const triplets = [];
+  let tm;
+  while((tm = tripletRe.exec(text)) !== null){
+    const u = tm[2].toLowerCase();
+    triplets.push({ value: parseFloat(tm[1]), unit: u.startsWith('g')?'g':'mol', sub: tm[3], idx: tm.index });
+  }
+
+  // STEP 3: Determine GIVEN substance based on calcType (what unit is expected as input)
+  const wantGivenUnit = (!calcType||calcType==='sc-mol2mol'||calcType==='sc-mol2mass') ? 'mol' : 'g';
+  const wantFindUnit  = (!calcType||calcType==='sc-mol2mol'||calcType==='sc-mass2mol')  ? 'mol' : 'g';
+  // For non-SC types, try both; default to first triplet
+  const isScType = calcType && calcType.startsWith('sc-');
+
+  const givenContextRe = /(?:if|from|given|when|suppose[sd]?(?:\s+of)?)\s+(\d+\.?\d*)\s*(grams?|g\b|moles?|mol\b)\s*(?:of\s+)?([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{0,20})/gi;
+  let givenT = null; let gm;
+  while((gm = givenContextRe.exec(text)) !== null){
+    const u = gm[2].toLowerCase().startsWith('g') ? 'g' : 'mol';
+    if(!isScType || u === wantGivenUnit){ givenT = { value: parseFloat(gm[1]), unit: u, sub: gm[3] }; break; }
+  }
+  if(!givenT) givenT = isScType ? triplets.find(t=>t.unit===wantGivenUnit) : triplets[0];
+  if(!givenT && triplets.length > 0) givenT = triplets[0];
+
+  // STEP 4: Determine FIND (unknown) substance
+  const nameToFormula = {
+    'water':'H₂O','ammonia':'NH₃','oxygen':'O₂','hydrogen':'H₂','nitrogen':'N₂',
+    'carbon dioxide':'CO₂','carbon monoxide':'CO','chlorine':'Cl₂','fluorine':'F₂',
+    'methane':'CH₄','propane':'C₃H₈','ethanol':'C₂H₅OH','glucose':'C₆H₁₂O₆',
+    'sodium chloride':'NaCl','iron oxide':'Fe₂O₃','magnesium oxide':'MgO',
+    'sodium hydroxide':'NaOH','hydrochloric acid':'HCl','sulfuric acid':'H₂SO₄',
+    'nitric acid':'HNO₃','calcium carbonate':'CaCO₃','calcium oxide':'CaO',
+  };
+  let findSub = '';
+  const fuw = wantFindUnit==='mol' ? 'moles?' : 'grams?';
+  const findPats = [
+    new RegExp(`how\\s+many\\s+${fuw}\\s+(?:of\\s+)?([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{0,20})`,'i'),
+    // Also search for either unit when type is unknown
+    /how\s+many\s+(?:moles?|grams?)\s+(?:of\s+)?([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{0,20})/i,
+    // "to form X", "produces X", "yields X" — very common in word problems
+    /(?:to\s+form|produces?|yields?|giving)\s+([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{1,20})/i,
+    new RegExp(`([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{1,20})\\s+(?:is|are|will\\s+be|was|were)?\\s*(?:produced|formed|generated|released|created)`,'i'),
+    new RegExp(`(?:find|calculate|determine|what\\s+is)\\s+(?:the\\s+)?(?:number\\s+of\\s+|amount\\s+of\\s+)?${fuw}\\s+(?:of\\s+)?([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{0,20})`,'i'),
+    new RegExp(`(?:amount|mass|moles?)\\s+of\\s+([A-Z][a-zA-Z0-9₀₁₂₃₄₅₆₇₈₉()]{1,20})\\s*(?:\\?|produced|formed)`,'i'),
+  ];
+  for(const pat of findPats){
+    const fm = text.match(pat);
+    if(fm && fm[1] && /[A-Z]/.test(fm[1][0])){ findSub = fm[1]; break; }
+  }
+  if(!findSub && triplets.length>=2 && givenT){
+    const other = triplets.find(t=>t.sub!==givenT.sub); if(other) findSub = other.sub;
+  }
+  if(!findSub){
+    const lastFRe = /(?:how[^?]*|calculate[^?]*|find[^?]*)([A-Z][a-z]?[₀₁₂₃₄₅₆₇₈₉\d()]+)/g;
+    let lm, last;
+    while((lm = lastFRe.exec(text)) !== null) last = lm[1];
+    if(last) findSub = last;
+  }
+  if(findSub && !/[₀₁₂₃₄₅₆₇₈₉\d]/.test(findSub)){
+    const mp = nameToFormula[findSub.toLowerCase()]; if(mp) findSub = mp;
+  }
+  if(!findSub){
+    for(const[n,f] of Object.entries(nameToFormula)){ if(lower.includes(n)){ findSub=f; break; } }
+  }
+
+  // STEP 5: Infer equation from substances if still missing
+  if(!eq && givenT && findSub){
+    const rxn = detectKnownReaction(givenT.sub+' '+findSub); if(rxn) eq = rxn.eq;
+  }
+
+  // STEP 6: Cross-check substances against equation
+  const warnings = [];
+  if(eq && isScType){
+    const normEq = normSub(eq);
+    if(givenT && !normEq.includes(normSub(givenT.sub))) warnings.push(`"${givenT.sub}" not found in equation`);
+    if(findSub && !normEq.includes(normSub(findSub))) warnings.push(`"${findSub}" not found in equation`);
+  }
+
+  const allFound = !!(eq && givenT && findSub);
+  return { eq, givenT, findSub, warnings, allFound, triplets, wantFindUnit };
+}
+
+// ── DOM wrapper: called from the 4 SC calculator paste buttons
+function extractSCValues(calcType){
+  const ta = document.getElementById('sc-paste');
+  const resEl = document.getElementById('sc-extract-result');
+  if(!ta||!resEl) return;
+  const raw = ta.value.trim();
+  if(!raw){ showExtractResult('error','Please paste a word problem first.'); return; }
+
+  const d = extractProblemData(raw, calcType);
+
+  // Fill form fields
+  if(d.eq){ const el=document.getElementById('f-sc-eq'); if(el) el.value=d.eq; }
+  if(d.givenT){
+    const gs=document.getElementById('f-sc-given-sub'); if(gs) gs.value=d.givenT.sub;
+    const gv=document.getElementById('f-sc-given-val'); if(gv) gv.value=d.givenT.value;
+  }
+  if(d.findSub){ const fs=document.getElementById('f-sc-find-sub'); if(fs) fs.value=d.findSub; }
+  errHide();
+
+  // Show feedback
+  const lines = [];
+  if(d.eq)    lines.push(`✅ Equation: <strong>${d.eq}</strong>`);
+  else        lines.push(`⚠️ Equation not found — enter it manually`);
+  if(d.givenT) lines.push(`✅ Given: <strong>${d.givenT.value} ${d.givenT.unit==='g'?'g':'mol'} of ${d.givenT.sub}</strong>`);
+  else         lines.push(`⚠️ Given amount not found — enter it manually`);
+  if(d.findSub) lines.push(`✅ Find: <strong>${d.wantFindUnit==='mol'?'moles':'grams'} of ${d.findSub}</strong>`);
+  else          lines.push(`⚠️ Unknown substance not found — enter it manually`);
+  d.warnings.forEach(w => lines.push(`⚠️ ${w}`));
+
+  const level = d.allFound && d.warnings.length===0 ? 'ok' : (d.givenT||d.findSub) ? 'warn' : 'error';
+  const summary = d.allFound && d.warnings.length===0
+    ? 'All values extracted! Review and click Start Solving →'
+    : 'Partially extracted — check/correct the fields below, then Start Solving →';
+  showExtractResult(level, `<div style="font-weight:600;margin-bottom:5px">${summary}</div>${lines.join('<br>')}`);
+}
+
+function showExtractResult(level, html){
+  const el = document.getElementById('sc-extract-result');
+  if(!el) return;
+  el.className = 'sc-extract-result sc-extract-' + (level==='ok'?'ok':level==='warn'?'warn':'err');
+  el.innerHTML = html;
+}
+
+function parseSCInputs(){
+  const eq=(document.getElementById('f-sc-eq')?.value||'').trim();
+  const givenSub=(document.getElementById('f-sc-given-sub')?.value||'').trim();
+  const givenVal=parseFloat(document.getElementById('f-sc-given-val')?.value);
+  const findSub=(document.getElementById('f-sc-find-sub')?.value||'').trim();
+  if(!eq){showErr('Enter a balanced chemical equation.');return null;}
+  if(!givenSub){showErr('Enter the given substance.');return null;}
+  if(isNaN(givenVal)||givenVal<=0){showErr('Enter a valid positive amount.');return null;}
+  if(!findSub){showErr('Enter the substance to find.');return null;}
+  const parsed=parseEquation(eq);
+  if(!parsed){showErr('Could not parse equation. Use → to separate reactants and products.');return null;}
+  const allTerms=[...parsed.reactants,...parsed.products];
+  const normalize=s=>s.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>'0123456789'[['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'].indexOf(m)]).replace(/\s/g,'');
+  const normGiven=normalize(givenSub);
+  const normFind=normalize(findSub);
+  const gTerm=allTerms.find(t=>normalize(t.formula)===normGiven||normalize(t.formula).toLowerCase()===normGiven.toLowerCase());
+  const fTerm=allTerms.find(t=>normalize(t.formula)===normFind||normalize(t.formula).toLowerCase()===normFind.toLowerCase());
+  if(!gTerm){showErr(`"${givenSub}" not found in equation. Check spelling and capitalization.`);return null;}
+  if(!fTerm){showErr(`"${findSub}" not found in equation. Check spelling and capitalization.`);return null;}
+  return{eq,givenSub,givenVal,findSub,gCoef:gTerm.coef,fCoef:fTerm.coef,parsed};
+}
+
+function calcMMSafe(formula){
+  const f=formula.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>'0123456789'[['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'].indexOf(m)]).replace(/\s/g,'');
+  const els=parseFormula(f);
+  if(!els||Object.keys(els).length===0)return null;
+  return{mm:rnd(mmOf(els)),els};
+}
+
+// ══ Mole-to-Mole Generator ══
+function genSCMol2Mol(){
+  const inp=parseSCInputs();if(!inp)return null;
+  const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
+  const molFind=rnd(givenVal*(fCoef/gCoef),4);
+  const ratio=`${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub}`;
+  return{
+    title:`Mole-to-Mole: ${givenSub} → ${findSub}`,
+    stmt:`${eq}. Given ${givenVal} mol of ${givenSub}, how many moles of ${findSub} are produced?`,
+    balancedEq:eq,
+    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} mol ${givenSub}`,`Find: moles of ${findSub}`],
+    final:`${molFind} mol ${findSub}`,
+    concept:`Mol-to-Mol uses only the mole ratio from the balanced equation. No molar mass needed.\nFormula: mol ${findSub} = ${givenVal} × (${fCoef}/${gCoef}) = ${molFind} mol`,
+    phases:[
+      {k:'p1',l:'Phase 1 — Identify Given & Balanced Equation',d:'What do we know from the problem?'},
+      {k:'p2',l:'Phase 2 — Extract the Mole Ratio',d:'Use coefficients from the balanced equation.'},
+      {k:'p3',l:'Phase 3 — Calculate Moles of Product',d:'Apply the mole ratio to find the answer.'},
+    ],
+    steps:[
+      {ph:'p1',pl:'Given',inst:'Identify the given substance and amount',q:`What is the given amount of ${givenSub}? (just the number)`,exp:String(givenVal),tol:0,unit:`mol ${givenSub}`,
+       h1:`Look at the problem. The given substance is ${givenSub} and we know its moles.`,
+       h2:`The given amount is ${givenVal} mol ${givenSub}.`,
+       expl:`Correct! We are given ${givenVal} mol of ${givenSub}.`},
+      {ph:'p2',pl:'Coefficient of Given',inst:`What is the coefficient of ${givenSub} in the balanced equation?`,q:`In the equation, what is the coefficient of ${givenSub}?`,exp:String(gCoef),tol:0,unit:'',
+       h1:`Look at the number in front of ${givenSub} in the balanced equation. If no number is written, the coefficient is 1.`,
+       h2:`The coefficient of ${givenSub} is ${gCoef}.`,
+       expl:`Correct! Coefficient of ${givenSub} = ${gCoef}.`},
+      {ph:'p2',pl:'Coefficient of Unknown',inst:`What is the coefficient of ${findSub} in the balanced equation?`,q:`In the equation, what is the coefficient of ${findSub}?`,exp:String(fCoef),tol:0,unit:'',
+       h1:`Look at the number in front of ${findSub} in the balanced equation.`,
+       h2:`The coefficient of ${findSub} is ${fCoef}.`,
+       expl:`Correct! Coefficient of ${findSub} = ${fCoef}.`},
+      {ph:'p3',pl:'Apply Mole Ratio',inst:`Calculate: ${givenVal} mol ${givenSub} × (${fCoef} mol ${findSub} / ${gCoef} mol ${givenSub})`,q:`${givenVal} × (${fCoef} ÷ ${gCoef}) = ?`,exp:String(molFind),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Multiply the given moles by the mole ratio: ${givenVal} × (${fCoef} / ${gCoef}).`,
+       h2:`${givenVal} × ${fCoef} ÷ ${gCoef} = ${molFind} mol ${findSub}.`,
+       expl:`Excellent! ${givenVal} mol ${givenSub} × (${ratio}) = ${molFind} mol ${findSub}.`},
+    ]
+  };
+}
+
+// ══ Mass-to-Mass Generator ══
+function genSCMass2Mass(){
+  const inp=parseSCInputs();if(!inp)return null;
+  const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
+  const gData=calcMMSafe(givenSub);
+  const fData=calcMMSafe(findSub);
+  if(!gData){showErr(`Cannot calculate molar mass of "${givenSub}". Use standard element symbols.`);return null;}
+  if(!fData){showErr(`Cannot calculate molar mass of "${findSub}". Use standard element symbols.`);return null;}
+  const gMM=gData.mm,fMM=fData.mm;
+  const gMoles=rnd(givenVal/gMM,4);
+  const fMoles=rnd(gMoles*(fCoef/gCoef),4);
+  const fMass=rnd(fMoles*fMM,3);
+  return{
+    title:`Mass-to-Mass: ${givenSub} → ${findSub}`,
+    stmt:`${eq}. If ${givenVal} g of ${givenSub} reacts, how many grams of ${findSub} are produced?`,
+    balancedEq:eq,
+    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} g ${givenSub}`,`Find: grams of ${findSub}`],
+    final:`${fMass} g ${findSub}`,
+    concept:`Mass-to-Mass uses 3 bridges: g A → mol A (÷MM) → mol B (×ratio) → g B (×MM).\nFull chain: ${givenVal} g ${givenSub} ÷ ${gMM} × (${fCoef}/${gCoef}) × ${fMM} = ${fMass} g ${findSub}`,
+    phases:[
+      {k:'p1',l:'Phase 1 — Molar Mass of Given',d:`Find the molar mass of ${givenSub} (Bridge 1 setup).`},
+      {k:'p2',l:'Phase 2 — Convert to Moles (Bridge 1)',d:'Grams of given → Moles of given.'},
+      {k:'p3',l:'Phase 3 — Apply Mole Ratio (Bridge 2)',d:'Moles of given → Moles of unknown.'},
+      {k:'p4',l:'Phase 4 — Convert to Grams (Bridge 3)',d:'Moles of unknown → Grams of unknown.'},
+    ],
+    steps:[
+      {ph:'p1',pl:'Molar Mass of Given',inst:`Calculate the molar mass of ${givenSub}`,q:`What is the molar mass of ${givenSub}? (g/mol)`,exp:String(gMM),tol:0.5,unit:'g/mol',
+       h1:`Look up atomic masses of each element in ${givenSub} and multiply by their count, then add.`,
+       h2:`Molar mass of ${givenSub} = ${gMM} g/mol.`,
+       expl:`Correct! MM of ${givenSub} = ${gMM} g/mol.`},
+      {ph:'p1',pl:'Molar Mass of Product',inst:`Calculate the molar mass of ${findSub}`,q:`What is the molar mass of ${findSub}? (g/mol)`,exp:String(fMM),tol:0.5,unit:'g/mol',
+       h1:`Look up atomic masses of each element in ${findSub}.`,
+       h2:`Molar mass of ${findSub} = ${fMM} g/mol.`,
+       expl:`Correct! MM of ${findSub} = ${fMM} g/mol.`},
+      {ph:'p2',pl:'Bridge 1: g → mol of Given',inst:`Convert ${givenVal} g ${givenSub} to moles using: mol = g ÷ MM`,q:`${givenVal} ÷ ${gMM} = ? mol ${givenSub}`,exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
+       h1:`Moles = grams ÷ molar mass = ${givenVal} ÷ ${gMM}.`,
+       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol ${givenSub}.`,
+       expl:`Correct! ${givenVal} g ${givenSub} = ${gMoles} mol ${givenSub}.`},
+      {ph:'p3',pl:'Bridge 2: Mole Ratio',inst:`Apply mole ratio: ${gCoef} mol ${givenSub} : ${fCoef} mol ${findSub}`,q:`${gMoles} mol ${givenSub} × (${fCoef}/${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Use coefficients from the balanced equation: multiply by ${fCoef} and divide by ${gCoef}.`,
+       h2:`${gMoles} × (${fCoef} ÷ ${gCoef}) = ${fMoles} mol ${findSub}.`,
+       expl:`Correct! Mole ratio gives ${fMoles} mol ${findSub}.`},
+      {ph:'p4',pl:'Bridge 3: mol → g of Product',inst:`Convert ${fMoles} mol ${findSub} to grams: g = mol × MM`,q:`${fMoles} × ${fMM} = ? g ${findSub}`,exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}.`,
+       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}.`,
+       expl:`Excellent! Final answer = ${fMass} g ${findSub}.`},
+    ]
+  };
+}
+
+// ══ Mass-to-Mole Generator ══
+function genSCMass2Mol(){
+  const inp=parseSCInputs();if(!inp)return null;
+  const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
+  const gData=calcMMSafe(givenSub);
+  if(!gData){showErr(`Cannot calculate molar mass of "${givenSub}".`);return null;}
+  const gMM=gData.mm;
+  const gMoles=rnd(givenVal/gMM,4);
+  const fMoles=rnd(gMoles*(fCoef/gCoef),4);
+  return{
+    title:`Mass-to-Mole: ${givenSub} → ${findSub}`,
+    stmt:`${eq}. If ${givenVal} g of ${givenSub} reacts, how many moles of ${findSub} are produced?`,
+    balancedEq:eq,
+    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} g ${givenSub}`,`Find: moles of ${findSub}`],
+    final:`${fMoles} mol ${findSub}`,
+    concept:`Mass-to-Mole uses 2 bridges: g A → mol A (÷ MM of A) → mol B (× mole ratio).\nChain: ${givenVal} ÷ ${gMM} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}`,
+    phases:[
+      {k:'p1',l:'Phase 1 — Molar Mass & Bridge 1',d:'Get molar mass, then convert grams to moles.'},
+      {k:'p2',l:'Phase 2 — Bridge 2: Mole Ratio',d:'Convert moles of given to moles of unknown.'},
+    ],
+    steps:[
+      {ph:'p1',pl:'Molar Mass of Given',inst:`What is the molar mass of ${givenSub}?`,q:`Molar mass of ${givenSub} = ? g/mol`,exp:String(gMM),tol:0.5,unit:'g/mol',
+       h1:`Add up: (count × atomic mass) for each element in ${givenSub}.`,
+       h2:`MM of ${givenSub} = ${gMM} g/mol.`,
+       expl:`Correct! MM of ${givenSub} = ${gMM} g/mol.`},
+      {ph:'p1',pl:'Bridge 1: g → mol of Given',inst:`Convert ${givenVal} g ${givenSub} → moles`,q:`${givenVal} ÷ ${gMM} = ? mol`,exp:String(gMoles),tol:0.05,unit:`mol ${givenSub}`,
+       h1:`Moles = grams ÷ molar mass.`,
+       h2:`${givenVal} ÷ ${gMM} = ${gMoles} mol.`,
+       expl:`Correct! ${gMoles} mol of ${givenSub}.`},
+      {ph:'p2',pl:'Bridge 2: Mole Ratio',inst:`Apply mole ratio from balanced equation`,q:`${gMoles} × (${fCoef} ÷ ${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Mole ratio = ${fCoef} mol ${findSub} per ${gCoef} mol ${givenSub}.`,
+       h2:`${gMoles} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}.`,
+       expl:`Excellent! Answer = ${fMoles} mol ${findSub}.`},
+    ]
+  };
+}
+
+// ══ Mole-to-Mass Generator ══
+function genSCMol2Mass(){
+  const inp=parseSCInputs();if(!inp)return null;
+  const{eq,givenSub,givenVal,findSub,gCoef,fCoef}=inp;
+  const fData=calcMMSafe(findSub);
+  if(!fData){showErr(`Cannot calculate molar mass of "${findSub}".`);return null;}
+  const fMM=fData.mm;
+  const fMoles=rnd(givenVal*(fCoef/gCoef),4);
+  const fMass=rnd(fMoles*fMM,3);
+  return{
+    title:`Mole-to-Mass: ${givenSub} → ${findSub}`,
+    stmt:`${eq}. Given ${givenVal} mol of ${givenSub}, how many grams of ${findSub} are produced?`,
+    balancedEq:eq,
+    given:[`Balanced equation: ${eq}`,`Given: ${givenVal} mol ${givenSub}`,`Find: grams of ${findSub}`],
+    final:`${fMass} g ${findSub}`,
+    concept:`Mole-to-Mass uses 2 bridges: mol A → mol B (× mole ratio) → g B (× MM of B).\nChain: ${givenVal} × (${fCoef}/${gCoef}) × ${fMM} = ${fMass} g ${findSub}`,
+    phases:[
+      {k:'p1',l:'Phase 1 — Mole Ratio (Bridge 1)',d:'Convert moles of given to moles of unknown.'},
+      {k:'p2',l:'Phase 2 — Molar Mass & Bridge 2',d:'Convert moles of product to grams.'},
+    ],
+    steps:[
+      {ph:'p1',pl:'Bridge 1: Mole Ratio',inst:`Apply ratio: ${gCoef} mol ${givenSub} : ${fCoef} mol ${findSub}`,q:`${givenVal} × (${fCoef} ÷ ${gCoef}) = ? mol ${findSub}`,exp:String(fMoles),tol:0.05,unit:`mol ${findSub}`,
+       h1:`Multiply given moles by the mole ratio from the balanced equation.`,
+       h2:`${givenVal} × (${fCoef}/${gCoef}) = ${fMoles} mol ${findSub}.`,
+       expl:`Correct! ${fMoles} mol of ${findSub}.`},
+      {ph:'p2',pl:'Molar Mass of Product',inst:`What is the molar mass of ${findSub}?`,q:`Molar mass of ${findSub} = ? g/mol`,exp:String(fMM),tol:0.5,unit:'g/mol',
+       h1:`Look up atomic masses of each element in ${findSub} and sum them up.`,
+       h2:`MM of ${findSub} = ${fMM} g/mol.`,
+       expl:`Correct! MM of ${findSub} = ${fMM} g/mol.`},
+      {ph:'p2',pl:'Bridge 2: mol → g of Product',inst:`Convert ${fMoles} mol ${findSub} to grams`,q:`${fMoles} × ${fMM} = ? g ${findSub}`,exp:String(fMass),tol:0.5,unit:`g ${findSub}`,
+       h1:`Mass = moles × molar mass = ${fMoles} × ${fMM}.`,
+       h2:`${fMoles} × ${fMM} = ${fMass} g ${findSub}.`,
+       expl:`Excellent! Final answer = ${fMass} g ${findSub}.`},
+    ]
+  };
+}
 
 // ═══════════════════════ EQUATION PARSER ═══════════════════════
 function parseEquation(eq){
